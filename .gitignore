@@ -1,0 +1,8 @@
+.DS_Store
+/deps
+/tmp
+/_build
+erl_crash.dump
+*~
+\#*
+.\#*
