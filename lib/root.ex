@@ -1,5 +1,6 @@
 defmodule Root do
-  # use Lazymaru.Router
-  # mount Homemount
-  # mount Homepage2
+  require Homemount
+  use Lazymaru.Router
+
+  mount Homemount
 end

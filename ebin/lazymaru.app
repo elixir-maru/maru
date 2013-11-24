@@ -1,9 +1,0 @@
-{application,lazymaru,
-             [{registered,[]},
-              {description,"lazymaru"},
-              {vsn,"0.0.1"},
-              {modules,['Elixir.Homepage','Elixir.Lazymaru.Router',
-                        'Elixir.Lazymaru.Supervisor','Elixir.Lazymaru',
-                        'Elixir.Recs.Endpoint','Elixir.Recs']},
-              {applications,[kernel,stdlib,elixir]},
-              {mod,{'Elixir.Lazymaru',[]}}]}.
