@@ -25,17 +25,17 @@ defmodule Lazymaru.Router do
       end
   end
 
-  def map_path(path), do: map_path(path, 0, [])
-  def map_path([], _, r), do: r |> Enum.reverse
-  def map_path([h|t], n, r) when is_binary(h) do
+  def map_params_path(path), do: map_params_path(path, 0, [])
+  def map_params_path([], _, r), do: r |> Enum.reverse
+  def map_params_path([h|t], n, r) when is_binary(h) do
     new_path = quote do: var!(unquote("param_#{n}" |> binary_to_atom))
-    map_path(t, n+1, [new_path|r])
+    map_params_path(t, n+1, [new_path|r])
   end
-  def map_path([h|t], n, r) do
-    map_path(t, n, [h|r])
+  def map_params_path([h|t], n, r) do
+    map_params_path(t, n, [h|r])
   end
 
-  defmacro match(Recs.Endpoint[params: []]=ep) do
+  defmacro dispatch(Recs.Endpoint[params: []]=ep) do
     new_block = quote do
       var!(:params) = []
       unquote(ep.block)
@@ -45,8 +45,8 @@ defmodule Lazymaru.Router do
     end
   end
 
-  defmacro match(ep) when is_record(ep, Recs.Endpoint) do
-    path = map_path(ep.path) |> Macro.escape
+  defmacro dispatch(ep) when is_record(ep, Recs.Endpoint) do
+    path = map_params_path(ep.path) |> Macro.escape
     new_block = quote do
       var!(:params) = List.zip [unquote(ep.params), map_params(unquote(length(ep.params)-1))]
       unquote(ep.block)
@@ -69,40 +69,58 @@ defmodule Lazymaru.Router do
   def define_namespace(Recs.Endpoint[block: {:__block__, _, blocks}]=ep) do
     define_endpoint(ep, blocks)
   end
-  def define_namespace(Recs.Endpoint[block: {namespace, _, [path, [do: t]]}]=ep)
+  def define_namespace(Recs.Endpoint[block: {namespace, _, [path, [do: block]]}]=ep)
   when namespace in [:namepsace, :group, :resource, :resources, :segment] do
     new_path = ep.path ++ [path]
     new_ep = ep.update([path: new_path,
-                        block: t
+                        block: block,
                       ])
     define_namespace(new_ep)
   end
-  def define_namespace(Recs.Endpoint[block: {:route_param, _, [param, [do: t]]}]=ep) do
+  def define_namespace(Recs.Endpoint[block: {:route_param, _, [param, [do: block]]}]=ep) do
     new_path = ep.path ++ ["#{param}_#{length(ep.params)}"]
     new_ep = ep.update([path: new_path,
                         params: ep.params ++ [param],
-                        block: t,
+                        block: block,
                       ])
     define_namespace(new_ep)
   end
-  def define_namespace(Recs.Endpoint[block: {method, _, [t]}]=ep)
-  when method in [:get, :post, :put, :option, :header, :delete] do
-    new_ep = ep.update([method: method,
-                        block: t
-                      ])
-    quote do
-      match(unquote(new_ep))
+  def define_namespace(Recs.Endpoint[block: {method, _, blocks}]=ep)
+  when method in [:get, :post, :put, :option, :head, :delete] do
+    case blocks do
+      [path, block] ->
+        new_ep = path |> (String.split "/") |>
+        Enum.reduce ep.update([method: method, block: block]),
+          fn("", ep) -> ep
+            (":" <> param, ep) ->
+              new_path = ep.path ++ ["#{param}_#{length(ep.params)}"]
+              new_params = ep.params ++ [param |> binary_to_atom]
+              ep.update([path: new_path,
+                         params: new_params
+                       ])
+            (path, ep) ->
+              new_path = ep.path ++ [path |> binary_to_atom]
+              ep.update([path: new_path])
+          end
+        quote do
+          dispatch(unquote(new_ep))
+        end
+      [block] ->
+        new_ep = ep.update([method: method, block: block])
+        quote do
+          dispatch(unquote(new_ep))
+        end
     end
   end
-
   def define_namespace(Recs.Endpoint[path: top_path, block: {:mount, _, [{_, _, mod}]}]=ep) do
     lc {m, p, b} inlist Module.safe_concat(mod).endpoints do
       new_path = Macro.escape(top_path ++ p)
       new_ep = ep.update([method: m,
                           path: new_path,
-                          block: b])
+                          block: b,
+                        ])
       quote do
-        match(unquote(new_ep))
+        dispatch(unquote(new_ep))
       end
     end
   end
@@ -126,12 +144,21 @@ defmodule Lazymaru.Router do
     Recs.Endpoint[path: ["param_0"], block: block, params: [param]] |> define_namespace
   end
 
-  defmacro new_namespace(path, [do: block]) do
+  def new_namespace(path, [do: block]) do
     Recs.Endpoint[path: [path], block: block] |> define_namespace
   end
+  defmacro group(path, block),     do: new_namespace(path, block)
+  defmacro resources(path, block), do: new_namespace(path, block)
+  defmacro resource(path, block),  do: new_namespace(path, block)
+  defmacro segment(path, block),   do: new_namespace(path, block)
 
-  defmacro group(path, block), do: quote do: new_namespace(unquote(path), unquote(block))
-  defmacro resources(path, block), do: quote do: new_namespace(unquote(path), unquote(block))
-  defmacro resource(path, block), do: quote do: new_namespace(unquote(path), unquote(block))
-  defmacro segment(path, block), do: quote do: new_namespace(unquote(path), unquote(block))
+  def new_endpoint(method, path, block) do
+    Recs.Endpoint[block: {method, [], [path|block]}] |> define_namespace
+  end
+  defmacro get(path // "", block),    do: new_endpoint(:get, path, block)
+  defmacro post(path // "", block),   do: new_endpoint(:post, path, block)
+  defmacro put(path // "", block),    do: new_endpoint(:put, path, block)
+  defmacro option(path // "", block), do: new_endpoint(:option, path, block)
+  defmacro head(path // "", block),   do: new_endpoint(:head, path, block)
+  defmacro delete(path // "", block), do: new_endpoint(:delete, path, block)
 end

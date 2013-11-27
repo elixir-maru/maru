@@ -6,11 +6,13 @@ defmodule Homemount do
 
   resource :mount_test do
 
-    mount Homepage
-    mount Homepage2
+    # mount Homepage
+    # mount Homepage2
 
-    get do
+    get "test/:a/:b" do
+    # get do
       IO.puts "mount test"
+      IO.inspect params
     end
   end
 end
