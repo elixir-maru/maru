@@ -2,6 +2,8 @@ defmodule Homepage2 do
   use Lazymaru.Router
 
   resource :hp2 do
+    mount Homepage
+
     get do
       IO.puts "hp2 get"
       IO.inspect params

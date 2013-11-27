@@ -1,5 +1,4 @@
 defmodule Homepage do
-  require Homepage2
   use Lazymaru.Router
 
   resource :hp do
@@ -14,8 +13,6 @@ defmodule Homepage do
         IO.inspect params
       end
     end
-
-    mount Homepage2
   end
 
   # resources :hello do

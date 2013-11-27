@@ -10,8 +10,13 @@ defmodule Lazymaru.Router do
   end
 
   defmacro __before_compile__(_) do
-    quote do
+    quote location: :keep, bind_quoted: [] do
       def endpoints, do: @endpoints
+      Enum.each @endpoints, fn {method, path, block} ->
+        def service(unquote(method), unquote(path)) do
+          unquote(block)
+        end
+      end
     end
   end
 
@@ -130,7 +135,7 @@ defmodule Lazymaru.Router do
 
 
   defmacro mount({_, _, mod}) do
-    endpoints = Module.safe_concat(mod).endpoints |> Macro.escape
+    endpoints = Module.concat(mod).endpoints |> Macro.escape
     quote location: :keep, bind_quoted: [endpoints: endpoints] do
       Enum.each endpoints, fn {method, path, block} ->
         def service(unquote(method), unquote(path)) do
