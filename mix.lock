@@ -1,0 +1,3 @@
+[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "9110ee83fe47e4c41b6c001b9ae401979f8ebe4c", []},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "a6626f3b4539b07366034b4953ab2df29e3a9d58", [ref: "0.6.0"]},
+  "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]} ]

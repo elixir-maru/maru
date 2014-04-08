@@ -1,3 +1,0 @@
-# Lazymaru
-
-** TODO: Add description **

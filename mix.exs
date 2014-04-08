@@ -4,18 +4,17 @@ defmodule Lazymaru.Mixfile do
   def project do
     [ app: :lazymaru,
       version: "0.0.1",
-      elixir: "~> 0.11.0",
-      deps: deps ]
+      deps: deps
+    ]
   end
 
-  # Configuration for the OTP application
   def application do
-    [mod: { Lazymaru, [] }]
+    [ mod: { Lazymaru, [] },
+      applications: [ :cowboy ]
+    ]
   end
 
-  # Returns the list of dependencies in the format:
-  # { :foobar, "~> 0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
-    []
+    [{ :cowboy, github: "extend/cowboy" }]
   end
 end
