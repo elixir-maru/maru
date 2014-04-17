@@ -1,3 +1,54 @@
-** Lazymaru is a Elixir copy of [[http://intridea.github.io/grape/][grape]], which is an opinionated micro-framework for creating REST-like APIs in Ruby
+#+TITLE: Lazymaru is a Elixir copy of [[http://intridea.github.io/grape/][grape]], which is an opinionated micro-framework for creating REST-like APIs in Ruby
 
-** In Development
+** Lazymaru
+a Elixir copy of [[http://intridea.github.io/grape/][grape]], which is an opinionated micro-framework for creating REST-like APIs in Ruby.
+In Development.
+
+** Usage
+#+BEGIN_SRC elixir
+defmodule Router.User do
+  use Lazymaru.Router
+
+  namespace :user do
+    route_param :id do
+      get do
+        [ user: params[:id] ] |> json
+      end
+
+      post do
+        ...
+      end
+    end
+  end
+end
+
+defmodule Router.Homepage do
+  use Lazymaru.Router
+  require Router.User
+
+  resources do
+    get do
+      [ hello: :world ] |> json
+    end
+
+    mount Router.User
+  end
+end
+
+defmodule MyAPP.API do
+  use Lazymaru.Server
+
+  port 8880
+  rest Router.Homepage
+  static "/static", "/my/static/path/"
+end
+
+MyAPP.API.start
+#+END_SRC
+
+** TODO_LIST
+- [ ] realtime connection by sockjs
+- [ ] params DSL
+- [ ] header DSL
+- [ ] cookie DSL
+- [ ] generate docs by desc DSL
