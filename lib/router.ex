@@ -126,6 +126,7 @@ defmodule Lazymaru.Router do
   defmacro resources(path \\ "", block), do: new_namespace(path, block)
   defmacro resource(path \\ "", block),  do: new_namespace(path, block)
   defmacro segment(path \\ "", block),   do: new_namespace(path, block)
+  defmacro namespace(path \\ "", block),   do: new_namespace(path, block)
 
 
   def new_endpoint(method, "", block) do
@@ -140,4 +141,13 @@ defmodule Lazymaru.Router do
   defmacro option(path \\ "", block), do: new_endpoint(:option, path, block)
   defmacro head(path \\ "", block),   do: new_endpoint(:head, path, block)
   defmacro delete(path \\ "", block), do: new_endpoint(:delete, path, block)
+
+  defmacro mount({_, _, mod}) do
+    lc {m, path, params, b} inlist Module.safe_concat(mod).endpoints do
+      block = b |> Macro.escape
+      quote do
+        @endpoints {unquote(m), unquote(path), unquote(params), unquote(block)}
+      end
+    end
+  end
 end
