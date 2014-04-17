@@ -104,19 +104,22 @@ defmodule Lazymaru.Server do
 
   defmacro json(reply) do
     quote do
-      :cowboy_req.reply(200, [{'Content-Type', 'application/json'}], unquote(reply) |> JSON.encode!, var!(req))
+      :cowboy_req.set_resp_header("Content-Type", "text/html", var!(req))
+      :cowboy_req.reply(200, [], unquote(reply) |> JSON.encode!, var!(req))
     end
   end
 
   defmacro html(reply) do
     quote do
-      :cowboy_req.reply(200, [{'Content-Type', 'text/html'}], unquote(reply), var!(req))
+      :cowboy_req.set_resp_header("Content-Type", "text/html", var!(req))
+      :cowboy_req.reply(200, [], unquote(reply), var!(req))
     end
   end
 
   defmacro text(reply) do
     quote do
-      :cowboy_req.reply(200, [{'Content-Type', 'text/plain'}], unquote(reply), var!(req))
+      :cowboy_req.set_resp_header("Content-Type", "text/plain", var!(req))
+      :cowboy_req.reply(200, [], unquote(reply), var!(req))
     end
   end
 end
