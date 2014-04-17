@@ -11,55 +11,10 @@ defmodule Lazymaru.Router do
     end
   end
 
+
   defmacro __before_compile__(_) do
     quote do
       def endpoints, do: @endpoints
-    end
-  end
-
-  defmacro map_params(n) do
-    Enum.map 0..n,
-      fn(x) ->
-          param_name = :"param_#{x}"
-          quote do
-            var!(unquote param_name)
-          end
-      end
-  end
-
-  def map_params_path(path), do: map_params_path(path, 0, [])
-  def map_params_path([], _, r), do: r |> Enum.reverse
-  # def map_params_path([h|t], n, r) when is_atom(h) do
-  def map_params_path([:param|t], n, r) do
-    new_path = quote do: var!(unquote :"param_#{n}")
-    map_params_path(t, n+1, [new_path|r])
-  end
-  def map_params_path([h|t], n, r) do
-    map_params_path(t, n, [h|r])
-  end
-
-  defmacro dispatch({method, path, [], block}) do
-    new_block = quote do
-      var!(:params) = []
-      unquote(block)
-    end
-    quote do
-      def service(unquote(method), unquote(path), var!(unquote :req)) do
-        unquote(new_block)
-      end
-    end
-  end
-
-  defmacro dispatch({method, path, params, block}) do
-    new_path = map_params_path(path)
-    new_block = quote do
-      var!(:params) = List.zip [unquote(params), map_params(unquote(length(params)-1))]
-      unquote(block)
-    end
-    quote do
-      def service(unquote(method), unquote(new_path), var!(unquote :req)) do
-        unquote(new_block)
-      end
     end
   end
 
@@ -74,6 +29,7 @@ defmodule Lazymaru.Router do
                  }
     end
   end
+
 
   def define_endpoint(ep, blocks), do: define_endpoint(ep, blocks, [])
   def define_endpoint(_, [], r), do: r
@@ -99,7 +55,6 @@ defmodule Lazymaru.Router do
   end
 
   def define_namespace(Endpoint[block: {:route_param, _, [param, [do: block]]}]=ep) do
-    # new_path = ep.path ++ [:"param_#{length ep.params}"]
     new_path = ep.path ++ [:param]
     new_ep = ep.update([path: new_path,
                         params: ep.params ++ [param],
@@ -116,7 +71,6 @@ defmodule Lazymaru.Router do
         Enum.reduce ep.update([method: method, block: block]),
           fn("", ep) -> ep
             (":" <> param, ep) ->
-              # new_path = ep.path ++ [:"param_#{length ep.params}"]
               new_path = ep.path ++ [:param]
               new_params = ep.params ++ [:"#{param}"]
               ep.update([path: new_path,
@@ -157,19 +111,10 @@ defmodule Lazymaru.Router do
   end
 
 
-  defmacro mount({_, _, mod}) do
-    endpoints = Module.concat(mod).endpoints
-    lc i inlist endpoints do
-      quote do
-        dispatch(unquote(i))
-      end
-    end
-  end
-
   defmacro route_param(param, [do: block]) do
-    # Endpoint[path: [:"param_0"], block: block, params: [param]] |> define_namespace
     Endpoint[path: [:param], block: block, params: [param]] |> define_namespace
   end
+
 
   def new_namespace("", [do: block]) do
     Endpoint[path: [], block: block] |> define_namespace
@@ -181,6 +126,7 @@ defmodule Lazymaru.Router do
   defmacro resources(path \\ "", block), do: new_namespace(path, block)
   defmacro resource(path \\ "", block),  do: new_namespace(path, block)
   defmacro segment(path \\ "", block),   do: new_namespace(path, block)
+
 
   def new_endpoint(method, "", block) do
     Endpoint[block: {method, [], [block]}] |> define_namespace
