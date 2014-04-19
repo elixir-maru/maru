@@ -25,7 +25,7 @@ defmodule Lazymaru.Server do
             { "#{m.path}/[...]", m, [] }
           end
           ++ [{"/[...]", Plug.Adapters.Cowboy.Handler, {Lazymaru.Handler, __MODULE__} }]
-        Plug.Adapters.Cowboy.http Lazymaru.Handler, nil, [port: @port, dispatch: [{:_, dispatch}]]
+        Plug.Adapters.Cowboy.http nil, nil, [port: @port, ref: Lazymaru.HTTP, dispatch: [{:_, dispatch}]]
       end
     end
   end
