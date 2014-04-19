@@ -2,6 +2,7 @@ defmodule Lazymaru.Server do
 
   defmacro __using__(_) do
     quote do
+      import Plug.Connection
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__,
              :socks, accumulate: true, persist: false
@@ -10,6 +11,7 @@ defmodule Lazymaru.Server do
       @before_compile unquote(__MODULE__)
     end
   end
+
 
   defmacro __before_compile__(_) do
     quote do
@@ -22,18 +24,19 @@ defmodule Lazymaru.Server do
           lc m inlist @socks do
             { "#{m.path}/[...]", m, [] }
           end
-          ++ [{"/[...]", Lazymaru.Handler, __MODULE__}]
-        dispatch = [{:_, dispatch}] |> :cowboy_router.compile
-        :cowboy.start_http(:cowboy_http_listener, 100, [port: @port], [env: [dispatch: dispatch]])
+          ++ [{"/[...]", Plug.Adapters.Cowboy.Handler, {Lazymaru.Handler, __MODULE__} }]
+        Plug.Adapters.Cowboy.http Lazymaru.Handler, nil, [port: @port, dispatch: [{:_, dispatch}]]
       end
     end
   end
+
 
   defmacro port(port_num) do
     quote do
       @port unquote(port_num)
     end
   end
+
 
   defmacro rest({_, _, mod}) do
     endpoints = Module.concat(mod).endpoints
@@ -44,6 +47,7 @@ defmodule Lazymaru.Server do
     end
   end
 
+
   defmacro sock({_, _, mod}) do
     m = Module.concat(mod)
     quote do
@@ -51,12 +55,15 @@ defmodule Lazymaru.Server do
     end
   end
 
+
   defmacro static(url_path, sys_path) do
     quote do
       @statics { unquote(url_path), unquote(sys_path) }
     end
   end
 
+
+  defmacro map_params(n) when n < 0, do: []
   defmacro map_params(n) do
     Enum.map 0..n,
       fn(x) ->
@@ -66,6 +73,7 @@ defmodule Lazymaru.Server do
           end
       end
   end
+
 
   def map_params_path(path), do: map_params_path(path, 0, [])
   def map_params_path([], _, r), do: r |> Enum.reverse
@@ -77,49 +85,44 @@ defmodule Lazymaru.Server do
     map_params_path(t, n, [h|r])
   end
 
-  defmacro dispatch({method, path, [], block}) do
-    new_block = quote do
-      var!(:params) = []
-      unquote(block)
-    end
-    quote do
-      def service(unquote(method), unquote(path), var!(unquote :req)) do
-        unquote(new_block)
-      end
-    end
-  end
 
-  defmacro dispatch({method, path, params, block}) do
+  defmacro dispatch({method, path, params, [do: block]}) do
     new_path = map_params_path(path)
     new_block = quote do
       var!(:params) = List.zip [unquote(params), map_params(unquote(length(params)-1))]
       unquote(block)
     end
     quote do
-      def service(unquote(method), unquote(new_path), var!(unquote :req)) do
+      def service(unquote(method), unquote(new_path), var!(unquote :conn)) do
         unquote(new_block)
       end
     end
   end
 
+
   defmacro json(reply) do
     quote do
-      :cowboy_req.set_resp_header("Content-Type", "text/html", var!(req))
-      :cowboy_req.reply(200, [], unquote(reply) |> JSON.encode!, var!(req))
+      var!(conn)
+   |> put_resp_content_type("application/json")
+   |> send_resp(200, unquote(reply) |> JSON.encode!)
     end
   end
+
 
   defmacro html(reply) do
     quote do
-      :cowboy_req.set_resp_header("Content-Type", "text/html", var!(req))
-      :cowboy_req.reply(200, [], unquote(reply), var!(req))
+      var!(conn)
+   |> put_resp_content_type("text/html")
+   |> send_resp(200, unquote(reply))
     end
   end
 
+
   defmacro text(reply) do
     quote do
-      :cowboy_req.set_resp_header("Content-Type", "text/plain", var!(req))
-      :cowboy_req.reply(200, [], unquote(reply), var!(req))
+      var!(conn)
+   |> put_resp_content_type("text/plain")
+   |> send_resp(200, unquote(reply))
     end
   end
 end

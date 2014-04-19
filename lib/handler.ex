@@ -1,25 +1,13 @@
 defmodule Lazymaru.Handler do
-  def init(_tran, req, service) do
-    {:ok, req, service}
-  end
+  import Plug.Connection
 
-  def handle(req, mod) do
-    {method, _} = :cowboy_req.method(req)
-    method = method |> String.downcase |> binary_to_atom
-    {path, _} = :cowboy_req.path_info(req)
-    # TODO rescue 404
+  def call(conn, mod) do
+    method = conn.method |> String.downcase |> binary_to_atom
     try do
-      case mod.service(method, path, req) do
-        {:ok, new_req} -> {:ok, new_req, mod}
-        _ -> {:ok, req, mod}
-      end
+      mod.service(method, conn.path_info, conn)
     rescue
       FunctionClauseError ->
-        IO.puts "404 NotFound: #{path}"
+        conn |> put_resp_content_type("text/plain") |> send_resp(404, "Not Found")
     end
-  end
-
-  def terminate(_, _, _) do
-    :ok
   end
 end
