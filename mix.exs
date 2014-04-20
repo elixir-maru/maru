@@ -10,12 +10,12 @@ defmodule Lazymaru.Mixfile do
 
   def application do
     [ mod: { Lazymaru, [] },
-      applications: [ :cowboy ]
+      applications: [ :cowboy, :plug ]
     ]
   end
 
   defp deps do
-    [ { :cowboy, github: "extend/cowboy" },
+    [ { :cowboy, "~> 0.9", github: "extend/cowboy", ref: "5a25c7f", override: true},
       { :plug,   github: "elixir-lang/plug" },
       { :json,   github: "cblage/elixir-json" },
     ]
