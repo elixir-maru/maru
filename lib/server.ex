@@ -86,15 +86,13 @@ defmodule Lazymaru.Server do
   end
 
 
-  defmacro dispatch({method, path, params, [do: block]}) do
+  defmacro dispatch({method, path, params, [do: block], params_block}) do
     new_path = map_params_path(path)
-    new_block = quote do
-      var!(:params) = List.zip [unquote(params), map_params(unquote(length(params)-1))]
-      unquote(block)
-    end
     quote do
       def service(unquote(method), unquote(new_path), var!(unquote :conn)) do
-        unquote(new_block)
+        var!(:params) = List.zip [unquote(params), map_params(unquote(length(params)-1))]
+        unquote(params_block)
+        unquote(block)
       end
     end
   end
@@ -123,6 +121,52 @@ defmodule Lazymaru.Server do
       var!(conn)
    |> put_resp_content_type("text/plain")
    |> send_resp(200, unquote(reply))
+    end
+  end
+
+
+  def parse_param(value, param, option) do
+    try do
+      Module.safe_concat(LazyParamType, option[:type]).from(value)
+    rescue
+      _ -> LazyException.InvalidFormatter
+        |> raise [reason: :illegal, param: param, option: option]
+    end |> check_param(param, option)
+  end
+
+
+  def check_param(value, param, option) do
+    [ regexp: fn(x) -> Regex.match?(x |> to_string, value) end,
+      range: fn(x) -> Enum.member?(x, value) end,
+    ] |> check_param(value, param, option)
+  end
+  def check_param([], value, param, _), do: [{param, value}]
+  def check_param([{k, f}|t], value, param, option) do
+    if Dict.has_key?(option, k) and not f.(option[k]) do
+      LazyException.InvalidFormatter |> raise [reason: :unformatted, param: param, option: option]
+    end
+    check_param(t, value, param, option)
+  end
+
+
+  defmacro requires(param, option) do
+    quote do
+      case var!(:conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
+        nil -> LazyException.InvalidFormatter
+            |> raise [reason: :required, param: unquote(param), option: unquote(option)]
+        v   -> var!(:params) = var!(:params)
+            |> Dict.merge parse_param(v, unquote(param), unquote(option))
+      end
+    end
+  end
+
+  defmacro optional(param, option) do
+    quote do
+      case var!(:conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
+        nil -> nil
+        v   -> var!(:params) = var!(:params)
+            |> Dict.merge parse_param(v, unquote(param), unquote(option))
+      end
     end
   end
 end

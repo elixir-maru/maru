@@ -1,5 +1,7 @@
 defmodule Lazymaru.Router do
-  defrecord Endpoint, method: nil, path: [], block: nil, desc: "", params: []
+  defrecord Endpoint, [ method: nil, path: [], desc: "", params: [],
+                        block: nil, params_block: nil,
+                      ]
 
   defmacro __using__(_) do
     quote do
@@ -20,12 +22,10 @@ defmodule Lazymaru.Router do
 
 
   defmacro endpoint(ep) do
-    new_block = ep.block |> Macro.escape
     quote do
-      @endpoints { unquote(ep.method),
-                   unquote(ep.path),
-                   unquote(ep.params),
-                   unquote(new_block),
+      @endpoints { unquote(ep.method), unquote(ep.path), unquote(ep.params),
+                   unquote(ep.block |> Macro.escape),
+                   unquote(ep.params_block |> Macro.escape),
                  }
     end
   end
@@ -36,8 +36,15 @@ defmodule Lazymaru.Router do
   def define_endpoint(ep, [{:desc, _, [desc]}|t], r) do
     define_endpoint(ep.desc(desc), t, r)
   end
+  def define_endpoint(ep, [{:params, _, [[do: block]]}|t], r) do
+    quote do
+      var!(:conn) = Plug.Parsers.call(var!(:conn), [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART], limit: 80_000_000])
+      unquote(block)
+    end |> ep.params_block |> define_endpoint(t, r)
+  end
   def define_endpoint(ep, [h|t], r) do
-    define_endpoint(ep.desc(""), t, [ep.block(h) |> define_namespace | r])
+    new_r = ep.block(h) |> define_namespace
+    [desc: "", params_block: nil] |> ep.update |> define_endpoint(t, [new_r | r])
   end
 
 
@@ -48,17 +55,17 @@ defmodule Lazymaru.Router do
   def define_namespace(Endpoint[block: {namespace, _, [path, [do: block]]}]=ep)
   when namespace in [:namepsace, :group, :resource, :resources, :segment] do
     new_path = ep.path ++ [path |> to_string]
-    new_ep = ep.update([path: new_path,
-                        block: block,
+    new_ep = ep.update([ path: new_path,
+                         block: block,
                       ])
     define_namespace(new_ep)
   end
 
   def define_namespace(Endpoint[block: {:route_param, _, [param, [do: block]]}]=ep) do
     new_path = ep.path ++ [:param]
-    new_ep = ep.update([path: new_path,
-                        params: ep.params ++ [param],
-                        block: block,
+    new_ep = ep.update([ path: new_path,
+                         params: ep.params ++ [param],
+                         block: block,
                       ])
     define_namespace(new_ep)
   end
@@ -143,10 +150,11 @@ defmodule Lazymaru.Router do
   defmacro delete(path \\ "", block), do: new_endpoint(:delete, path, block)
 
   defmacro mount({_, _, mod}) do
-    lc {m, path, params, b} inlist Module.safe_concat(mod).endpoints do
-      block = b |> Macro.escape
+    lc {method, path, params, block, params_block} inlist Module.safe_concat(mod).endpoints do
       quote do
-        @endpoints {unquote(m), unquote(path), unquote(params), unquote(block)}
+        @endpoints { unquote(method), unquote(path), unquote(params),
+                     unquote(block |> Macro.escape), unquote(params_block |> Macro.escape),
+                   }
       end
     end
   end

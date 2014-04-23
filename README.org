@@ -15,6 +15,13 @@ defmodule Router.User do
         [ user: params[:id] ] |> json
       end
 
+      desc "description"
+      params do
+        requires :age,    [type: Integer, range: 18..65]
+        requires :sex,    [type: Atom, default: :female]
+        optional :intro,  [type: String, regexp: ~r/^[a-z]+$/]
+        optional :avatar, [type: File]
+      end
       post do
         ...
       end
@@ -48,7 +55,8 @@ MyAPP.API.start
 
 ** TODO_LIST
 - [ ] realtime connection by sockjs
-- [ ] params DSL
+- [X] params DSL
 - [ ] header DSL
 - [ ] cookie DSL
 - [ ] generate docs by desc DSL
+- [ ] middleware support
