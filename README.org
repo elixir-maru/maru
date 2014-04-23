@@ -1,6 +1,4 @@
-#+TITLE: Lazymaru is a Elixir copy of [[http://intridea.github.io/grape/][grape]], which is an opinionated micro-framework for creating REST-like APIs in Ruby
-
-** Lazymaru
+** Lazymaru [[https://travis-ci.org/falood/lazymaru/][file:https://api.travis-ci.org/falood/lazymaru.png?branch=dev]]
 a Elixir copy of [[http://intridea.github.io/grape/][grape]], which is an opinionated micro-framework for creating REST-like APIs in Ruby.
 In Development.
 
