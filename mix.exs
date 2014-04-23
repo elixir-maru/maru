@@ -3,7 +3,8 @@ defmodule Lazymaru.Mixfile do
 
   def project do
     [ app: :lazymaru,
-      version: "0.0.1",
+      version: "0.0.2",
+      elixir: "~> 0.13.0",
       deps: deps
     ]
   end

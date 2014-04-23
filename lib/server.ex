@@ -2,7 +2,7 @@ defmodule Lazymaru.Server do
 
   defmacro __using__(_) do
     quote do
-      import Plug.Connection
+      import Plug.Conn
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__,
              :socks, accumulate: true, persist: false
@@ -17,11 +17,11 @@ defmodule Lazymaru.Server do
     quote do
       def start do
         dispatch =
-          lc {url_path, sys_path} inlist @statics do
+          for {url_path, sys_path} <- @statics do
             { "#{url_path}/[...]", :cowboy_static, {:dir, sys_path} }
           end
           ++
-          lc m inlist @socks do
+          for m <- @socks do
             { "#{m.path}/[...]", m, [] }
           end
           ++ [{"/[...]", Plug.Adapters.Cowboy.Handler, {Lazymaru.Handler, __MODULE__} }]
@@ -40,7 +40,7 @@ defmodule Lazymaru.Server do
 
   defmacro rest({_, _, mod}) do
     endpoints = Module.concat(mod).endpoints
-    lc i inlist endpoints do
+    for i <- endpoints do
       quote do
         dispatch(unquote i)
       end

@@ -1,5 +1,10 @@
 defmodule Lazymaru.Handler do
-  import Plug.Connection
+  import Plug.Conn
+
+  def init(option) do
+    option
+  end
+
 
   def call(conn, mod) do
     method = conn.method |> String.downcase |> binary_to_atom

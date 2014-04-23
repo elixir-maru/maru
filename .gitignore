@@ -7,5 +7,6 @@ erl_crash.dump
 *~
 \#*
 .\#*
+mix.lock
 
 venv
