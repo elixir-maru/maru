@@ -39,11 +39,35 @@ defmodule Router.Homepage do
   end
 end
 
+defmodule MyHook do
+  use Lazymaru.Hook
+
+  def before(conn) do
+    IO.puts "before"
+    conn
+  end
+
+  def call(conn, app) do
+    try do
+      app.(conn)
+    rescue
+      _ ->
+        conn |> put_resp_content_type("text/plain") |> send_resp(404, "Not Found")
+    end
+  end
+
+  def finish(conn) do
+    IO.puts "finish"
+    conn
+  end
+end
+
 defmodule MyAPP.API do
   use Lazymaru.Server
 
   port 8880
   rest Router.Homepage
+  hook MyHook
   static "/static", "/my/static/path/"
 end
 
@@ -56,4 +80,4 @@ MyAPP.API.start
 - [ ] header DSL
 - [ ] cookie DSL
 - [ ] generate docs by desc DSL
-- [ ] middleware support
+- [X] hook support

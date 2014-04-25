@@ -1,4 +1,10 @@
 defmodule LazyHelper.Params do
+  defmacro __using__(_) do
+    quote do
+      import unquote(__MODULE__)
+    end
+  end
+
   def parse_param(value, param, option) do
     try do
       Module.safe_concat(LazyParamType, option[:type]).from(value)

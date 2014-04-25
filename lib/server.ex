@@ -1,14 +1,15 @@
 defmodule Lazymaru.Server do
-
   defmacro __using__(_) do
     quote do
-      import Plug.Conn
-      import LazyHelper.Params
+      use LazyHelper.Params
+      use LazyHelper.Response
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__,
              :socks, accumulate: true, persist: false
       Module.register_attribute __MODULE__,
              :statics, accumulate: true, persist: false
+      Module.register_attribute __MODULE__,
+             :hooks, accumulate: true, persist: false
       @before_compile unquote(__MODULE__)
     end
   end
@@ -17,16 +18,21 @@ defmodule Lazymaru.Server do
   defmacro __before_compile__(_) do
     quote do
       def start do
-        dispatch =
-          for {url_path, sys_path} <- @statics do
-            { "#{url_path}/[...]", :cowboy_static, {:dir, sys_path} }
-          end
-          ++
-          for m <- @socks do
-            { "#{m.path}/[...]", m, [] }
-          end
-          ++ [{"/[...]", Plug.Adapters.Cowboy.Handler, {Lazymaru.Handler, __MODULE__} }]
-        Plug.Adapters.Cowboy.http nil, nil, [port: @port, ref: Lazymaru.HTTP, dispatch: [{:_, dispatch}]]
+        :application.start(:crypto)
+        :application.start(:ranch)
+        :application.start(:cowlib)
+        :application.start(:cowboy)
+         dispatch =
+           [ for {url_path, sys_path} <- @statics do
+               { "#{url_path}/[...]", :cowboy_static, {:dir, sys_path} }
+             end,
+             for m <- @socks do
+               { "#{m.path}/[...]", m, [] }
+             end,
+             [{"/[...]", Lazymaru.Handler, %{mod: __MODULE__, hooks: @hooks}}]
+           ] |> List.flatten
+         dispatch = [{:_, dispatch}] |> :cowboy_router.compile
+        :cowboy.start_http(Lazymaru.HTTP, 100, [port: @port], [env: [dispatch: dispatch]])
       end
     end
   end
@@ -60,6 +66,14 @@ defmodule Lazymaru.Server do
   defmacro static(url_path, sys_path) do
     quote do
       @statics { unquote(url_path), unquote(sys_path) }
+    end
+  end
+
+
+  defmacro hook({_, _, mod}) do
+    m = Module.concat(mod)
+    quote do
+      @hooks unquote(m)
     end
   end
 
@@ -98,30 +112,4 @@ defmodule Lazymaru.Server do
     end
   end
 
-
-  defmacro json(reply) do
-    quote do
-      var!(conn)
-   |> put_resp_content_type("application/json")
-   |> send_resp(200, unquote(reply) |> JSON.encode!)
-    end
-  end
-
-
-  defmacro html(reply) do
-    quote do
-      var!(conn)
-   |> put_resp_content_type("text/html")
-   |> send_resp(200, unquote(reply))
-    end
-  end
-
-
-  defmacro text(reply) do
-    quote do
-      var!(conn)
-   |> put_resp_content_type("text/plain")
-   |> send_resp(200, unquote(reply))
-    end
-  end
 end
