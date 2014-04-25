@@ -69,7 +69,7 @@ defmodule Lazymaru.Router do
   when method in [:get, :post, :put, :option, :head, :delete] do
     case blocks do
       [path, block] ->
-        new_ep = path |> String.split("/") |>
+        new_ep = path |> to_string |> String.split("/") |>
         Enum.reduce %{ep | method: method, block: block},
           fn("", ep) -> ep
             (":" <> param, ep) ->
@@ -91,10 +91,14 @@ defmodule Lazymaru.Router do
   end
 
   def define_namespace(%Endpoint{block: {:mount, _, [{_, _, mod}]}}=ep) do
-    for {m, path, params, b} <- Module.safe_concat(mod).endpoints do
+    module = Module.concat(mod)
+    quote do
+      require unquote(module)
+    end
+    for {method, path, params, block} <- module.endpoints do
       new_path = ep.path ++ path
       new_params = ep.params ++ params
-      new_ep = %{ep | method: m, path: new_path, params: new_params, block: b}
+      new_ep = %{ep | method: method, path: new_path, params: new_params, block: block}
       quote do
         endpoint(unquote(new_ep))
       end
@@ -138,7 +142,11 @@ defmodule Lazymaru.Router do
   defmacro delete(path \\ "", block), do: new_endpoint(:delete, path, block)
 
   defmacro mount({_, _, mod}) do
-    for {method, path, params, block, params_block} <- Module.safe_concat(mod).endpoints do
+    module = Module.concat(mod)
+    quote do
+      require unquote(module)
+    end
+    for {method, path, params, block, params_block} <- module.endpoints do
       quote do
         @endpoints { unquote(method), unquote(path), unquote(params),
                      unquote(block |> Macro.escape), unquote(params_block |> Macro.escape),

@@ -29,7 +29,6 @@ end
 
 defmodule Router.Homepage do
   use Lazymaru.Router
-  require Router.User
 
   resources do
     get do
