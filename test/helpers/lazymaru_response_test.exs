@@ -10,6 +10,7 @@ defmodule LazyHelper.ResponseTest do
     conn = [hello: :world] |> json
     assert conn.state == :sent
     assert conn.status == 200
+    assert get_resp_header(conn, "content-type") == ["application/json; charset=utf-8"]
     assert conn.resp_body == ~s({"hello":"world"})
   end
 
@@ -18,6 +19,7 @@ defmodule LazyHelper.ResponseTest do
     conn = "<html>hello world<html>" |> html
     assert conn.state == :sent
     assert conn.status == 200
+    assert get_resp_header(conn, "content-type") == ["text/html; charset=utf-8"]
     assert conn.resp_body == "<html>hello world<html>"
   end
 
@@ -26,6 +28,7 @@ defmodule LazyHelper.ResponseTest do
     conn = "hello world" |> text
     assert conn.state == :sent
     assert conn.status == 200
+    assert get_resp_header(conn, "content-type") == ["text/plain; charset=utf-8"]
     assert conn.resp_body == "hello world"
   end
 end
