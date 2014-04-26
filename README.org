@@ -15,10 +15,10 @@ defmodule Router.User do
 
       desc "description"
       params do
-        requires :age,    [type: Integer, range: 18..65]
-        requires :sex,    [type: Atom, default: :female]
-        optional :intro,  [type: String, regexp: ~r/^[a-z]+$/]
-        optional :avatar, [type: File]
+        requires :age,    type: Integer, range: 18..65
+        requires :sex,    type: Atom, default: :female
+        optional :intro,  type: String, regexp: ~r/^[a-z]+$/
+        optional :avatar, type: File
       end
       post do
         ...
