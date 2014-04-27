@@ -1,4 +1,7 @@
 defmodule Lazymaru.Router do
+  @methods [:get, :post, :put, :option, :head, :delete]
+  @namespaces [:namepsace, :group, :resource, :resources, :segment]
+
   defmodule Endpoint do
      [ method: nil, path: [], desc: "", params: [],
        block: nil, params_block: nil,
@@ -11,6 +14,7 @@ defmodule Lazymaru.Router do
       Module.register_attribute __MODULE__,
              :endpoints, accumulate: true, persist: false
 
+      @params_block nil
       @before_compile unquote(__MODULE__)
     end
   end
@@ -27,8 +31,9 @@ defmodule Lazymaru.Router do
     quote do
       @endpoints { unquote(ep.method), unquote(ep.path), unquote(ep.params),
                    unquote(ep.block |> Macro.escape),
-                   unquote(ep.params_block |> Macro.escape),
+                   @params_block || unquote(ep.params_block |> Macro.escape),
                  }
+      @params_block nil
     end
   end
 
@@ -56,7 +61,7 @@ defmodule Lazymaru.Router do
   end
 
   def define_namespace(%Endpoint{block: {namespace, _, [path, [do: block]]}}=ep)
-  when namespace in [:namepsace, :group, :resource, :resources, :segment] do
+  when namespace in @namespaces do
     %{ep | path: ep.path ++ [path |> to_string], block: block} |> define_namespace
   end
 
@@ -66,7 +71,7 @@ defmodule Lazymaru.Router do
   end
 
   def define_namespace(%Endpoint{block: {method, _, blocks}}=ep)
-  when method in [:get, :post, :put, :option, :head, :delete] do
+  when method in @methods do
     case blocks do
       [path, block] ->
         new_ep = path |> to_string |> String.split("/") |>
@@ -115,31 +120,40 @@ defmodule Lazymaru.Router do
   end
 
 
-  def new_namespace("", [do: block]) do
-    %Endpoint{path: [], block: block} |> define_namespace
-  end
-  def new_namespace(path, [do: block]) do
-    %Endpoint{path: [path |> to_string], block: block} |> define_namespace
-  end
-  defmacro group(path \\ "", block),     do: new_namespace(path, block)
-  defmacro resources(path \\ "", block), do: new_namespace(path, block)
-  defmacro resource(path \\ "", block),  do: new_namespace(path, block)
-  defmacro segment(path \\ "", block),   do: new_namespace(path, block)
-  defmacro namespace(path \\ "", block),   do: new_namespace(path, block)
+  Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
+    quote do
+      defmacro unquote(namespace)(path \\ "", [do: block]) do
+        ep = %Endpoint{path: [to_string(path)], block: block}
+        quote do
+          unquote(define_namespace ep)
+        end
+      end
+    end
+  end)
 
 
-  def new_endpoint(method, "", block) do
-    %Endpoint{block: {method, [], [block]}} |> define_namespace
+  Module.eval_quoted __MODULE__, (for method <- @methods do
+    quote do
+      defmacro unquote(method)(path \\ "", block) do
+        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | block]}}
+        quote do
+          unquote(define_namespace ep)
+        end
+      end
+    end
+  end)
+
+
+  defmacro params([do: block]) do
+    new_params_block = quote do
+      var!(:conn) = var!(:conn) |> Plug.Parsers.call([parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART], limit: 80_000_000])
+      unquote(block)
+    end
+    quote do
+      @params_block unquote(new_params_block |> Macro.escape)
+    end
   end
-  def new_endpoint(method, path, block) do
-    %Endpoint{block: {method, [], [path |> to_string | block]}} |> define_namespace
-  end
-  defmacro get(path \\ "", block),    do: new_endpoint(:get, path, block)
-  defmacro post(path \\ "", block),   do: new_endpoint(:post, path, block)
-  defmacro put(path \\ "", block),    do: new_endpoint(:put, path, block)
-  defmacro option(path \\ "", block), do: new_endpoint(:option, path, block)
-  defmacro head(path \\ "", block),   do: new_endpoint(:head, path, block)
-  defmacro delete(path \\ "", block), do: new_endpoint(:delete, path, block)
+
 
   defmacro mount({_, _, mod}) do
     module = Module.concat(mod)
