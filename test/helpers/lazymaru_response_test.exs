@@ -31,4 +31,17 @@ defmodule LazyHelper.ResponseTest do
     assert get_resp_header(conn, "content-type") == ["text/plain; charset=utf-8"]
     assert conn.resp_body == "hello world"
   end
+
+  test "header" do
+    conn = conn(:get, "/", nil, headers: [{"foo", "bar"}])
+    assert headers["foo"] == "bar"
+    header("baz", "foo")
+    assert conn.resp_headers["baz"] == "foo"
+  end
+
+  test "assign" do
+    conn = conn(:get, "/")
+    assign(:foo, "bar")
+    assert assigns == %{foo: "bar"}
+  end
 end
