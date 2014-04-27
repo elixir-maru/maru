@@ -122,7 +122,13 @@ defmodule Lazymaru.Router do
 
   Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
     quote do
-      defmacro unquote(namespace)(path \\ "", [do: block]) do
+      defmacro unquote(namespace)([do: block]) do
+        ep = %Endpoint{path: [], block: block}
+        quote do
+          unquote(define_namespace ep)
+        end
+      end
+      defmacro unquote(namespace)(path, [do: block]) do
         ep = %Endpoint{path: [to_string(path)], block: block}
         quote do
           unquote(define_namespace ep)
