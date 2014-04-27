@@ -77,7 +77,7 @@ MyAPP.API.start
 ** TODO_LIST
 - [ ] realtime connection by sockjs
 - [X] params DSL
-- [ ] header DSL
-- [ ] cookie DSL
+- [X] header DSL
+- [X] assign DSL
 - [ ] generate docs by desc DSL
 - [X] hook support
