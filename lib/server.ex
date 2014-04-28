@@ -105,7 +105,8 @@ defmodule Lazymaru.Server do
     new_path = map_params_path(path)
     quote do
       def service(unquote(method), unquote(new_path), var!(unquote :conn)) do
-        var!(:params) = [unquote(params), map_params(unquote(length(params)-1))] |> List.zip |> Map.new
+        var!(:params) = [ unquote(params), map_params(unquote(length(params)-1))
+                        ] |> List.zip |> Enum.into %{}
         unquote(params_block)
         unquote(block)
       end

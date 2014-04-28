@@ -34,9 +34,9 @@ defmodule LazyHelper.ResponseTest do
 
   test "header" do
     conn = conn(:get, "/", nil, headers: [{"foo", "bar"}])
-    assert headers["foo"] == "bar"
+    assert {"foo", "bar"} in headers
     header("baz", "foo")
-    assert conn.resp_headers["baz"] == "foo"
+    assert {"baz", "foo"} in conn.resp_headers
   end
 
   test "assign" do
