@@ -1,5 +1,5 @@
 defmodule Lazymaru.Router do
-  @methods [:get, :post, :put, :option, :head, :delete]
+  @methods [:get, :post, :put, :options, :head, :delete]
   @namespaces [:namepsace, :group, :resource, :resources, :segment]
 
   defmodule Endpoint do
