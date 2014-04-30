@@ -52,7 +52,7 @@ defmodule MyHook do
       app.(conn)
     rescue
       _ ->
-        conn |> put_resp_content_type("text/plain") |> send_resp(404, "Not Found")
+        "Not Found" |> text(404)
     end
   end
 
@@ -81,3 +81,4 @@ MyAPP.API.start
 - [X] assign DSL
 - [ ] generate docs by desc DSL
 - [X] hook support
+- [ ] custom params validators

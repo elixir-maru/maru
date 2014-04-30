@@ -1,0 +1,28 @@
+** Hook
+*** Use Hook
+A hook should at least define one of these three function: =before/1=, =call/2= and =finish/1=.
+#+BEGIN_SRC elixir
+defmodule PrepareHook do
+  use Lazymaru.Hook
+
+  def before(conn) do
+     user = BAISIC_AUTH(conn) || nil
+     assign(:current_user, user)
+  end
+end
+
+defmodule ExceptionHook do
+  use Lazymaru.Hook
+
+  def call(conn, app) do
+    try do
+      app.(conn)
+    rescue
+      e in [LazyException.InvalidFormatter] ->
+        e.message |> text(500)
+      FunctionClauseError ->
+        "Not Found" |> text(404)
+    end
+  end
+end
+#+END_SRC
