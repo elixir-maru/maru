@@ -50,26 +50,26 @@ defmodule LazyHelper.Response do
   end
 
 
-  defmacro json(reply) do
+  defmacro json(reply, code \\ 200) do
     quote do
       content_type "application/json"
-      var!(conn) |> send_resp(200, unquote(reply) |> JSON.encode!)
+      var!(conn) |> send_resp(unquote(code), unquote(reply) |> JSON.encode!)
     end
   end
 
 
-  defmacro html(reply) do
+  defmacro html(reply, code \\ 200) do
     quote do
       content_type "text/html"
-      var!(conn) |> send_resp(200, unquote(reply))
+      var!(conn) |> send_resp(unquote(code), unquote(reply))
     end
   end
 
 
-  defmacro text(reply) do
+  defmacro text(reply, code \\ 200) do
     quote do
       content_type("text/plain")
-      var!(conn) |> send_resp(200, unquote(reply))
+      var!(conn) |> send_resp(unquote(code), unquote(reply))
     end
   end
 end
