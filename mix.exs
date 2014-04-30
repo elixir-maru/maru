@@ -17,7 +17,7 @@ defmodule Lazymaru.Mixfile do
 
   defp deps do
     [ { :cowboy, github: "extend/cowboy" },
-      { :plug,   github: "elixir-lang/plug" },
+      { :plug,   github: "elixir-lang/plug", ref: "v0.4.2"},
       { :json,   github: "cblage/elixir-json" },
     ]
   end
