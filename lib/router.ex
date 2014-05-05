@@ -100,10 +100,12 @@ defmodule Lazymaru.Router do
     quote do
       require unquote(module)
     end
-    for {method, path, params, block} <- module.endpoints do
+    for {method, path, params, block, params_block} <- module.endpoints do
       new_path = ep.path ++ path
       new_params = ep.params ++ params
-      new_ep = %{ep | method: method, path: new_path, params: new_params, block: block}
+      new_ep = %{ ep | method: method, path: new_path, params: new_params,
+                  block: block, params_block: params_block,
+                }
       quote do
         endpoint(unquote(new_ep))
       end
