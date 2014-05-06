@@ -113,12 +113,8 @@ defmodule Lazymaru.Router do
     quote do
       require unquote(module)
     end
-    for %{method: method, path: path, params: params, block: block, params_block: params_block} <- module.endpoints do
-      new_path = ep.path ++ path
-      new_params = ep.params ++ params
-      new_ep = %{ ep | method: method, path: new_path, params: new_params,
-                  block: block, params_block: params_block,
-                }
+    for %Endpoint{path: path, params: params}=mep <- module.endpoints do
+      new_ep = %{ mep | path: ep.path ++ path, params: ep.params ++ params }
       quote do
         endpoint(unquote(new_ep), :mount)
       end
