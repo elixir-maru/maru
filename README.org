@@ -82,4 +82,4 @@ MyAPP.API.start
 - [ ] generate docs by desc DSL
 - [X] hook support
 - [ ] custom params validators
-- [ ] helper DSL
+- [X] helper DSL

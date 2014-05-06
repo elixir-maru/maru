@@ -46,8 +46,11 @@ defmodule Lazymaru.Server do
 
 
   defmacro rest({_, _, mod}) do
-    endpoints = Module.concat(mod).endpoints
-    for i <- endpoints do
+    module = Module.concat(mod)
+    quote do
+      require unquote(module)
+    end
+    for i <- module.endpoints do
       quote do
         dispatch(unquote i)
       end
@@ -101,13 +104,19 @@ defmodule Lazymaru.Server do
   end
 
 
-  defmacro dispatch({method, path, params, [do: block], params_block}) do
-    new_path = map_params_path(path)
+  defmacro dispatch(%{block: [do: block]}=ep) do
+    helpers_block = for i <- ep.helpers do
+      quote do
+        import unquote(i)
+      end
+    end
+    new_path = map_params_path(ep.path)
     quote do
-      def service(unquote(method), unquote(new_path), var!(unquote :conn)) do
-        var!(:params) = [ unquote(params), map_params(unquote(length(params)-1))
+      def service(unquote(ep.method), unquote(new_path), var!(unquote :conn)) do
+        var!(:params) = [ unquote(ep.params), map_params(unquote(length(ep.params)-1))
                         ] |> List.zip |> Enum.into %{}
-        unquote(params_block)
+        unquote(helpers_block)
+        unquote(ep.params_block)
         unquote(block)
       end
     end

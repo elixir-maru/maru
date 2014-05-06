@@ -4,7 +4,7 @@ defmodule Lazymaru.Router do
 
   defmodule Endpoint do
      [ method: nil, path: [], desc: "", params: [],
-       block: nil, params_block: nil,
+       block: nil, params_block: nil, helpers: [],
      ] |> defstruct
   end
 
@@ -13,6 +13,8 @@ defmodule Lazymaru.Router do
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__,
              :endpoints, accumulate: true, persist: false
+      Module.register_attribute __MODULE__,
+             :helpers, accumulate: true, persist: false
 
       @params_block nil
       @before_compile unquote(__MODULE__)
@@ -23,17 +25,28 @@ defmodule Lazymaru.Router do
   defmacro __before_compile__(_) do
     quote do
       def endpoints, do: @endpoints
+      def helpers, do: @helpers
     end
   end
 
 
   defmacro endpoint(ep) do
     quote do
-      @endpoints { unquote(ep.method), unquote(ep.path), unquote(ep.params),
-                   unquote(ep.block |> Macro.escape),
-                   @params_block || unquote(ep.params_block |> Macro.escape),
-                 }
+      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), helpers: unquote(ep.helpers) ++ @helpers,
+                            params: unquote(ep.params), block: unquote(ep.block |> Macro.escape),
+                            params_block: @params_block || unquote(ep.params_block |> Macro.escape),
+                          }
       @params_block nil
+    end
+  end
+
+
+  defmacro endpoint(ep, :mount) do
+    quote do
+      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), helpers: unquote(ep.helpers),
+                            params: unquote(ep.params), block: unquote(ep.block |> Macro.escape),
+                            params_block: unquote(ep.params_block |> Macro.escape),
+                          }
     end
   end
 
@@ -100,14 +113,14 @@ defmodule Lazymaru.Router do
     quote do
       require unquote(module)
     end
-    for {method, path, params, block, params_block} <- module.endpoints do
+    for %{method: method, path: path, params: params, block: block, params_block: params_block} <- module.endpoints do
       new_path = ep.path ++ path
       new_params = ep.params ++ params
       new_ep = %{ ep | method: method, path: new_path, params: new_params,
                   block: block, params_block: params_block,
                 }
       quote do
-        endpoint(unquote(new_ep))
+        endpoint(unquote(new_ep), :mount)
       end
     end
   end
@@ -139,7 +152,6 @@ defmodule Lazymaru.Router do
     end
   end)
 
-
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do
       defmacro unquote(method)(path \\ "", block) do
@@ -150,6 +162,7 @@ defmodule Lazymaru.Router do
       end
     end
   end)
+
 
 
   defmacro params([do: block]) do
@@ -168,12 +181,23 @@ defmodule Lazymaru.Router do
     quote do
       require unquote(module)
     end
-    for {method, path, params, block, params_block} <- module.endpoints do
+    for ep <- module.endpoints do
       quote do
-        @endpoints { unquote(method), unquote(path), unquote(params),
-                     unquote(block |> Macro.escape), unquote(params_block |> Macro.escape),
-                   }
+        endpoint(unquote(ep), :mount)
       end
+    end
+  end
+
+  defmacro helpers([do: block]) do
+    quote do
+      unquote(block)
+      @helpers __MODULE__
+    end
+  end
+
+  defmacro helpers({_, _, mod}) do
+    quote do
+      @helpers unquote(Module.concat mod)
     end
   end
 end
