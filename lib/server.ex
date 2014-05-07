@@ -112,9 +112,12 @@ defmodule Lazymaru.Server do
     end
     new_path = map_params_path(ep.path)
     quote do
-      def service(unquote(ep.method), unquote(new_path), var!(unquote :conn)) do
+      # def service(unquote(ep.method), unquote(new_path), var!(unquote :conn)) do
+      def service(unquote(ep.method), unquote(new_path), var!(:conn)) do
         var!(:params) = [ unquote(ep.params), map_params(unquote(length(ep.params)-1))
                         ] |> List.zip |> Enum.into %{}
+        var!(:headers) = var!(:conn).req_headers |> Enum.into %{}
+        var!(:assigns) = var!(:conn).assigns |> Enum.into %{}
         unquote(helpers_block)
         unquote(ep.params_block)
         unquote(block)
