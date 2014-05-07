@@ -7,11 +7,11 @@ defmodule LazyHelper.Response do
   end
 
 
-  # defmacro assigns do
-  #   quote do
-  #     var!(conn).assigns
-  #   end
-  # end
+  defmacro assigns do
+    quote do
+      var!(conn).assigns
+    end
+  end
 
   defmacro assign(key, value) do
     quote do
@@ -21,11 +21,11 @@ defmodule LazyHelper.Response do
   end
 
 
-  # defmacro headers do
-  #   quote do
-  #     var!(conn).req_headers
-  #   end
-  # end
+  defmacro headers do
+    quote do
+      var!(conn).req_headers
+    end
+  end
 
   defmacro header(key, nil) do
     quote do

@@ -32,16 +32,16 @@ defmodule LazyHelper.ResponseTest do
     assert conn.resp_body == "hello world"
   end
 
-  # test "header" do
-  #   conn = conn(:get, "/", nil, headers: [{"foo", "bar"}])
-  #   assert {"foo", "bar"} in headers
-  #   header("baz", "foo")
-  #   assert {"baz", "foo"} in conn.resp_headers
-  # end
+  test "header" do
+    conn = conn(:get, "/", nil, headers: [{"foo", "bar"}])
+    assert {"foo", "bar"} in headers
+    header("baz", "foo")
+    assert {"baz", "foo"} in conn.resp_headers
+  end
 
-  # test "assign" do
-  #   conn = conn(:get, "/")
-  #   assign(:foo, "bar")
-  #   assert assigns == %{foo: "bar"}
-  # end
+  test "assign" do
+    conn = conn(:get, "/")
+    assign(:foo, "bar")
+    assert assigns == %{foo: "bar"}
+  end
 end
