@@ -23,7 +23,7 @@ defmodule LazyHelper.Response do
 
   defmacro headers do
     quote do
-      var!(conn).req_headers
+      var!(conn).req_headers |> Enum.into %{}
     end
   end
 
