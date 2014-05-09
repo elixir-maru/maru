@@ -151,7 +151,7 @@ defmodule Lazymaru.Router do
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do
       defmacro unquote(method)(path \\ "", block) do
-        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | block]}}
+        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | block |> Macro.escape]}}
         quote do
           unquote(define_namespace ep)
         end
