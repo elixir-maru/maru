@@ -1,12 +1,8 @@
 defmodule Lazymaru.Router do
+  alias Lazymaru.Endpoint, as: Endpoint
+
   @methods [:get, :post, :put, :options, :head, :delete]
   @namespaces [:namepsace, :group, :resource, :resources, :segment]
-
-  defmodule Endpoint do
-     [ method: nil, path: [], desc: "", params: [],
-       block: nil, params_block: nil, helpers: [],
-     ] |> defstruct
-  end
 
   defmacro __using__(_) do
     quote do
@@ -151,7 +147,7 @@ defmodule Lazymaru.Router do
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do
       defmacro unquote(method)(path \\ "", block) do
-        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | block |> Macro.escape]}}
+        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | [block]]}}
         quote do
           unquote(define_namespace ep)
         end

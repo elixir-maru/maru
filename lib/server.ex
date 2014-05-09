@@ -1,4 +1,6 @@
 defmodule Lazymaru.Server do
+  alias Lazymaru.Endpoint, as: Endpoint
+
   defmacro __using__(_) do
     quote do
       use LazyHelper.Params
@@ -104,7 +106,7 @@ defmodule Lazymaru.Server do
   end
 
 
-  defmacro dispatch(%{block: [do: block]}=ep) do
+  defmacro dispatch(%Endpoint{block: [do: block]}=ep) do
     helpers_block = for i <- ep.helpers do
       quote do
         import unquote(i)
@@ -115,12 +117,10 @@ defmodule Lazymaru.Server do
       def service(unquote(ep.method), unquote(new_path), var!(:conn)) do
         var!(:params) = [ unquote(ep.params), map_params(unquote(length(ep.params)-1))
                         ] |> List.zip |> Enum.into %{}
-        # var!(:conn) = %{var!(:conn) | req_headers: var!(:conn).req_headers |> Enum.into %{} }
         unquote(helpers_block)
         unquote(ep.params_block)
         unquote(block)
       end
     end
   end
-
 end
