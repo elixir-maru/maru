@@ -52,9 +52,14 @@ defmodule Lazymaru.Router do
   def define_endpoint(ep, [{:desc, _, [desc]}|t], r) do
     %{ep | desc: desc} |> define_endpoint(t, r)
   end
-  def define_endpoint(ep, [{:params, _, [[do: block]]}|t], r) do
+  def define_endpoint(ep, [{:params, _, blocks}|t], r) do
+    {parsers, block} = case blocks do
+      [ parsers, [do: block] ] -> {parsers, block}
+      [ [do: block] ] -> {[], block}
+    end
+    parsers = [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | parsers]
     new_params_block = quote do
-      var!(:conn) = Plug.Parsers.call(var!(:conn), [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART], limit: 80_000_000])
+      var!(:conn) = Plug.Parsers.call(var!(:conn), [parsers: unquote(parsers), limit: 80_000_000])
       unquote(block)
     end
     %{ep | params_block: new_params_block} |> define_endpoint(t, r)
@@ -63,8 +68,6 @@ defmodule Lazymaru.Router do
     new_r = %{ep | block: h} |> define_namespace
     %{ep | desc: "", params_block: nil} |> define_endpoint(t, [new_r | r])
   end
-
-
   def define_namespace(%Endpoint{block: {:__block__, _, blocks}}=ep) do
     define_endpoint(ep, blocks)
   end
@@ -156,10 +159,10 @@ defmodule Lazymaru.Router do
   end)
 
 
-
-  defmacro params([do: block]) do
+  defmacro params(parsers \\ [], [do: block]) do
     new_params_block = quote do
-      var!(:conn) = var!(:conn) |> Plug.Parsers.call([parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART], limit: 80_000_000])
+      parsers = [ Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | unquote(parsers) ]
+      var!(:conn) = var!(:conn) |> Plug.Parsers.call([ parsers: parsers, limit: 80_000_000])
       unquote(block)
     end
     quote do
