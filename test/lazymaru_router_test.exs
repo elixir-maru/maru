@@ -8,7 +8,7 @@ defmodule Lazymaru.RouterTest do
     end
     ep = Test0.endpoints |> List.first
     assert ep.method == :post
-    assert ep.block == {:do, nil}
+    assert ep.block == [do: nil]
   end
 
   test "endpoint url param" do
@@ -20,7 +20,7 @@ defmodule Lazymaru.RouterTest do
     assert ep.method == :get
     assert ep.path == ["foo", :param]
     assert ep.params == [:bar]
-    assert ep.block == {:do, nil}
+    assert ep.block == [do: nil]
   end
 
   test "endpoint params DSL" do
@@ -31,7 +31,7 @@ defmodule Lazymaru.RouterTest do
     end
     ep = Test2.endpoints |> List.first
     assert ep.method == :put
-    assert ep.block == {:do, nil}
+    assert ep.block == [do: nil]
     assert {:__block__, [], _} = ep.params_block
   end
 
