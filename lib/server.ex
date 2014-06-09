@@ -85,20 +85,14 @@ defmodule Lazymaru.Server do
 
   defmacro map_params(n) when n < 0, do: []
   defmacro map_params(n) do
-    Enum.map 0..n,
-      fn(x) ->
-          param_name = :"param_#{x}"
-          quote do
-            var!(unquote param_name)
-          end
-      end
+    for x <- 0..n do Macro.var(:"param_#{x}", nil) end
   end
 
 
   def map_params_path(path), do: map_params_path(path, 0, [])
   def map_params_path([], _, r), do: r |> Enum.reverse
   def map_params_path([h|t], n, r) when is_atom(h) do
-    new_path = quote do: var!(unquote :"param_#{n}")
+    new_path = Macro.var(:"param_#{n}", nil)
     map_params_path(t, n+1, [new_path|r])
   end
   def map_params_path([h|t], n, r) do
