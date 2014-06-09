@@ -1,7 +1,6 @@
-defmodule LazyException do
-  defexception InvalidFormatter, [reason: nil, param: nil, option: nil] do
-    def message(exception) do
-      "Parsing Param Error: #{exception.param}"
-    end
+defmodule LazyException.InvalidFormatter do
+  defexception [reason: nil, param: nil, option: nil]
+  def message(exception) do
+    "Parsing Param Error: #{exception.param}"
   end
 end

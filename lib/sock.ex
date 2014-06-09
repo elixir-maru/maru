@@ -24,29 +24,29 @@ defmodule Lazymaru.Sock do
   #   end
   # end
 
-  defmacro recv(data, [do: block]) do
-    quote do
-      def websocket_handle(unquote(data), var!(unquote :req), var!(unquote :state)) do
-        unquote(block)
-        {:ok, req, state}
-      end
-    end
-  end
+  # defmacro recv(data, [do: block]) do
+  #   quote do
+  #     def websocket_handle(unquote(data), var!(unquote :req), var!(unquote :state)) do
+  #       unquote(block)
+  #       {:ok, req, state}
+  #     end
+  #   end
+  # end
 
-  defmacro info(data, [do: block]) do
-    quote do
-      def websocket_info(unquote(data), var!(unquote :req), var!(unquote :state)) do
-        unquote(block)
-        {:ok, req, state}
-      end
-    end
-  end
+  # defmacro info(data, [do: block]) do
+  #   quote do
+  #     def websocket_info(unquote(data), var!(unquote :req), var!(unquote :state)) do
+  #       unquote(block)
+  #       {:ok, req, state}
+  #     end
+  #   end
+  # end
 
-  defmacro reply(msg) do
-    quote do
-      send(self, {:reply, unquote(msg)})
-    end
-  end
+  # defmacro reply(msg) do
+  #   quote do
+  #     send(self, {:reply, unquote(msg)})
+  #   end
+  # end
 
   # defmacro closed([do: block]) do
   #   quote do

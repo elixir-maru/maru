@@ -31,10 +31,10 @@ defmodule LazyHelper.Params do
 
   defmacro requires(param, option) do
     quote do
-      case var!(:conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
+      case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> LazyException.InvalidFormatter
             |> raise [reason: :required, param: unquote(param), option: unquote(option)]
-        v   -> var!(:params) = var!(:params)
+        v   -> var!(params) = var!(params)
             |> Dict.merge parse_param(v, unquote(param), unquote(option))
       end
     end
@@ -43,9 +43,9 @@ defmodule LazyHelper.Params do
 
   defmacro optional(param, option) do
     quote do
-      case var!(:conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
+      case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> nil
-        v   -> var!(:params) = var!(:params)
+        v   -> var!(params) = var!(params)
             |> Dict.merge parse_param(v, unquote(param), unquote(option))
       end
     end
