@@ -54,7 +54,8 @@ defmodule Lazymaru.Router do
   end
   def define_endpoint(ep, [{:params, _, blocks}|t], r) do
     {parsers, block} = case blocks do
-      [ parsers, [do: block] ] -> {parsers, block}
+      [ parsers, [do: block] ] when is_list(parsers) -> {parsers, block}
+      [ parser, [do: block] ] -> {[parsers], block}
       [ [do: block] ] -> {[], block}
     end
     parsers = [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | parsers]
