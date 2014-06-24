@@ -52,4 +52,24 @@ defmodule Lazymaru.RouterTest do
     assert ep.block == [do: nil]
     assert {:__block__, [], _} = ep.params_block
   end
+
+  test "custom params parser" do
+
+    defmodule Test4 do
+      use Lazymaru.Router
+      params CustomParser, do: nil
+      post do: nil
+    end
+    ep = Test4.endpoints |> List.first
+    assert ep.method == :post
+    assert ep.block == [do: nil]
+    assert {:__block__, [],
+            [{:=, [], [{:parsers, [], Lazymaru.Router},
+                       [{:__aliases__, _, [:Plug, :Parsers, :URLENCODED]},
+                        {:|, [], [{:__aliases__, _, [:Plug, :Parsers, :MULTIPART]},
+                                  {:__aliases__, _, [:CustomParser]}
+                        ]}
+             ]]}|_]
+           } = ep.params_block
+  end
 end

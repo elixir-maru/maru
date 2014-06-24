@@ -5,8 +5,8 @@ defmodule LazyHelper.ParamsTest do
 
   def ignore_unused(_), do: :ok
 
-  def parse(conn) do
-    Plug.Parsers.call(conn, [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART], limit: 80_000_000])
+  def parse(conn, parser \\ []) do
+    Plug.Parsers.call(conn, [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | parser], limit: 80_000_000])
   end
 
   test "url params" do
@@ -58,5 +58,23 @@ defmodule LazyHelper.ParamsTest do
       ignore_unused params
     end
     assert exception.reason == :unformatted
+  end
+
+  test "custom params parser" do
+    defmodule CustomParser do
+      def parse(conn, "application", "xml", _headers, _opts) do
+        {:ok, %{"foo" => "bar"}, conn}
+      end
+
+      def parse(conn, _type, _subtype, _headers, _opts) do
+        {:next, conn}
+      end
+    end
+
+    params = %{}
+    headers = [{"content-type", "application/xml"}]
+    conn = parse(conn(:post, "/", "", headers: headers), [CustomParser])
+    requires :foo, type: String, regexp: ~r/^[a-z]+$/
+    assert params == %{foo: "bar"}
   end
 end
