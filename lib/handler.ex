@@ -5,7 +5,7 @@ defmodule Lazymaru.Handler do
   def init({transport, :http}, req, %{mod: mod, hooks: hooks}) when transport in [:tcp, :ssl] do
     conn = @connection.conn(req, transport)
     app = fn (conn) ->
-      method = conn.method |> String.downcase |> binary_to_atom
+      method = conn.method |> String.downcase |> String.to_atom
       path = conn.path_info
       mod.service(method, path, conn)
     end
