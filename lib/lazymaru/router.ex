@@ -1,7 +1,7 @@
 defmodule Lazymaru.Router do
   alias Lazymaru.Endpoint, as: Endpoint
 
-  @methods [:get, :post, :put, :options, :head, :delete]
+  @methods [:get, :post, :put, :patch, :delete, :head, :options]
   @namespaces [:namepsace, :group, :resource, :resources, :segment]
 
   defmacro __using__(_) do
@@ -12,6 +12,7 @@ defmodule Lazymaru.Router do
       Module.register_attribute __MODULE__,
              :helpers, accumulate: true, persist: false
 
+      @desc_block nil
       @params_block nil
       @before_compile unquote(__MODULE__)
     end
@@ -28,10 +29,13 @@ defmodule Lazymaru.Router do
 
   defmacro endpoint(ep) do
     quote do
-      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), helpers: unquote(ep.helpers) ++ @helpers,
-                            params: unquote(ep.params), block: unquote(ep.block |> Macro.escape),
+      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path),
+                            desc: @desc_block || unquote(ep.desc),
+                            helpers: unquote(ep.helpers) ++ @helpers, params: unquote(ep.params),
+                            block: unquote(ep.block |> Macro.escape),
                             params_block: @params_block || unquote(ep.params_block |> Macro.escape),
                           }
+      @desc_block nil
       @params_block nil
     end
   end
@@ -39,8 +43,9 @@ defmodule Lazymaru.Router do
 
   defmacro endpoint(ep, :mount) do
     quote do
-      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), helpers: unquote(ep.helpers),
-                            params: unquote(ep.params), block: unquote(ep.block |> Macro.escape),
+      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), desc: unquote(ep.desc),
+                            helpers: unquote(ep.helpers), params: unquote(ep.params),
+                            block: unquote(ep.block |> Macro.escape),
                             params_block: unquote(ep.params_block |> Macro.escape),
                           }
     end
@@ -67,7 +72,7 @@ defmodule Lazymaru.Router do
   end
   def define_endpoint(ep, [h|t], r) do
     new_r = %{ep | block: h} |> define_namespace
-    %{ep | desc: "", params_block: nil} |> define_endpoint(t, [new_r | r])
+    %{ep | desc: nil, params_block: nil} |> define_endpoint(t, [new_r | r])
   end
   def define_namespace(%Endpoint{block: {:__block__, _, blocks}}=ep) do
     define_endpoint(ep, blocks)
@@ -79,7 +84,7 @@ defmodule Lazymaru.Router do
   end
 
   def define_namespace(%Endpoint{block: {:route_param, _, [param, [do: block]]}}=ep) do
-    %{ep | path: ep.path ++ [:param], params: ep.params ++ [param], block: block
+    %{ep | path: ep.path ++ [param], params: ep.params ++ [param], block: block
      } |> define_namespace
   end
 
@@ -91,7 +96,7 @@ defmodule Lazymaru.Router do
         Enum.reduce %{ep | method: method, block: block},
           fn("", ep) -> ep
             (":" <> param, ep) ->
-              new_path = ep.path ++ [:param]
+              new_path = ep.path ++ [:"#{param}"]
               new_params = ep.params ++ [:"#{param}"]
               %{ep | path: new_path, params: new_params}
             (path, ep) ->
@@ -127,7 +132,7 @@ defmodule Lazymaru.Router do
 
 
   defmacro route_param(param, [do: block]) do
-    %Endpoint{path: [:param], block: block, params: [param]} |> define_namespace
+    %Endpoint{path: [param], block: block, params: [param]} |> define_namespace
   end
 
 
@@ -168,6 +173,13 @@ defmodule Lazymaru.Router do
     end
     quote do
       @params_block unquote(new_params_block |> Macro.escape)
+    end
+  end
+
+
+  defmacro desc(description) do
+    quote do
+      @desc_block unquote(description)
     end
   end
 

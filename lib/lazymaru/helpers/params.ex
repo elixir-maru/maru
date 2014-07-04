@@ -29,7 +29,7 @@ defmodule LazyHelper.Params do
   end
 
 
-  defmacro requires(param, option) do
+  defmacro requires(param, option \\ []) do
     quote do
       case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> LazyException.InvalidFormatter
@@ -41,7 +41,7 @@ defmodule LazyHelper.Params do
   end
 
 
-  defmacro optional(param, option) do
+  defmacro optional(param, option \\ []) do
     quote do
       case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> nil

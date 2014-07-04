@@ -3,7 +3,7 @@ notifications:
   recipients:
     - self@falood.me
 otp_release:
-  - 17.1
+  - 17.0
 before_install:
   - git clone --branch "v0.14.2" https://github.com/elixir-lang/elixir
   - cd elixir && make && cd ..
