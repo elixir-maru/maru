@@ -36,7 +36,7 @@ defmodule LazyParamType do
 
   defmodule Atom do
     def from(s) when is_atom(s), do: s
-    def from(s), do: s |> to_string |> Elixir.String.to_atom
+    def from(s), do: :"#{s |> to_string}"
   end
 
 

@@ -31,7 +31,7 @@ defmodule LazyParamTypeTest do
   end
 
   test "atom" do
-    assert LazyParamType.Atom.from(:param) == :param
+    LazyParamType.Atom.from("never_exits_param")
     assert LazyParamType.Atom.from("param") == :param
   end
 
