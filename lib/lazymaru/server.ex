@@ -11,7 +11,7 @@ defmodule Lazymaru.Server do
       Module.register_attribute __MODULE__,
              :statics, accumulate: true, persist: false
       Module.register_attribute __MODULE__,
-             :hooks, accumulate: true, persist: false
+             :middlewares, accumulate: true, persist: false
       @before_compile unquote(__MODULE__)
     end
   end
@@ -31,7 +31,7 @@ defmodule Lazymaru.Server do
              for m <- @socks do
                { "#{m.path}/[...]", m, [] }
              end,
-             [{"/[...]", Lazymaru.Handler, %{mod: __MODULE__, hooks: @hooks}}]
+             [{"/[...]", Lazymaru.Handler, %{mod: __MODULE__, middlewares: @middlewares}}]
            ] |> List.flatten
          dispatch = [{:_, dispatch}] |> :cowboy_router.compile
         :cowboy.start_http(Lazymaru.HTTP, 100, [port: @port], [env: [dispatch: dispatch]])
@@ -75,10 +75,10 @@ defmodule Lazymaru.Server do
   end
 
 
-  defmacro hook({_, _, mod}) do
+  defmacro middleware({_, _, mod}) do
     m = Module.concat(mod)
     quote do
-      @hooks unquote(m)
+      @middlewares unquote(m)
     end
   end
 

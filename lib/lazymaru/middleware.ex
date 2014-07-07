@@ -1,4 +1,4 @@
-defmodule Lazymaru.Hook do
+defmodule Lazymaru.Middleware do
   defmacro __using__(_) do
     quote do
       use LazyHelper.Response

@@ -1,18 +1,19 @@
-** Hook
-*** Use Hook
-A hook should at least define one of these three function: =before/1=, =call/2= and =finish/1=.
+** Middleware
+*** Use Middleware
+A middleware should at least define one of these three function: =prepare/1=, =call/2= and =finish/1=.
 #+BEGIN_SRC elixir
-defmodule PrepareHook do
-  use Lazymaru.Hook
+defmodule PrepareMiddleware do
+  use Lazymaru.Middleware
 
-  def before(conn) do
+  def prepare(conn) do
      user = BAISIC_AUTH(conn) || nil
      assign(:current_user, user)
+     conn
   end
 end
 
-defmodule ExceptionHook do
-  use Lazymaru.Hook
+defmodule ExceptionMiddleware do
+  use Lazymaru.Middleware
 
   def call(conn, app) do
     try do

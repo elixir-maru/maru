@@ -2,14 +2,14 @@ defmodule Lazymaru.Handler do
   @behaviour :cowboy_http_handler
   @connection Plug.Adapters.Cowboy.Conn
 
-  def init({transport, :http}, req, %{mod: mod, hooks: hooks}) when transport in [:tcp, :ssl] do
+  def init({transport, :http}, req, %{mod: mod, middlewares: middlewares}) when transport in [:tcp, :ssl] do
     conn = @connection.conn(req, transport)
     app = fn (conn) ->
       method = :"#{conn.method |> String.downcase}"
       path = conn.path_info
       mod.service(method, path, conn)
     end
-    case reduce(hooks, conn, app) do
+    case reduce(middlewares, conn, app) do
       %Plug.Conn{adapter: {@connection, req}} ->
         {:ok, req, nil}
       other ->
@@ -20,8 +20,8 @@ defmodule Lazymaru.Handler do
   def reduce([], conn, app), do: app.(conn)
   def reduce([h|t], conn, app) do
     functions = h.__info__(:functions)
-    if {:before, 1} in functions do
-      conn = h.before(conn)
+    if {:prepare, 1} in functions do
+      conn = h.prepare(conn)
     end
     if {:call, 2} in functions do
       conn = h.call(conn, app)

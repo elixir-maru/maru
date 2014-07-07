@@ -39,11 +39,11 @@ defmodule Router.Homepage do
   end
 end
 
-defmodule MyHook do
-  use Lazymaru.Hook
+defmodule MyMiddleware do
+  use Lazymaru.Middleware
 
-  def before(conn) do
-    IO.puts "before"
+  def prepare(conn) do
+    IO.puts "prepare"
     conn
   end
 
@@ -67,7 +67,7 @@ defmodule MyAPP.API do
 
   port 8880
   rest Router.Homepage
-  hook MyHook
+  middleware MyMiddleware
   static "/static", "/my/static/path/"
 end
 
@@ -75,11 +75,11 @@ MyAPP.API.start
 #+END_SRC
 
 ** TODO_LIST
-- [ ] realtime connection by sockjs
+- [ ] realtime connection
 - [X] params DSL
 - [X] header DSL
 - [X] assign DSL
 - [ ] generate docs by desc DSL
-- [X] hook support
+- [X] middleware support
 - [ ] custom params validators
 - [X] helper DSL
