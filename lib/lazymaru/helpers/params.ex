@@ -5,15 +5,25 @@ defmodule LazyHelper.Params do
     end
   end
 
+  # def parse_param(value, param, option) do
+  #   option[:parser].from(value)
+  #   |> check_param(param, option)
+  #   try do
+  #     Module.safe_concat(LazyParamType, option[:type]).from(value)
+  #   rescue
+  #     _ -> LazyException.InvalidFormatter
+  #       |> raise [reason: :illegal, param: param, option: option]
+  #   end |> check_param(param, option)
+  # end
+
   def parse_param(value, param, option) do
     try do
-      Module.safe_concat(LazyParamType, option[:type]).from(value)
+      option[:parser].from(value) |> check_param(param, option)
     rescue
-      _ -> LazyException.InvalidFormatter
-        |> raise [reason: :illegal, param: param, option: option]
-    end |> check_param(param, option)
+      ArgumentError ->
+        LazyException.InvalidFormatter |> raise [reason: :illegal, param: param, option: option]
+    end
   end
-
 
   def check_param(value, param, option) do
     [ regexp: fn(x) -> Regex.match?(x, value |> to_string) end,
@@ -30,6 +40,7 @@ defmodule LazyHelper.Params do
 
 
   defmacro requires(param, option \\ []) do
+    option = Keyword.put option, :parser, parser_for(option[:type])
     quote do
       case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> LazyException.InvalidFormatter
@@ -42,6 +53,7 @@ defmodule LazyHelper.Params do
 
 
   defmacro optional(param, option \\ []) do
+    option = Keyword.put option, :parser, parser_for(option[:type])
     quote do
       case var!(conn).params[unquote(param) |> to_string] || unquote(option[:default]) do
         nil -> nil
@@ -49,5 +61,11 @@ defmodule LazyHelper.Params do
             |> Dict.merge parse_param(v, unquote(param), unquote(option))
       end
     end
+  end
+
+  defp parser_for({:__aliases__, _, _} = type), do: type
+  defp parser_for(type) when is_atom(type) do
+    type = type |> Atom.to_string |> String.capitalize |> String.to_atom
+    {:__aliases__, [alias: false], [LazyParamType, type]}
   end
 end
