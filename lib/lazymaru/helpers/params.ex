@@ -5,17 +5,6 @@ defmodule LazyHelper.Params do
     end
   end
 
-  # def parse_param(value, param, option) do
-  #   option[:parser].from(value)
-  #   |> check_param(param, option)
-  #   try do
-  #     Module.safe_concat(LazyParamType, option[:type]).from(value)
-  #   rescue
-  #     _ -> LazyException.InvalidFormatter
-  #       |> raise [reason: :illegal, param: param, option: option]
-  #   end |> check_param(param, option)
-  # end
-
   def parse_param(value, param, option) do
     try do
       option[:parser].from(value) |> check_param(param, option)
