@@ -12,10 +12,10 @@ defmodule LazyHelper.ParamsTest do
   test "url params" do
     params = %{}
     conn = parse(conn(:get, "/?foo0=1&bar1=baz"))
-    requires :foo0, type: Integer
-    requires :foo1, type: Integer, default: 2
-    optional :bar0, type: String, regexp: ~r/^[a-z]+$/
-    optional :bar1, type: String, regexp: ~r/^[a-z]+$/
+    requires :foo0, type: :integer
+    requires :foo1, type: :integer, default: 2
+    optional :bar0, type: :string, regexp: ~r/^[a-z]+$/
+    optional :bar1, type: :string, regexp: ~r/^[a-z]+$/
     assert params == %{bar1: "baz", foo0: 1, foo1: 2}
   end
 
@@ -23,10 +23,10 @@ defmodule LazyHelper.ParamsTest do
     params = %{}
     headers = [{"content-type", "application/x-www-form-urlencoded"}]
     conn = parse(conn(:get, "/", "foo0=1&bar1=baz", headers: headers))
-    requires :foo0, type: Integer
-    requires :foo1, type: Integer, default: 2
-    optional :bar0, type: String, regexp: ~r/^[a-z]+$/
-    optional :bar1, type: String, regexp: ~r/^[a-z]+$/
+    requires :foo0, type: :integer
+    requires :foo1, type: :integer, default: 2
+    optional :bar0, type: :string, regexp: ~r/^[a-z]+$/
+    optional :bar1, type: :string, regexp: ~r/^[a-z]+$/
     assert params == %{bar1: "baz", foo0: 1, foo1: 2}
   end
 
@@ -34,7 +34,7 @@ defmodule LazyHelper.ParamsTest do
     exception = assert_raise LazyException.InvalidFormatter, fn ->
       params = %{}
       conn = parse(conn(:get, "/"))
-      requires :foo, [type: Integer]
+      requires :foo, [type: :integer]
       ignore_unused params
     end
     assert exception.reason == :required
@@ -44,7 +44,7 @@ defmodule LazyHelper.ParamsTest do
     exception = assert_raise LazyException.InvalidFormatter, fn ->
       params = %{}
       conn = parse(conn(:get, "/?foo=a"))
-      requires :foo, [type: Integer]
+      requires :foo, [type: :integer]
       ignore_unused params
     end
     assert exception.reason == :illegal
@@ -54,7 +54,7 @@ defmodule LazyHelper.ParamsTest do
     exception = assert_raise LazyException.InvalidFormatter, fn ->
       params = %{}
       conn = parse(conn(:get, "/?foo=0"))
-      requires :foo, [type: String, regexp: ~r/^[a-z]+$/]
+      requires :foo, [type: :string, regexp: ~r/^[a-z]+$/]
       ignore_unused params
     end
     assert exception.reason == :unformatted
@@ -74,7 +74,23 @@ defmodule LazyHelper.ParamsTest do
     params = %{}
     headers = [{"content-type", "application/xml"}]
     conn = parse(conn(:post, "/", "", headers: headers), [CustomParser])
-    requires :foo, type: String, regexp: ~r/^[a-z]+$/
+    requires :foo, type: :string, regexp: ~r/^[a-z]+$/
     assert params == %{foo: "bar"}
+  end
+
+
+  defmodule Baz do
+    def from("baz"), do: :yup
+    def from(_), do: :nope
+  end
+
+  test "custom types" do
+    params = %{}
+    conn = parse(conn(:get, "/?foo0=1&bar1=baz&bar2=biz"))
+    requires :foo0, type: :integer
+    requires :foo1, type: :integer, default: 2
+    requires :bar1, type: Baz
+    requires :bar2, type: Baz
+    assert params == %{bar2: :nope, bar1: :yup, foo0: 1, foo1: 2}
   end
 end
