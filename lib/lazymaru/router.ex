@@ -1,200 +1,126 @@
 defmodule Lazymaru.Router do
-  alias Lazymaru.Endpoint, as: Endpoint
+  alias Lazymaru.Router.Resource
+  alias Lazymaru.Router.Params
+  alias Lazymaru.Router.Endpoint
+  alias Lazymaru.Router.Path
+  alias Lazymaru.Router.Plug, as: LazyPlug
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
   @namespaces [:namepsace, :group, :resource, :resources, :segment]
 
-  defmacro __using__(_) do
+  defmacro __using__(opts \\ []) do
     quote do
+      use LazyHelper.Response
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__,
              :endpoints, accumulate: true, persist: false
       Module.register_attribute __MODULE__,
              :helpers, accumulate: true, persist: false
-
-      @desc_block nil
-      @params_block nil
+      @resource %Resource{}
+      @param_context nil
+      @desc nil
+      @as_plug unquote(opts[:as_plug]) || false
       @before_compile unquote(__MODULE__)
     end
   end
 
-
   defmacro __before_compile__(_) do
     quote do
-      def endpoints, do: @endpoints
-      def helpers, do: @helpers
-    end
-  end
-
-
-  defmacro endpoint(ep) do
-    quote do
-      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path),
-                            desc: @desc_block || unquote(ep.desc),
-                            helpers: unquote(ep.helpers) ++ @helpers, params: unquote(ep.params),
-                            block: unquote(ep.block |> Macro.escape),
-                            params_block: @params_block || unquote(ep.params_block |> Macro.escape),
-                          }
-      @desc_block nil
-      @params_block nil
-    end
-  end
-
-
-  defmacro endpoint(ep, :mount) do
-    quote do
-      @endpoints %Endpoint{ method: unquote(ep.method), path: unquote(ep.path), desc: unquote(ep.desc),
-                            helpers: unquote(ep.helpers), params: unquote(ep.params),
-                            block: unquote(ep.block |> Macro.escape),
-                            params_block: unquote(ep.params_block |> Macro.escape),
-                          }
-    end
-  end
-
-
-  def define_endpoint(ep, blocks), do: define_endpoint(ep, blocks, [])
-  def define_endpoint(_, [], r), do: r
-  def define_endpoint(ep, [{:desc, _, [desc]}|t], r) do
-    %{ep | desc: desc} |> define_endpoint(t, r)
-  end
-  def define_endpoint(ep, [{:params, _, blocks}|t], r) do
-    {parsers, block} = case blocks do
-      [ parsers, [do: block] ] when is_list(parsers) -> {parsers, block}
-      [ parser, [do: block] ] -> {[parser], block}
-      [ [do: block] ] -> {[], block}
-    end
-    parsers = [Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | parsers]
-    new_params_block = quote do
-      var!(conn) = Plug.Parsers.call(var!(conn), [parsers: unquote(parsers), limit: 80_000_000])
-      unquote(block)
-    end
-    %{ep | params_block: new_params_block} |> define_endpoint(t, r)
-  end
-  def define_endpoint(ep, [h|t], r) do
-    new_r = %{ep | block: h} |> define_namespace
-    %{ep | desc: nil, params_block: nil} |> define_endpoint(t, [new_r | r])
-  end
-  def define_namespace(%Endpoint{block: {:__block__, _, blocks}}=ep) do
-    define_endpoint(ep, blocks)
-  end
-
-  def define_namespace(%Endpoint{block: {namespace, _, [path, [do: block]]}}=ep)
-  when namespace in @namespaces do
-    %{ep | path: ep.path ++ [path |> to_string], block: block} |> define_namespace
-  end
-
-  def define_namespace(%Endpoint{block: {:route_param, _, [param, [do: block]]}}=ep) do
-    %{ep | path: ep.path ++ [param], params: ep.params ++ [param], block: block
-     } |> define_namespace
-  end
-
-  def define_namespace(%Endpoint{block: {method, _, blocks}}=ep)
-  when method in @methods do
-    case blocks do
-      [path, block] ->
-        new_ep = path |> to_string |> String.split("/") |>
-        Enum.reduce %{ep | method: method, block: block},
-          fn("", ep) -> ep
-            (":" <> param, ep) ->
-              new_path = ep.path ++ [:"#{param}"]
-              new_params = ep.params ++ [:"#{param}"]
-              %{ep | path: new_path, params: new_params}
-            (path, ep) ->
-              %{ep | path: ep.path ++ [path]}
-          end
-        quote do
-          endpoint(unquote(new_ep))
+      def endpoints, do: @endpoints |> Enum.reverse
+      if @as_plug do
+        def init(opts), do: opts
+        for i <- @endpoints do
+          Module.eval_quoted __MODULE__, (i |> Code.eval_quoted |> elem(0) |> LazyPlug.dispatch), [], __ENV__
         end
-      [block] ->
-        new_ep = %{ep | method: method, block: block}
-        quote do
-          endpoint(unquote(new_ep))
-        end
-    end
-  end
-
-  def define_namespace(%Endpoint{block: {:mount, _, [{_, _, mod}]}}=ep) do
-    module = Module.concat(mod)
-    quote do
-      require unquote(module)
-    end
-    for %Endpoint{path: path, params: params}=mep <- module.endpoints do
-      new_ep = %{ mep | path: ep.path ++ path, params: ep.params ++ params }
-      quote do
-        endpoint(unquote(new_ep), :mount)
       end
     end
-  end
-
-  def define_namespace(ep) do
-    IO.inspect ep.block
   end
 
 
   defmacro route_param(param, [do: block]) do
-    %Endpoint{path: [param], block: block, params: [param]} |> define_namespace
+    quote do
+      %Resource{path: path, params: param_context} = resource = @resource
+      @resource %{ resource |
+                   path: path ++ [unquote(param)],
+                   params: param_context |> Params.merge(@param_context)
+                 }
+      @param_context nil
+      unquote(block)
+      @resource resource
+    end
   end
-
 
   Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
     quote do
-      defmacro unquote(namespace)([do: block]) do
-        ep = %Endpoint{path: [], block: block}
-        quote do
-          unquote(define_namespace ep)
-        end
-      end
+      defmacro unquote(namespace)([do: block]), do: block
       defmacro unquote(namespace)(path, [do: block]) do
-        ep = %Endpoint{path: [to_string(path)], block: block}
         quote do
-          unquote(define_namespace ep)
+          %Resource{path: path} = resource = @resource
+          @resource %{resource | path: path ++ [unquote(to_string path)]}
+          unquote(block)
+          @resource resource
         end
       end
     end
   end)
+
 
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do
-      defmacro unquote(method)(path \\ "", block) do
-        ep = %Endpoint{block: {unquote(method), [], [to_string(path) | [block]]}}
-        quote do
-          unquote(define_namespace ep)
-        end
+      defmacro unquote(method)(path \\ "", [do: block]) do
+        %{ method: unquote(method) |> to_string |> String.upcase,
+           path: path |> Path.split,
+           block: block |> Macro.escape,
+         } |> endpoint
       end
     end
   end)
 
+  defp endpoint(ep) do
+    quote do
+      @endpoints %Endpoint{
+        method: unquote(ep.method),
+        desc: @desc, helpers: @helpers,
+        path: @resource.path ++ unquote(ep.path),
+        params: @resource.params |> Params.merge(@param_context),
+        block: unquote(ep.block),
+      } |> Macro.escape
+      @param_context nil
+      @desc nil
+    end
+  end
+
 
   defmacro params(parsers \\ [], [do: block]) do
-    new_params_block = quote do
-      parsers = [ Plug.Parsers.URLENCODED, Plug.Parsers.MULTIPART | unquote(parsers) ]
-      var!(conn) = var!(conn) |> Plug.Parsers.call([ parsers: parsers, limit: 80_000_000 ])
+    quote do
+      @param_context %Params{parsers: unquote(parsers |> List.wrap)}
       unquote(block)
     end
+  end
+
+  defmacro requires(param, options \\ []) do
+    param(param, options, true)
+  end
+
+  defmacro optional(param, options \\ []) do
+    param(param, options, false)
+  end
+
+  defp param(param, options, required?) do
+    type = case options[:type] || :string do
+       {:__aliases__, _, [t]} -> t
+       t when is_atom(t) ->
+         t |> Atom.to_string |> String.capitalize |> String.to_atom
+    end
+    param = [ param: param, required: required?,
+              parser: [LazyParamType, type] |> Module.concat
+            ] |> Dict.merge(options) |> Dict.drop([:type])
     quote do
-      @params_block unquote(new_params_block |> Macro.escape)
+      %Params{params: params} = param_context = @param_context
+      @param_context %{param_context | params: params ++ [unquote param]}
     end
   end
 
-
-  defmacro desc(description) do
-    quote do
-      @desc_block unquote(description)
-    end
-  end
-
-
-  defmacro mount({_, _, mod}) do
-    module = Module.concat(mod)
-    quote do
-      require unquote(module)
-    end
-    for ep <- module.endpoints do
-      quote do
-        endpoint(unquote(ep), :mount)
-      end
-    end
-  end
 
   defmacro helpers([do: block]) do
     quote do
@@ -208,4 +134,31 @@ defmodule Lazymaru.Router do
       @helpers unquote(Module.concat mod)
     end
   end
+
+
+  defmacro desc(desc) do
+    quote do
+      @desc unquote(desc)
+    end
+  end
+
+
+  defmacro mount({_, _, mod}) do
+    module = Module.concat(mod)
+    quote do
+      require unquote(module)
+    end
+    for ep <- module.endpoints do
+      quote do
+        ep = unquote(ep)
+        @endpoints %{ ep |
+          path: @resource.path ++ ep.path,
+          params: @resource.params |> Params.merge(ep.params)
+        } |> Macro.escape
+        @param_context nil
+        @desc nil
+      end
+    end
+  end
+
 end

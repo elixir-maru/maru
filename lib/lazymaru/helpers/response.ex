@@ -68,7 +68,7 @@ defmodule LazyHelper.Response do
 
   defmacro text(reply, code \\ 200) do
     quote do
-      content_type("text/plain")
+      content_type "text/plain"
       var!(conn) |> send_resp(unquote(code), unquote(reply))
     end
   end

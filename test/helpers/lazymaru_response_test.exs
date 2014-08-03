@@ -3,8 +3,6 @@ defmodule LazyHelper.ResponseTest do
   import Plug.Test
   use LazyHelper.Response
 
-  def ignore_unused(_), do: :ok
-
   test "json response" do
     conn = conn(:get, "/")
     conn = [hello: :world] |> json

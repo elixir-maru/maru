@@ -29,14 +29,14 @@ defmodule LazyParamType do
   end
 
 
-  defmodule CharList do
+  defmodule Charlist do
     def from(s), do: s |> to_char_list
   end
 
 
   defmodule Atom do
     def from(s) when is_atom(s), do: s
-    def from(s), do: :"#{s |> to_string}"
+    def from(s), do: s |> to_string |> Elixir.String.to_existing_atom
   end
 
 

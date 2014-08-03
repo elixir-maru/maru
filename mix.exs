@@ -3,8 +3,8 @@ defmodule Lazymaru.Mixfile do
 
   def project do
     [ app: :lazymaru,
-      version: "0.0.2",
-      elixir: "~> 0.14.2",
+      version: "0.1.0",
+      elixir: "~> 0.15.0",
       deps: deps
     ]
   end
@@ -16,9 +16,9 @@ defmodule Lazymaru.Mixfile do
   end
 
   defp deps do
-    [ { :cowboy, "~> 0.10.0", github: "extend/cowboy" },
-      { :plug,   github: "elixir-lang/plug", ref: "v0.5.1"},
-      { :json,   github: "cblage/elixir-json" },
+    [ { :cowboy, "~> 1.0.0" },
+      { :plug, "~> 0.5.3" },
+      { :json, github: "cblage/elixir-json" },
     ]
   end
 end

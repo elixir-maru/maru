@@ -26,12 +26,14 @@ defmodule LazyParamTypeTest do
   end
 
   test "char list" do
-    assert LazyParamType.CharList.from(1) == '1'
-    assert LazyParamType.CharList.from("s") == 's'
+    assert LazyParamType.Charlist.from(1) == '1'
+    assert LazyParamType.Charlist.from("s") == 's'
   end
 
   test "atom" do
-    LazyParamType.Atom.from("never_exits_param")
+    assert_raise ArgumentError, fn ->
+      LazyParamType.Atom.from("never_exits_param")
+    end
     assert LazyParamType.Atom.from("param") == :param
   end
 
