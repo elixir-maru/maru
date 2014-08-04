@@ -1,6 +1,6 @@
 # Lazymaru
 
-> an Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs in Ruby.
+> Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs.
 
 [![Build Status](https://api.travis-ci.org/falood/lazymaru.svg)](https://travis-ci.org/falood/lazymaru/)
 
