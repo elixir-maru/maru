@@ -1,7 +1,6 @@
 defmodule Lazymaru.Wrapper do
   defmacro __using__(_) do
     quote do
-      @behaviour Plug.Wrapper
       use LazyHelper.Response
       import unquote(__MODULE__)
 

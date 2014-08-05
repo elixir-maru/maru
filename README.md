@@ -60,8 +60,8 @@ defmodule MyAPP.API do
 
   port 8880
   plug Wrapper
-  plug Router.Homepage
   plug Plug.Static "/static", "/my/static/path/"
+  plug Router.Homepage
 end
 
 MyAPP.API.start

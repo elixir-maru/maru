@@ -12,10 +12,8 @@ defmodule Lazymaru.Router do
     quote do
       use LazyHelper.Response
       import unquote(__MODULE__)
-      Module.register_attribute __MODULE__,
-             :endpoints, accumulate: true, persist: false
-      Module.register_attribute __MODULE__,
-             :helpers, accumulate: true, persist: false
+      Module.register_attribute __MODULE__, :endpoints, accumulate: true
+      Module.register_attribute __MODULE__, :helpers, accumulate: true
       @resource %Resource{}
       @param_context nil
       @desc nil
