@@ -22,7 +22,7 @@ defmodule Lazymaru.Router.Plug do
   def decode_params(path_params, router_params) do
     router_params = router_params |> Lazymaru.Router.Params.merge Lazymaru.Router.Params.default
     quote do
-      var!(conn) = Plug.Parsers.call(var!(conn), [parsers: unquote(router_params.parsers), limit: 80_000_000])
+      var!(conn) = var!(conn) |> Plug.Parsers.call Plug.Parsers.init([parsers: unquote(router_params.parsers), accept: ["*/*"]])
       var!(params) = unquote(router_params.params |> Macro.escape) |> Enum.reduce(
         [ unquote(path_params), unquote(path_params |> Enum.map &(Macro.var &1, nil))
         ] |> List.zip |> Enum.into(%{}),
