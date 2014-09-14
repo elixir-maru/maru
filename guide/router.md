@@ -60,21 +60,3 @@ end
 
 An `LazyException.InvalidFormatter[reason: :unformatted]` exception will be raised on validators check error.
 Custom validators are not supported yet.
-
-### Custom Parser
-
-There are two built-in parsers for Plug: `Plug.Parsers.URLENCODED` and `Plug.Parsers.MULTIPART`. `Plug.Parsers.URLENCODED` can be used for parsing x-www-form-urlencoded data and `Plug.Parsers.MULTIPART` can be used for parsing form-data. Meanwhile, Plug also support custom parsers, a example of which can be found at [here](https://github.com/elixir-lang/plug/blob/master/lib/plug/parsers/urlencoded.ex), and can be used in either of the following two ways:
-
-```elixir
-params CustomParser do
-  ...
-end
-```
-
-or
-
-``` elixir
-params [CustomParser1, CustomParser2] do
-  ...
-end
-```

@@ -13,7 +13,7 @@ defmodule Router.User do
   namespace :user do
     route_param :id do
       get do
-        [ user: params[:id] ] |> json
+        %{ user: params[:id] } |> json
       end
 
       desc "description"
@@ -35,39 +35,33 @@ defmodule Router.Homepage do
 
   resources do
     get do
-      [ hello: :world ] |> json
+      %{ hello: :world } |> json
     end
 
     mount Router.User
   end
 end
 
-defmodule Wrapper do
-  use Lazymaru.Wrapper
-
-  def wrap(conn, _opts, func) do
-    try do
-      func.(conn)
-    rescue
-      _ ->
-        "Not Found" |> text(404)
-    end
-  end
-end
 
 defmodule MyAPP.API do
-  use Lazymaru.Server
+  use Lazymaru.Router
 
-  port 8880
-  plug Wrapper
   plug Plug.Static "/static", "/my/static/path/"
-  plug Router.Homepage
-end
+  mount Router.Homepage
 
-MyAPP.API.start
+  def error(conn, _e) do
+    "Server Error" |> text(500)
+  end
+end
 ```
 
-For more info, you can move to [Getting Started Guide](https://github.com/falood/lazymaru/blob/master/guide/getting_started.md), [Router Guide](https://github.com/falood/lazymaru/blob/master/guide/router.md) and [Wrapper Guide](https://github.com/falood/lazymaru/blob/master/guide/wrapper.md).
+then add the `lazymaru` to your `config/config.exs`
+```elixir
+config :lazymaru, MyAPP.API
+  port: 8880
+```
+
+For more info, you can move to [Getting Started Guide](https://github.com/falood/lazymaru/blob/master/guide/getting_started.md) and [Router Guide](https://github.com/falood/lazymaru/blob/master/guide/router.md)
 
 ## TODO
 

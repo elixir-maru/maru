@@ -6,7 +6,7 @@
 
         mix new my_app
 
-2. Add lazymaru to your `mix.exs1` dependencies:
+2. Add lazymaru to your `mix.exs` dependencies:
 
         def deps do
           [ {:lazymaru, github: "falood/lazymaru"} ]
@@ -22,23 +22,29 @@
 
 ```elixir
 defmodule MyAPP.Router.Homepage do
-  use Lazymaru.Router, as_plug: true
+  use Lazymaru.Router
 
   get do
-    [hello: :world] |> json
+    %{ hello: :world } |> json
+  end
+end
+
+defmodule MyAPP.API do
+  use Lazymaru.Router
+
+  mount MyAPP.Router.Homepage
+
+  def error(conn, e) do
+    "Server Error" |> text(500)
   end
 end
 ```
 
-### Server example
+### Config example
 
 ```elixir
-defmodule MyAPP.API do
-  use Lazymaru.Server
-
-  port 8880
-  plug MyAPP.Router.Homepage
-end
+config :lazymaru, MyAPP.API
+  port: 8880
 ```
 
 ### Run Server
@@ -49,8 +55,8 @@ end
 > iex -S mix
 Erlang/OTP 17 [erts-6.1] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
 Interactive Elixir (0.14.3) - press Ctrl+C to exit (type h() ENTER for help)
-iex(1)> MyAPP.API.start
-{:ok, #PID<0.163.0>}
+iex(1)> Application.start :lazymaru
+:ok
 
 > curl 127.0.0.1:8880
 {"hello":"world"}
