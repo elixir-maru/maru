@@ -1,4 +1,8 @@
 defmodule LazyParamType do
+  defmodule Term do
+    def from(any), do: any
+  end
+
   defmodule String do
     def from(s), do: s |> to_string
   end
@@ -41,6 +45,6 @@ defmodule LazyParamType do
 
 
   defmodule File do
-    def from(f), do: f
+    def from(%Plug.Upload{}=f), do: f
   end
 end

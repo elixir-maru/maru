@@ -31,7 +31,7 @@ defmodule Router.User do
 end
 
 defmodule Router.Homepage do
-  use Lazymaru.Router, as_plug: true
+  use Lazymaru.Router
 
   resources do
     get do

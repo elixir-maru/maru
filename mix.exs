@@ -3,8 +3,8 @@ defmodule Lazymaru.Mixfile do
 
   def project do
     [ app: :lazymaru,
-      version: "0.1.3",
-      elixir: "~> 0.15.0",
+      version: "0.2.0",
+      elixir: "~> 1.0.0",
       deps: deps,
       description: "Elixir copy of grape for creating REST-like APIs.",
       source_url: "https://github.com/falood/lazymaru",
@@ -13,15 +13,13 @@ defmodule Lazymaru.Mixfile do
   end
 
   def application do
-    [ mod: { Lazymaru, [] },
-      applications: [ :cowboy, :plug ]
-    ]
+    [ mod: { Lazymaru, [] } ]
   end
 
   defp deps do
     [ { :cowboy, "~> 1.0.0" },
-      { :plug, "~> 0.5.3" },
-      { :json, "~> 0.3.0" },
+      { :plug,   "~> 0.7.0" },
+      { :poison, "~> 1.1.0" },
     ]
   end
 

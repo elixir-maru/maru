@@ -1,6 +1,10 @@
 defmodule LazyParamTypeTest do
   use ExUnit.Case, async: true
 
+  test "term" do
+    assert LazyParamType.Term.from([1, 2, 3]) == [1, 2, 3]
+  end
+
   test "string" do
     assert LazyParamType.String.from(1) == "1"
     assert LazyParamType.String.from('1') == "1"
