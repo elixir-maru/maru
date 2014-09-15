@@ -41,7 +41,7 @@ end
 ### Type
 
 There are a number of build-in Types, including: `String`, `Integer`, `Float`, `Boolean`, `CharList`, `Atom` and `File`.
-You can also use them as `:string`, `:integer`, `:float`, `:boolean`, `:charlist`, `:atom` and `:file`.
+You can also use them as `:string`, `:integer`, `:float`, `:boolean`, `:char_list`, `:atom` and `:file`.
 An `LazyException.InvalidFormatter[reason: :illegal]` exception will be raised on type change error.
 
 `String.to_existing_atom` is used to parse `Atom` type, so a range-validator is recommanded.

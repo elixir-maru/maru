@@ -33,7 +33,7 @@ defmodule LazyParamType do
   end
 
 
-  defmodule Charlist do
+  defmodule CharList do
     def from(s), do: s |> to_char_list
   end
 

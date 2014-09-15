@@ -30,8 +30,8 @@ defmodule LazyParamTypeTest do
   end
 
   test "char list" do
-    assert LazyParamType.Charlist.from(1) == '1'
-    assert LazyParamType.Charlist.from("s") == 's'
+    assert LazyParamType.CharList.from(1) == '1'
+    assert LazyParamType.CharList.from("s") == 's'
   end
 
   test "atom" do

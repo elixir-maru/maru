@@ -134,7 +134,7 @@ defmodule Lazymaru.Builder do
        nil -> nil
        {:__aliases__, _, [t]} -> [LazyParamType, t] |> Module.concat
        t when is_atom(t) ->
-         [ LazyParamType, t |> Atom.to_string |> String.capitalize |> String.to_atom
+         [ LazyParamType, t |> Atom.to_string |> upper_camel_case |> String.to_atom
          ] |> Module.concat
     end
     quote do
@@ -171,6 +171,12 @@ defmodule Lazymaru.Builder do
     quote do
       @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource]}
     end
+  end
+
+  defp upper_camel_case(s) do
+    s |> String.split("_") |> Enum.map(
+      fn i -> i |> String.capitalize end
+    ) |> Enum.join("")
   end
 
 end
