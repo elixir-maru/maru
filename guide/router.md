@@ -42,21 +42,38 @@ end
 
 There are a number of build-in Types, including: `String`, `Integer`, `Float`, `Boolean`, `CharList`, `Atom` and `File`.
 You can also use them as `:string`, `:integer`, `:float`, `:boolean`, `:char_list`, `:atom` and `:file`.
-An `LazyException.InvalidFormatter[reason: :illegal]` exception will be raised on type change error.
+An `Lazymaru.Exceptions.InvalidFormatter[reason: :illegal]` exception will be raised on type change error.
 
-`String.to_existing_atom` is used to parse `Atom` type, so a range-validator is recommanded.
+`String.to_existing_atom` is used to parse `Atom` type, so a values-validator is recommanded.
 
 ### Validators
 
-There're two build-in validators: `regexp` and `range`, you can use them like this:
+There're two build-in validators: `regexp` and `values`, you can use them like this:
 
 ```elixir
 params do
   requires :id,  type: :integer, regexp: ~r/^[0-9]+$/
-  requires :sex, type: :atom, range: [:female, :male], default: :female
-  optional :age, type: :integer, range: 18..65
+  requires :sex, type: :atom, values: [:female, :male], default: :female
+  optional :age, type: :integer, values: 18..65
 end
 ```
 
-An `LazyException.InvalidFormatter[reason: :unformatted]` exception will be raised on validators check error.
-Custom validators are not supported yet.
+An `Lazymaru.Exceptions.UndefinedValidator` exception will be raised if validator not defined.
+An `Lazymaru.Exception.Validation` exception will be raised on validators check error.
+
+### Custom validators
+
+```elixir
+defmodule Lazymaru.Validations.Length do
+  def validate_param!(attr_name, value, option) do
+    byte(value) in option ||
+      Lazymaru.Exceptions.Validation |> raise [param: attr_name, validator: :length, value: value, option: option]
+  end
+end
+```
+
+```elixir
+params do
+  requires :text, length: 2..6
+end
+```

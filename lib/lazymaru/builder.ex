@@ -130,11 +130,12 @@ defmodule Lazymaru.Builder do
   end
 
   defp param(attr_name, options, required?) do
+    # TODO safe_concat?
     parser = case options[:type] do
        nil -> nil
-       {:__aliases__, _, [t]} -> [LazyParamType, t] |> Module.concat
+       {:__aliases__, _, [t]} -> [Lazymaru.ParamType, t] |> Module.concat
        t when is_atom(t) ->
-         [ LazyParamType, t |> Atom.to_string |> upper_camel_case |> String.to_atom
+         [ Lazymaru.ParamType, t |> Atom.to_string |> Lazymaru.Utils.upper_camel_case |> String.to_atom
          ] |> Module.concat
     end
     quote do
@@ -172,11 +173,4 @@ defmodule Lazymaru.Builder do
       @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource]}
     end
   end
-
-  defp upper_camel_case(s) do
-    s |> String.split("_") |> Enum.map(
-      fn i -> i |> String.capitalize end
-    ) |> Enum.join("")
-  end
-
 end

@@ -3,13 +3,13 @@ defmodule Lazymaru.Router.EndpointTest do
   alias Lazymaru.Router.Endpoint
 
   test "parse_param" do
-    assert %{ id: 1 } == Endpoint.parse_params([id: [parser: LazyParamType.Integer]], %{"id" => 1})
-    assert %{ name: "name" } == Endpoint.parse_params([name: [parser: LazyParamType.String]], %{"name" => "name"})
-    assert_raise LazyException.InvalidFormatter, fn ->
-      Endpoint.parse_params([id: [parser: LazyParamType.Integer]], %{"id" => "id"})
+    assert %{ id: 1 } == Endpoint.parse_params([id: [parser: Lazymaru.ParamType.Integer]], %{"id" => 1})
+    assert %{ name: "name" } == Endpoint.parse_params([name: [parser: Lazymaru.ParamType.String]], %{"name" => "name"})
+    assert_raise Lazymaru.Exceptions.InvalidFormatter, fn ->
+      Endpoint.parse_params([id: [parser: Lazymaru.ParamType.Integer]], %{"id" => "id"})
     end
-    assert_raise LazyException.InvalidFormatter, fn ->
-      Endpoint.parse_params([id: [parser: LazyParamType.Integer, validators: [range: 1..10]]], %{"id" => "100"})
+    assert_raise Lazymaru.Exceptions.Validation, fn ->
+      Endpoint.parse_params([id: [parser: Lazymaru.ParamType.Integer, validators: [values: 1..10]]], %{"id" => "100"})
     end
   end
 end

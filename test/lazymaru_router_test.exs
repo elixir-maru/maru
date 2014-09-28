@@ -9,8 +9,8 @@ defmodule Lazymaru.RouterTest do
       def pc, do: @param_context
     end
 
-    assert %{ foo: %{default: nil, value: nil, required: true, parser: LazyParamType.String, validators: [regexp: ~r/^[a-z]+$/]},
-              bar: %{default: nil, value: nil, required: false, parser: LazyParamType.Integer, validators: [range: 1..100]}
+    assert %{ foo: %{default: nil, value: nil, required: true, parser: Lazymaru.ParamType.String, validators: [regexp: ~r/^[a-z]+$/]},
+              bar: %{default: nil, value: nil, required: false, parser: Lazymaru.ParamType.Integer, validators: [range: 1..100]}
             } == Test.pc
   end
 

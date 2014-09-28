@@ -18,8 +18,8 @@ defmodule Router.User do
 
       desc "description"
       params do
-        requires :age,    type: Integer, range: 18..65
-        requires :sex,    type: Atom, range: [:male, :female], default: :female
+        requires :age,    type: Integer, values: 18..65
+        requires :sex,    type: Atom, values: [:male, :female], default: :female
         optional :intro,  type: String, regexp: ~r/^[a-z]+$/
         optional :avatar, type: File
       end
@@ -65,11 +65,11 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 
 ## TODO
 
-- [ ] realtime connection
 - [X] params DSL
+- [ ] `mutually_exclusive` `exactly_one_of` `at_least_one_of` `group` DSL for params
 - [X] header DSL
 - [X] assign DSL
 - [X] helper DSL
 - [ ] generate docs by desc DSL
-- [ ] custom params validators
+- [X] custom params validators
 - [ ] https support

@@ -1,4 +1,4 @@
-defmodule LazyParamType do
+defmodule Lazymaru.ParamType do
   defmodule Term do
     def from(any), do: any
   end
