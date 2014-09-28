@@ -27,10 +27,10 @@ defmodule Lazymaru.Builder do
     plugs = Module.get_attribute(module, :plugs)
     lazymaru_router_plugs = Module.get_attribute(module, :lazymaru_router_plugs)
     {conn, body} =
-      [ if Lazymaru.Config.is_server?(module) do [{Lazymaru.Plugs.NotFound, []}] else [] end,
+      [ if Lazymaru.Config.is_server?(module) do [{Lazymaru.Plugs.NotFound, [], true}] else [] end,
         lazymaru_router_plugs,
-        [{:endpoint, []}, {Lazymaru.Plugs.Prepare, []}],
-        if Lazymaru.Config.is_server?(module) do [{Plug.Parsers, parsers: [:urlencoded, :multipart], accept: ["*/*"]}] else [] end,
+        [{:endpoint, [], true}, {Lazymaru.Plugs.Prepare, [], true}],
+        if Lazymaru.Config.is_server?(module) do [{Plug.Parsers, [parsers: [:urlencoded, :multipart], accept: ["*/*"]], true}] else [] end,
         plugs
       ] |> Enum.concat |> Plug.Builder.compile
 
@@ -58,7 +58,7 @@ defmodule Lazymaru.Builder do
 
   defmacro lazymaru_router_plug(plug, opts \\ []) do
     quote do
-      @lazymaru_router_plugs {unquote(plug), unquote(opts)}
+      @lazymaru_router_plugs {unquote(plug), unquote(opts), true}
     end
   end
 
@@ -170,7 +170,7 @@ defmodule Lazymaru.Builder do
   defmacro mount({_, _, mod}) do
     module = Module.concat mod
     quote do
-      @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource]}
+      @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource], true}
     end
   end
 end
