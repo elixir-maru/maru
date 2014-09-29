@@ -13,8 +13,8 @@ defmodule Lazymaru.Router.Path do
       nil -> nil
       {rest_path, params} ->
         params = params |> Dict.merge conn.private[:lazymaru_params]
-        conn |> Plug.Conn.assign_private(:lazymaru_path, rest_path)
-             |> Plug.Conn.assign_private(:lazymaru_params, params)
+        conn |> Plug.Conn.put_private(:lazymaru_path, rest_path)
+             |> Plug.Conn.put_private(:lazymaru_params, params)
     end
   end
 
