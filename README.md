@@ -3,6 +3,7 @@
 > Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs.
 
 [![Build Status](https://api.travis-ci.org/falood/lazymaru.svg)](https://travis-ci.org/falood/lazymaru/)
+[![hex.pm Version](https://img.shields.io/hexpm/v/lazymaru.svg)](https://hex.pm/packages/lazymaru)
 
 ## Usage
 
