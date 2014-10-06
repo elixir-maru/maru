@@ -13,7 +13,9 @@ defmodule Lazymaru.Mixfile do
   end
 
   def application do
-    [ mod: { Lazymaru, [] } ]
+    [ mod: { Lazymaru, [] },
+      applications: [ :plug, :cowboy, :poison ]
+    ]
   end
 
   defp deps do
