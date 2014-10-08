@@ -8,7 +8,7 @@ defmodule Lazymaru.Builder do
 
   defmacro __using__(_) do
     quote do
-      use LazyHelper.Response
+      use Lazymaru.Helpers.Response
       import Plug.Builder, only: [plug: 1, plug: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :plugs, accumulate: true

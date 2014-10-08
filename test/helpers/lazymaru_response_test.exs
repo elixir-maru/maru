@@ -1,7 +1,7 @@
-defmodule LazyHelper.ResponseTest do
+defmodule Lazymaru.Helpers.ResponseTest do
   use ExUnit.Case, async: true
   import Plug.Test
-  use LazyHelper.Response
+  use Lazymaru.Helpers.Response
 
   test "json response" do
     conn = conn(:get, "/")
