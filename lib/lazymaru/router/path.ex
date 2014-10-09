@@ -8,27 +8,22 @@ defmodule Lazymaru.Router.Path do
     path |> String.split("/") |> Enum.reduce([], func) |> Enum.reverse
   end
 
-  def pick_params(conn, path, params) do
-    case do_pick(conn.private[:lazymaru_path], path, params) do
-      nil -> nil
-      {rest_path, params} ->
-        params = params |> Dict.merge conn.private[:lazymaru_params]
-        conn |> Plug.Conn.put_private(:lazymaru_path, rest_path)
-             |> Plug.Conn.put_private(:lazymaru_params, params)
-    end
+
+  def lstrip(rest, []),                       do: {:ok, rest}
+  def lstrip([h|t1], [h|t2]),                 do: lstrip(t1, t2)
+  def lstrip([_|t1], [h|t2]) when is_atom(h), do: lstrip(t1, t2)
+  def lstrip(_, _),                           do: nil
+
+
+  def parse_params(conn_path_info, route_path) do
+    do_parse_params(conn_path_info, route_path , %{})
   end
 
-  defp do_pick(conn_path, [], params) do
-    {conn_path, params}
+  defp do_parse_params([], [], result), do: result
+  defp do_parse_params([h|t1], [h|t2], result) do
+    do_parse_params(t1, t2, result)
   end
-  defp do_pick([ch|ct], [rh|rt], params) when is_atom(rh) do
-    params = params |> Dict.update rh, %{value: ch}, fn(param) -> %{param | value: ch} end
-    do_pick(ct, rt, params)
-  end
-  defp do_pick([h|ct], [h|rt], params) do
-    do_pick(ct, rt, params)
-  end
-  defp do_pick(_, _, _) do
-    nil
+  defp do_parse_params([h1|t1], [h2|t2], result) when is_atom(h2) do
+    do_parse_params(t1, t2, put_in(result, [h2], h1))
   end
 end

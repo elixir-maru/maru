@@ -1,17 +1,26 @@
 defmodule Lazymaru.RouterTest do
   use ExUnit.Case , async: true
+  alias Lazymaru.Router.Param
 
-  test "optional and requires" do
+  test "optional requires group" do
     defmodule Test do
       use Lazymaru.Router
-      requires :foo, type: :string, regexp: ~r/^[a-z]+$/
-      optional :bar, type: Integer, range: 1..100
+      params do
+        requires :foo, type: :string, regexp: ~r/^[a-z]+$/
+        group :group do
+          group :group, type: Map do
+            optional :bar, type: Integer, range: 1..100
+          end
+        end
+      end
       def pc, do: @param_context
     end
 
-    assert %{ foo: %{default: nil, value: nil, required: true, parser: Lazymaru.ParamType.String, validators: [regexp: ~r/^[a-z]+$/]},
-              bar: %{default: nil, value: nil, required: false, parser: Lazymaru.ParamType.Integer, validators: [range: 1..100]}
-            } == Test.pc
+    assert [ %Param{attr_name: :foo,   parser: Lazymaru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/]},
+             %Param{attr_name: :group, parser: Lazymaru.ParamType.List,    required: true, nested: true},
+             %Param{attr_name: :group, parser: Lazymaru.ParamType.Map,     required: true, nested: true, group: [:group]},
+             %Param{attr_name: :bar,   parser: Lazymaru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
+           ] == Test.pc
   end
 
 
@@ -27,7 +36,7 @@ defmodule Lazymaru.RouterTest do
       end
     end
 
-    assert %Lazymaru.Router.Resource{ params: %{}, path: ["level1", "level2", :param]
+    assert %Lazymaru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
                                     } == Test.resource
   end
 end

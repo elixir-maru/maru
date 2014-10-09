@@ -21,6 +21,12 @@ defmodule Lazymaru.Validations do
     end
   end
 
+  # defmodule MutuallyExclusive do
+  #   def validator!(params, group, values) do
+
+  #   end
+  # end
+
   # mutually_exclusive
   # exactly_one_of
   # at_least_one_of

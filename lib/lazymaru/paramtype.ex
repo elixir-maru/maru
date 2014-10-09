@@ -47,4 +47,12 @@ defmodule Lazymaru.ParamType do
   defmodule File do
     def from(%Plug.Upload{}=f), do: f
   end
+
+  defmodule List do
+    def from(list) when is_list(list), do: list
+  end
+
+  defmodule Map do
+    def from(map) when is_map(map), do: map
+  end
 end

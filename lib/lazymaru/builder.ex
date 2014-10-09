@@ -4,19 +4,20 @@ defmodule Lazymaru.Builder do
   alias Lazymaru.Router.Path
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
-  @namespaces [:namepsace, :group, :resource, :resources, :segment]
 
   defmacro __using__(_) do
     quote do
       use Lazymaru.Helpers.Response
+      import Lazymaru.Builder.Namespaces
       import Plug.Builder, only: [plug: 1, plug: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :plugs, accumulate: true
       Module.register_attribute __MODULE__, :lazymaru_router_plugs, accumulate: true
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
       @resource %Resource{}
-      @param_context %{}
+      @param_context []
       @desc nil
+      @group []
       @exception nil
       @before_compile unquote(__MODULE__)
       def init(_), do: []
@@ -63,34 +64,6 @@ defmodule Lazymaru.Builder do
   end
 
 
-  defmacro route_param(param, [do: block]) do
-    quote do
-      %Resource{path: path, params: param_context} = resource = @resource
-      @resource %{ resource |
-                   path: path ++ [unquote(param)],
-                   params: param_context |> Dict.merge @param_context
-                 }
-      @param_context %{}
-      unquote(block)
-      @resource resource
-    end
-  end
-
-  Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
-    quote do
-      defmacro unquote(namespace)([do: block]), do: block
-      defmacro unquote(namespace)(path, [do: block]) do
-        quote do
-          %Resource{path: path} = resource = @resource
-          @resource %{resource | path: path ++ [unquote(to_string path)]}
-          unquote(block)
-          @resource resource
-        end
-      end
-    end
-  end)
-
-
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do
       defmacro unquote(method)(path \\ "", [do: block]) do
@@ -107,46 +80,24 @@ defmodule Lazymaru.Builder do
       @endpoints %Endpoint{
         method: unquote(ep.method), desc: @desc,
         path: @resource.path ++ unquote(ep.path),
-        params: @resource.params |> Dict.merge(@param_context),
+        param_context: @resource.param_context ++ @param_context,
         block: unquote(ep.block),
       } |> Macro.escape
-      @param_context %{}
+      @param_context []
       @desc nil
     end
   end
 
-  defmacro params([do: block]) do
+  defmacro params(block) do
     quote do
+      import Lazymaru.Builder.Namespaces, only: []
+      import Lazymaru.Builder.Params
+      @group []
       unquote(block)
+      import Lazymaru.Builder.Params, only: []
+      import Lazymaru.Builder.Namespaces
     end
   end
-
-  defmacro requires(attr_name, options \\ []) do
-    param(attr_name, options, true)
-  end
-
-  defmacro optional(attr_name, options \\ []) do
-    param(attr_name, options, false)
-  end
-
-  defp param(attr_name, options, required?) do
-    # TODO safe_concat?
-    parser = case options[:type] do
-       nil -> nil
-       {:__aliases__, _, [t]} -> [Lazymaru.ParamType, t] |> Module.concat
-       t when is_atom(t) ->
-         [ Lazymaru.ParamType, t |> Atom.to_string |> Lazymaru.Utils.upper_camel_case |> String.to_atom
-         ] |> Module.concat
-    end
-    quote do
-      @param_context @param_context |> Dict.put unquote(attr_name), %{
-        value: nil, default: unquote(options[:default]),
-        required: unquote(required?), parser: unquote(parser),
-        validators: unquote(options) |> Dict.drop [:type, :default] |> Macro.escape
-      }
-    end
-  end
-
 
   defmacro helpers([do: block]) do
     quote do
@@ -173,4 +124,5 @@ defmodule Lazymaru.Builder do
       @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource], true}
     end
   end
+
 end

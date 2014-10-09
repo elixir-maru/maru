@@ -1,43 +1,90 @@
 defmodule Lazymaru.Router.Endpoint do
-  [ method: nil, path: [], desc: nil, params: [], block: nil, helpers: []
+  alias Lazymaru.Router.Param
+
+  [ method: nil, path: [], desc: nil, param_context: [], block: nil, helpers: []
   ] |> defstruct
 
   def dispatch(ep) do
     path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
     params_block = quote do
       var!(params) =
-        case var!(conn).private.lazymaru_params do
-          [] -> %{}
-          param_context -> Lazymaru.Router.Endpoint.parse_params(param_context, var!(conn).params)
-        end
+        Lazymaru.Router.Endpoint.validate_params(
+          Enum.concat(var!(conn).private.lazymaru_param_context, unquote(ep.param_context |> Macro.escape)),
+          var!(conn).params,
+          Lazymaru.Router.Path.parse_params(
+            var!(conn).path_info,
+            var!(conn).private.lazymaru_route_path ++ unquote(ep.path)
+          )
+        )
     end
 
     quote do
       defp endpoint(%Plug.Conn{method: unquote(ep.method),
-                               private: %{lazymaru_path: unquote(path)}}=var!(conn), []) do
-        var!(conn) = Lazymaru.Router.Path.pick_params(var!(conn), unquote(ep.path), unquote(ep.params |> Macro.escape))
+                               private: %{lazymaru_resource_path: unquote(path)}}=var!(conn), []) do
         unquote(params_block)
         unquote(ep.block)
       end
     end
   end
 
-  def parse_params(param_context, params) do
-    do_parse_params(param_context |> Dict.to_list, params, %{})
+
+  def validate_params([], _params, result), do: result
+  def validate_params([%Param{attr_name: attr_name, group: group, nested: false}=p|t], params, result) do
+    attr_path = group ++ [attr_name]
+    value =
+      case { result[attr_name] || get_in(params, Enum.map(attr_path, &to_string/1)) || p.default, p.required } do
+        {nil, false} -> nil
+        {nil, true}  -> Lazymaru.Exceptions.InvalidFormatter
+                     |> raise [reason: :required, param: attr_name, option: p]
+        {value, _}   -> check_param(attr_name, value, p)
+      end
+    validate_params(t, params, put_in(result, attr_path, value))
   end
-  defp do_parse_params([], _params, result), do: result
-  defp do_parse_params([{attr_name, option}|t], params, result) do
-    case { option[:value] || params[attr_name |> to_string] || option[:default], option[:required] } do
-      {nil, false} -> do_parse_params(t, params, result |> Dict.merge [{attr_name, nil}])
-      {nil, true}  -> Lazymaru.Exceptions.InvalidFormatter
-                   |> raise [reason: :required, param: attr_name, option: option]
-      {value, _}   -> do_parse_params(t, params, result |> Dict.merge check_param(attr_name, value, option))
+
+  def validate_params([%Param{attr_name: attr_name, group: group, parser: Lazymaru.ParamType.Map}=p|t], params, result) do
+    attr_path = group ++ [attr_name]
+    if is_nil(get_in params, Enum.map(attr_path, &to_string/1)) and p.required do
+      Lazymaru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+    end
+    result = put_in result, group ++ [attr_name], %{}
+    validate_params(t, params, result)
+  end
+
+  def validate_params([%Param{attr_name: attr_name, group: group, parser: Lazymaru.ParamType.List}=p|t], params, result) do
+    # TODO rails parser format
+    attr_path = group ++ [attr_name]
+    nested_params = get_in(params, Enum.map(attr_path, &to_string/1))
+    if is_nil(nested_params) and p.required do
+      Lazymaru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+    end
+    {nested_param_context, rest} = split_param_context(t, attr_path)
+    nested_result =
+      for p <- nested_params do
+        validate_params(nested_param_context, p, %{})
+      end
+    result = put_in result, attr_path, nested_result
+    validate_params(rest, params, result)
+  end
+
+  defp split_param_context(list, group) do
+    split_param_context(list, group, {[], []})
+  end
+  defp split_param_context([], _group, {left, right}), do: {Enum.reverse(left), Enum.reverse(right)}
+  defp split_param_context([%Param{group: g}=p|t], group, {left, right}) do
+    case lstrip(g, group) do
+      nil          -> split_param_context(t, group, {left, [p | right]})
+      {:ok, rest}  -> split_param_context(t, group, {[%{p | group: rest} | left], right})
     end
   end
 
-  defp check_param(attr_name, value, option) do
-    parser = option[:parser] || Lazymaru.ParamType.Term
-    validators = option[:validators] || []
+  defp lstrip(rest, []),       do: {:ok, rest}
+  defp lstrip([h|t1], [h|t2]), do: lstrip(t1, t2)
+  defp lstrip(_, _),           do: nil
+
+
+  defp check_param(attr_name, value, param_context) do
+    parser = param_context.parser || Lazymaru.ParamType.Term
+    validators = param_context.validators
     value = try do
         parser.from(value)
       rescue
@@ -47,7 +94,7 @@ defmodule Lazymaru.Router.Endpoint do
     do_check_param(validators, attr_name, value)
   end
 
-  defp do_check_param([], attr_name, value), do: [{attr_name, value}]
+  defp do_check_param([], _attr_name, value), do: value
   defp do_check_param([{validator, option}|t], attr_name, value) do
     validator = try do
         [ Lazymaru.Validations,

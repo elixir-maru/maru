@@ -21,6 +21,10 @@ defmodule Router.User do
       params do
         requires :age,    type: Integer, values: 18..65
         requires :sex,    type: Atom, values: [:male, :female], default: :female
+        group    :name,   type: Map do
+          requires :first_name
+          requires :last_name
+        end
         optional :intro,  type: String, regexp: ~r/^[a-z]+$/
         optional :avatar, type: File
       end
@@ -67,7 +71,8 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 ## TODO
 
 - [X] params DSL
-- [ ] `mutually_exclusive` `exactly_one_of` `at_least_one_of` `group` DSL for params
+- [ ] `mutually_exclusive` `exactly_one_of` `at_least_one_of` DSL for params
+- [X] group DSL for params
 - [X] header DSL
 - [X] assign DSL
 - [X] helper DSL

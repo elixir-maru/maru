@@ -46,9 +46,26 @@ An `Lazymaru.Exceptions.InvalidFormatter[reason: :illegal]` exception will be ra
 
 `String.to_existing_atom` is used to parse `Atom` type, so a values-validator is recommanded.
 
+### Nested Parameters
+In general, Nested Parameters can be used in the same way as [grape validation-of-nested-parameters](https://github.com/intridea/grape#validation-of-nested-parameters) except that we should use `List` and `Map` in Elixir instead of `Array` and `Hash` in Ruby.
+
+```elixir
+params do
+  optional :preferences, type: List do
+    requires :key
+    requires :value
+  end
+
+  requires :name, type: Map do
+    requires :first_name
+    requires :last_name
+  end
+end
+```
+
 ### Validators
 
-There're two build-in validators: `regexp` and `values`, you can use them like this:
+There're three build-in validators: `regexp` `values` and `allow_blank`, you can use them like this:
 
 ```elixir
 params do

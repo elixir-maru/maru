@@ -5,7 +5,11 @@ defmodule Lazymaru.Router do
     end
   end
 
+  defmodule Param do
+    defstruct attr_name: nil, default: nil, group: [], required: nil, nested: false, parser: nil, validators: []
+  end
+
   defmodule Resource do
-    defstruct path: [], params: %{}
+    defstruct path: [], param_context: []
   end
 end
