@@ -9,7 +9,7 @@
 2. Add lazymaru to your `mix.exs` dependencies:
 
         def deps do
-          [ {:lazymaru, github: "falood/lazymaru"} ]
+          [ {:lazymaru, "~> v0.2.3"} ]
         end
 
 3. List `:lazymaru` as your application dependencies:
