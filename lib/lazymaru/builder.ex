@@ -28,10 +28,14 @@ defmodule Lazymaru.Builder do
     plugs = Module.get_attribute(module, :plugs)
     lazymaru_router_plugs = Module.get_attribute(module, :lazymaru_router_plugs)
     {conn, body} =
-      [ if Lazymaru.Config.is_server?(module) do [{Lazymaru.Plugs.NotFound, [], true}] else [] end,
+      [ if Lazymaru.Config.is_server?(module) do
+          [{Lazymaru.Plugs.NotFound, [], true}]
+        else [] end,
         lazymaru_router_plugs,
         [{:endpoint, [], true}, {Lazymaru.Plugs.Prepare, [], true}],
-        if Lazymaru.Config.is_server?(module) do [{Plug.Parsers, [parsers: [:urlencoded, :multipart], accept: ["*/*"]], true}] else [] end,
+        if Lazymaru.Config.is_server?(module) do
+          [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], accept: ["*/*"], json_decoder: Poison], true}]
+        else [] end,
         plugs
       ] |> Enum.concat |> Plug.Builder.compile
 
