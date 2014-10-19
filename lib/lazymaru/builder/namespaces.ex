@@ -1,7 +1,7 @@
 defmodule Lazymaru.Builder.Namespaces do
   alias Lazymaru.Router.Resource
 
-  @namespaces [:namepsace, :group, :resource, :resources, :segment]
+  @namespaces [:namespace, :group, :resource, :resources, :segment]
 
   Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
     quote do
