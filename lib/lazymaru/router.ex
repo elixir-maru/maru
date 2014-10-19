@@ -6,7 +6,11 @@ defmodule Lazymaru.Router do
   end
 
   defmodule Param do
-    defstruct attr_name: nil, default: nil, group: [], required: nil, nested: false, parser: nil, validators: []
+    defstruct attr_name: nil, default: nil, group: [], required: true, nested: false, parser: nil, validators: []
+  end
+
+  defmodule Validator do
+    defstruct action: nil, attr_names: [], group: []
   end
 
   defmodule Resource do

@@ -21,14 +21,30 @@ defmodule Lazymaru.Validations do
     end
   end
 
-  # defmodule MutuallyExclusive do
-  #   def validator!(params, group, values) do
+  defmodule MutuallyExclusive do
+    def validate!(attr_names, params) do
+      unless Enum.count(attr_names, &(not is_nil(params[&1]))) <= 1 do
+        Lazymaru.Exceptions.Validation |> raise [param: attr_names, validator: :mutually_exclusive, value: params]
+      end
+      true
+    end
+  end
 
-  #   end
-  # end
+  defmodule ExactlyOneOf do
+    def validate!(attr_names, params) do
+      unless Enum.count(attr_names, &(not is_nil(params[&1]))) == 1 do
+        Lazymaru.Exceptions.Validation |> raise [param: attr_names, validator: :exactly_one_of, value: params]
+      end
+      true
+    end
+  end
 
-  # mutually_exclusive
-  # exactly_one_of
-  # at_least_one_of
-  # group
+  defmodule AtLeastOneOf do
+    def validate!(attr_names, params) do
+      unless Enum.count(attr_names, &(not is_nil(params[&1]))) >= 1 do
+        Lazymaru.Exceptions.Validation |> raise [param: attr_names, validator: :at_least_one_of, value: params]
+      end
+      true
+    end
+  end
 end

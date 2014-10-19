@@ -1,6 +1,7 @@
 defmodule Lazymaru.RouterTest do
   use ExUnit.Case , async: true
   alias Lazymaru.Router.Param
+  alias Lazymaru.Router.Validator
 
   test "optional requires group" do
     defmodule Test do
@@ -20,6 +21,28 @@ defmodule Lazymaru.RouterTest do
              %Param{attr_name: :group, parser: Lazymaru.ParamType.List,    required: true, nested: true},
              %Param{attr_name: :group, parser: Lazymaru.ParamType.Map,     required: true, nested: true, group: [:group]},
              %Param{attr_name: :bar,   parser: Lazymaru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
+           ] == Test.pc
+  end
+
+
+  test "validators" do
+    defmodule Test do
+      use Lazymaru.Router
+
+      params do
+        mutually_exclusive [:a, :b, :c]
+        group :group do
+          exactly_one_of     [:a, :b, :c]
+          at_least_one_of    [:a, :b, :c]
+        end
+      end
+      def pc, do: @param_context
+    end
+
+    assert [ %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c], group: []},
+             %Param{attr_name: :group, nested: true, parser: Lazymaru.ParamType.List, required: true},
+             %Validator{action: :exactly_one_of,     attr_names: [:a, :b, :c], group: [:group]},
+             %Validator{action: :at_least_one_of,    attr_names: [:a, :b, :c], group: [:group]},
            ] == Test.pc
   end
 

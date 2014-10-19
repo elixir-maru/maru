@@ -27,6 +27,8 @@ defmodule Router.User do
         end
         optional :intro,  type: String, regexp: ~r/^[a-z]+$/
         optional :avatar, type: File
+        optional :avatar_url, type: String
+        exactly_one_of [:avatar, :avatar_url]
       end
       post do
         ...
@@ -71,7 +73,7 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 ## TODO
 
 - [X] params DSL
-- [ ] `mutually_exclusive` `exactly_one_of` `at_least_one_of` DSL for params
+- [X] `mutually_exclusive` `exactly_one_of` `at_least_one_of` DSL for params
 - [X] group DSL for params
 - [X] header DSL
 - [X] assign DSL

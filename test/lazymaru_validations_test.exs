@@ -25,4 +25,33 @@ defmodule Lazymaru.ValidationsTest do
       Validations.AllowBlank.validate_param!(:param, nil, false)
     end
   end
+
+  test "mutually_exclusive" do
+    assert Validations.MutuallyExclusive.validate!([:a, :b], %{a: 1})
+    assert Validations.MutuallyExclusive.validate!([:a, :b], %{b: 1})
+    assert Validations.MutuallyExclusive.validate!([:a, :b], %{})
+    assert_raise Lazymaru.Exceptions.Validation, fn ->
+      Validations.MutuallyExclusive.validate!([:a, :b], %{a: 1, b: 2})
+    end
+  end
+
+  test "exactly_one_of" do
+    assert Validations.ExactlyOneOf.validate!([:a, :b], %{a: 1})
+    assert Validations.ExactlyOneOf.validate!([:a, :b], %{b: 1})
+    assert_raise Lazymaru.Exceptions.Validation, fn ->
+      Validations.ExactlyOneOf.validate!([:a, :b], %{})
+    end
+    assert_raise Lazymaru.Exceptions.Validation, fn ->
+      Validations.ExactlyOneOf.validate!([:a, :b], %{a: 1, b: 2})
+    end
+  end
+
+  test "at_least_one_of" do
+    assert Validations.AtLeastOneOf.validate!([:a, :b], %{a: 1})
+    assert Validations.AtLeastOneOf.validate!([:a, :b], %{b: 1})
+    assert Validations.AtLeastOneOf.validate!([:a, :b], %{a: 1, b: 2})
+    assert_raise Lazymaru.Exceptions.Validation, fn ->
+      Validations.AtLeastOneOf.validate!([:a, :b], %{})
+    end
+  end
 end

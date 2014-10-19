@@ -1,8 +1,9 @@
 defmodule Lazymaru.Builder.Params do
   alias Lazymaru.Router.Param
+  alias Lazymaru.Router.Validator
 
   defmacro requires(attr_name) do
-    param(attr_name, [], true)
+    param(attr_name, [], [required: true, nested: false])
   end
 
   defmacro requires(attr_name, options, [do: block]) do
@@ -90,4 +91,19 @@ defmodule Lazymaru.Builder.Params do
       }]
     end
   end
+
+
+  @actions [:mutually_exclusive, :exactly_one_of, :at_least_one_of]
+  Module.eval_quoted __MODULE__, (for action <- @actions do
+    quote do
+      defmacro unquote(action)(attr_names) do
+        action = unquote(action)
+        quote do
+          @param_context @param_context ++ [
+            %Validator{action: unquote(action), attr_names: unquote(attr_names), group: @group}
+          ]
+        end
+      end
+    end
+  end)
 end
