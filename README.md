@@ -64,7 +64,7 @@ end
 
 then add the `lazymaru` to your `config/config.exs`
 ```elixir
-config :lazymaru, MyAPP.API
+config :lazymaru, MyAPP.API,
   port: 8880
 ```
 
