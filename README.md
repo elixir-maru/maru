@@ -53,7 +53,7 @@ end
 defmodule MyAPP.API do
   use Lazymaru.Router
 
-  plug Plug.Static "/static", "/my/static/path/"
+  plug Plug.Static, at: "/static", from: "/my/static/path/"
   mount Router.Homepage
 
   def error(conn, _e) do
