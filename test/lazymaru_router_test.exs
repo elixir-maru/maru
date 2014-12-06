@@ -4,7 +4,7 @@ defmodule Lazymaru.RouterTest do
   alias Lazymaru.Router.Validator
 
   test "optional requires group" do
-    defmodule Test do
+    defmodule OptionalTest do
       use Lazymaru.Router
       params do
         requires :foo, type: :string, regexp: ~r/^[a-z]+$/
@@ -21,12 +21,12 @@ defmodule Lazymaru.RouterTest do
              %Param{attr_name: :group, parser: Lazymaru.ParamType.List,    required: true, nested: true},
              %Param{attr_name: :group, parser: Lazymaru.ParamType.Map,     required: true, nested: true, group: [:group]},
              %Param{attr_name: :bar,   parser: Lazymaru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
-           ] == Test.pc
+           ] == OptionalTest.pc
   end
 
 
   test "validators" do
-    defmodule Test do
+    defmodule ValidatorsTest do
       use Lazymaru.Router
 
       params do
@@ -43,12 +43,12 @@ defmodule Lazymaru.RouterTest do
              %Param{attr_name: :group, nested: true, parser: Lazymaru.ParamType.List, required: true},
              %Validator{action: :exactly_one_of,     attr_names: [:a, :b, :c], group: [:group]},
              %Validator{action: :at_least_one_of,    attr_names: [:a, :b, :c], group: [:group]},
-           ] == Test.pc
+           ] == ValidatorsTest.pc
   end
 
 
   test "resources" do
-    defmodule Test do
+    defmodule ResourcesTest do
       use Lazymaru.Router
       resources :level1 do
         resource :level2 do
@@ -60,6 +60,6 @@ defmodule Lazymaru.RouterTest do
     end
 
     assert %Lazymaru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
-                                    } == Test.resource
+                                    } == ResourcesTest.resource
   end
 end
