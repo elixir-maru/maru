@@ -85,9 +85,9 @@ defmodule Lazymaru.Builder.Params do
     end
     quote do
       @param_context @param_context ++ [%Param{
-        attr_name: unquote(attr_name), default: unquote(options[:default]), group: @group,
-        required: unquote(required), nested: unquote(nested), parser: unquote(parser),
-        validators: unquote(options) |> Dict.drop [:type, :default] |> Macro.escape
+        attr_name: unquote(attr_name), default: unquote(options[:default]), desc: unquote(options[:desc]),
+        group: @group, required: unquote(required), nested: unquote(nested), parser: unquote(parser),
+        validators: unquote(options) |> Dict.drop [:type, :default, :desc] |> Macro.escape
       }]
     end
   end

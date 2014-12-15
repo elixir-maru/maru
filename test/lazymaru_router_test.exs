@@ -7,7 +7,7 @@ defmodule Lazymaru.RouterTest do
     defmodule OptionalTest do
       use Lazymaru.Router
       params do
-        requires :foo, type: :string, regexp: ~r/^[a-z]+$/
+        requires :foo, type: :string, regexp: ~r/^[a-z]+$/, desc: "hehe"
         group :group do
           group :group, type: Map do
             optional :bar, type: Integer, range: 1..100
@@ -17,7 +17,7 @@ defmodule Lazymaru.RouterTest do
       def pc, do: @param_context
     end
 
-    assert [ %Param{attr_name: :foo,   parser: Lazymaru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/]},
+    assert [ %Param{attr_name: :foo,   parser: Lazymaru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
              %Param{attr_name: :group, parser: Lazymaru.ParamType.List,    required: true, nested: true},
              %Param{attr_name: :group, parser: Lazymaru.ParamType.Map,     required: true, nested: true, group: [:group]},
              %Param{attr_name: :bar,   parser: Lazymaru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}

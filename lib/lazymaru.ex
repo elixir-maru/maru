@@ -8,5 +8,4 @@ defmodule Lazymaru do
     end
     Lazymaru.Supervisor.start_link
   end
-
 end
