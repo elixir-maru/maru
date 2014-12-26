@@ -34,7 +34,7 @@ defmodule Lazymaru.Builder do
         lazymaru_router_plugs,
         [{:endpoint, [], true}, {Lazymaru.Plugs.Prepare, [], true}],
         if Lazymaru.Config.is_server?(module) do
-          [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], accept: ["*/*"], json_decoder: Poison], true}]
+          [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
         else [] end,
         plugs
       ] |> Enum.concat |> Plug.Builder.compile

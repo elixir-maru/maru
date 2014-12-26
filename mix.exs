@@ -20,8 +20,8 @@ defmodule Lazymaru.Mixfile do
 
   defp deps do
     [ { :cowboy, "~> 1.0.0" },
-      { :plug,   "~> 0.8.1" },
-      { :poison, "~> 1.2.0" },
+      { :plug,   "~> 0.9.0" },
+      { :poison, "~> 1.3.0" },
     ]
   end
 
