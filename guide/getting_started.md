@@ -61,3 +61,11 @@ iex(1)> Application.start :lazymaru
 > curl 127.0.0.1:8880
 {"hello":"world"}
 ```
+
+### Generate Router Docs
+
+`MIX_ENV=dev` is required for generating docs.
+
+```shell
+> MIX_ENV=dev mix lazymaru.routers
+```

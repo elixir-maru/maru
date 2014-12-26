@@ -78,6 +78,8 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [X] header DSL
 - [X] assign DSL
 - [X] helper DSL
-- [ ] generate docs by desc DSL
+- [X] generate docs
 - [X] custom params validators
+- [ ] version support
+- [ ] generate detail docs include params and version
 - [ ] https support

@@ -58,6 +58,11 @@ defmodule Lazymaru.Builder do
           end
         end
       end
+
+      if Mix.env == :dev do
+        def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
+        def __routers__, do: @lazymaru_router_plugs
+      end
     end
   end
 
