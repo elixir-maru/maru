@@ -43,7 +43,7 @@ end
 ### Config example
 
 ```elixir
-config :lazymaru, MyAPP.API
+config :lazymaru, MyAPP.API,
   port: 8880
 ```
 
