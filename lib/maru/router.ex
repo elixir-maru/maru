@@ -1,7 +1,7 @@
-defmodule Lazymaru.Router do
+defmodule Maru.Router do
   defmacro __using__(_) do
     quote do
-      use Lazymaru.Builder
+      use Maru.Builder
     end
   end
 

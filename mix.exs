@@ -1,19 +1,19 @@
-defmodule Lazymaru.Mixfile do
+defmodule Maru.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :lazymaru,
+    [ app: :maru,
       version: "0.2.5",
       elixir: "~> 1.0.0",
       deps: deps,
       description: "Elixir copy of grape for creating REST-like APIs.",
-      source_url: "https://github.com/falood/lazymaru",
+      source_url: "https://github.com/falood/maru",
       package: package,
     ]
   end
 
   def application do
-    [ mod: { Lazymaru, [] },
+    [ mod: { Maru, [] },
       applications: [ :plug, :cowboy, :poison ]
     ]
   end
@@ -27,7 +27,7 @@ defmodule Lazymaru.Mixfile do
 
   defp package do
     %{ licenses: ["BSD 3-Clause"],
-       links: %{"Github" => "https://github.com/falood/lazymaru"}
+       links: %{"Github" => "https://github.com/falood/Maru"}
      }
   end
 end

@@ -1,6 +1,6 @@
-defmodule Lazymaru.Builder.Params do
-  alias Lazymaru.Router.Param
-  alias Lazymaru.Router.Validator
+defmodule Maru.Builder.Params do
+  alias Maru.Router.Param
+  alias Maru.Router.Validator
 
   defmacro requires(attr_name) do
     param(attr_name, [], [required: true, nested: false])
@@ -78,9 +78,9 @@ defmodule Lazymaru.Builder.Params do
   defp param(attr_name, options, [required: required, nested: nested]) do
     parser = case options[:type] do
        nil -> nil
-       {:__aliases__, _, [t]} -> [Lazymaru.ParamType, t] |> Module.concat
+       {:__aliases__, _, [t]} -> [Maru.ParamType, t] |> Module.concat
        t when is_atom(t) ->
-         [ Lazymaru.ParamType, t |> Atom.to_string |> Lazymaru.Utils.upper_camel_case |> String.to_atom
+         [ Maru.ParamType, t |> Atom.to_string |> Maru.Utils.upper_camel_case |> String.to_atom
          ] |> Module.safe_concat
     end
     quote do

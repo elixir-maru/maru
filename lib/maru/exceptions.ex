@@ -1,4 +1,4 @@
-defmodule Lazymaru.Exceptions do
+defmodule Maru.Exceptions do
   defmodule InvalidFormatter do
     defexception [:reason, :param, :value, :option]
     def message(e) do

@@ -1,11 +1,11 @@
-defmodule Mix.Tasks.Lazymaru.Routers do
+defmodule Mix.Tasks.Maru.Routers do
   use Mix.Task
 
   def run(_) do
     unless System.get_env("MIX_ENV") do
       Mix.env(:dev)
     end
-    for {mod, _} <- Lazymaru.Config.servers do
+    for {mod, _} <- Maru.Config.servers do
       mod |> generate_module
     end
   end

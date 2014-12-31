@@ -1,15 +1,15 @@
-# Lazymaru
+# Maru
 
 > Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs.
 
-[![Build Status](https://api.travis-ci.org/falood/lazymaru.svg)](https://travis-ci.org/falood/lazymaru/)
-[![hex.pm Version](https://img.shields.io/hexpm/v/lazymaru.svg)](https://hex.pm/packages/lazymaru)
+[![Build Status](https://api.travis-ci.org/falood/maru.svg)](https://travis-ci.org/falood/maru/)
+[![hex.pm Version](https://img.shields.io/hexpm/v/maru.svg)](https://hex.pm/packages/maru)
 
 ## Usage
 
 ```elixir
 defmodule Router.User do
-  use Lazymaru.Router
+  use Maru.Router
 
   namespace :user do
     route_param :id do
@@ -38,7 +38,7 @@ defmodule Router.User do
 end
 
 defmodule Router.Homepage do
-  use Lazymaru.Router
+  use Maru.Router
 
   resources do
     get do
@@ -51,7 +51,7 @@ end
 
 
 defmodule MyAPP.API do
-  use Lazymaru.Router
+  use Maru.Router
 
   plug Plug.Static, at: "/static", from: "/my/static/path/"
   mount Router.Homepage
@@ -62,13 +62,13 @@ defmodule MyAPP.API do
 end
 ```
 
-then add the `lazymaru` to your `config/config.exs`
+then add the `maru` to your `config/config.exs`
 ```elixir
-config :lazymaru, MyAPP.API,
+config :maru, MyAPP.API,
   port: 8880
 ```
 
-For more info, you can move to [Getting Started Guide](https://github.com/falood/lazymaru/blob/master/guide/getting_started.md) and [Router Guide](https://github.com/falood/lazymaru/blob/master/guide/router.md)
+For more info, you can move to [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md) and [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md)
 
 ## TODO
 

@@ -42,7 +42,7 @@ end
 
 There are a number of build-in Types, including: `String`, `Integer`, `Float`, `Boolean`, `CharList`, `Atom` and `File`.
 You can also use them as `:string`, `:integer`, `:float`, `:boolean`, `:char_list`, `:atom` and `:file`.
-An `Lazymaru.Exceptions.InvalidFormatter[reason: :illegal]` exception will be raised on type change error.
+An `Maru.Exceptions.InvalidFormatter[reason: :illegal]` exception will be raised on type change error.
 
 `String.to_existing_atom` is used to parse `Atom` type, so a values-validator is recommanded.
 
@@ -100,16 +100,16 @@ params do
 end
 ```
 
-An `Lazymaru.Exceptions.UndefinedValidator` exception will be raised if validator not defined.
-An `Lazymaru.Exception.Validation` exception will be raised on validators check error.
+An `Maru.Exceptions.UndefinedValidator` exception will be raised if validator not defined.
+An `Maru.Exception.Validation` exception will be raised on validators check error.
 
 ### Custom validators
 
 ```elixir
-defmodule Lazymaru.Validations.Length do
+defmodule Maru.Validations.Length do
   def validate_param!(attr_name, value, option) do
     byte(value) in option ||
-      Lazymaru.Exceptions.Validation |> raise [param: attr_name, validator: :length, value: value, option: option]
+      Maru.Exceptions.Validation |> raise [param: attr_name, validator: :length, value: value, option: option]
   end
 end
 ```

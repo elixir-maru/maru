@@ -1,6 +1,6 @@
-defmodule Lazymaru.UtilsTest do
+defmodule Maru.UtilsTest do
   use ExUnit.Case, async: true
-  import Lazymaru.Utils
+  import Maru.Utils
 
   test "upper_camel_case" do
     assert "AB"   == upper_camel_case "a_b"

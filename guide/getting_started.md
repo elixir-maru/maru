@@ -1,28 +1,28 @@
 # Getting Started
 
-### Install Lazymaru
+### Install Maru
 
 1. Create a new application
 
         mix new my_app
 
-2. Add lazymaru to your `mix.exs` dependencies:
+2. Add maru to your `mix.exs` dependencies:
 
         def deps do
-          [ {:lazymaru, "~> 0.2.4"} ]
+          [ {:maru, "~> 0.2.4"} ]
         end
 
-3. List `:lazymaru` as your application dependencies:
+3. List `:maru` as your application dependencies:
 
         def application do
-          [ applications: [:lazymaru] ]
+          [ applications: [:maru] ]
         end
 
 ### Router example
 
 ```elixir
 defmodule MyAPP.Router.Homepage do
-  use Lazymaru.Router
+  use Maru.Router
 
   get do
     %{ hello: :world } |> json
@@ -30,7 +30,7 @@ defmodule MyAPP.Router.Homepage do
 end
 
 defmodule MyAPP.API do
-  use Lazymaru.Router
+  use Maru.Router
 
   mount MyAPP.Router.Homepage
 
@@ -43,7 +43,7 @@ end
 ### Config example
 
 ```elixir
-config :lazymaru, MyAPP.API,
+config :maru, MyAPP.API,
   port: 8880
 ```
 
@@ -55,7 +55,7 @@ config :lazymaru, MyAPP.API,
 > iex -S mix
 Erlang/OTP 17 [erts-6.1] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
 Interactive Elixir (0.14.3) - press Ctrl+C to exit (type h() ENTER for help)
-iex(1)> Application.start :lazymaru
+iex(1)> Application.start :maru
 :ok
 
 > curl 127.0.0.1:8880
@@ -67,5 +67,5 @@ iex(1)> Application.start :lazymaru
 `MIX_ENV=dev` is required for generating docs.
 
 ```shell
-> MIX_ENV=dev mix lazymaru.routers
+> MIX_ENV=dev mix maru.routers
 ```

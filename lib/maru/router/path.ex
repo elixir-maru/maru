@@ -1,4 +1,4 @@
-defmodule Lazymaru.Router.Path do
+defmodule Maru.Router.Path do
   def split(path) when is_atom(path), do: [path |> to_string]
   def split(path) do
     func = fn ("", r) -> r

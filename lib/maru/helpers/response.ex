@@ -1,4 +1,4 @@
-defmodule Lazymaru.Helpers.Response do
+defmodule Maru.Helpers.Response do
   defmacro __using__(_) do
     quote do
       import Plug.Conn

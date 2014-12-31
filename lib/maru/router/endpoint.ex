@@ -1,6 +1,6 @@
-defmodule Lazymaru.Router.Endpoint do
-  alias Lazymaru.Router.Param
-  alias Lazymaru.Router.Validator
+defmodule Maru.Router.Endpoint do
+  alias Maru.Router.Param
+  alias Maru.Router.Validator
 
   [ method: nil, path: [], desc: nil, param_context: [], block: nil, helpers: []
   ] |> defstruct
@@ -9,19 +9,19 @@ defmodule Lazymaru.Router.Endpoint do
     path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
     params_block = quote do
       var!(params) =
-        Lazymaru.Router.Endpoint.validate_params(
-          Enum.concat(var!(conn).private.lazymaru_param_context, unquote(ep.param_context |> Macro.escape)),
+        Maru.Router.Endpoint.validate_params(
+          Enum.concat(var!(conn).private.maru_param_context, unquote(ep.param_context |> Macro.escape)),
           var!(conn).params,
-          Lazymaru.Router.Path.parse_params(
+          Maru.Router.Path.parse_params(
             var!(conn).path_info,
-            var!(conn).private.lazymaru_route_path ++ unquote(ep.path)
+            var!(conn).private.maru_route_path ++ unquote(ep.path)
           )
         )
     end
 
     quote do
       defp endpoint(%Plug.Conn{method: unquote(ep.method),
-                               private: %{lazymaru_resource_path: unquote(path)}}=var!(conn), []) do
+                               private: %{maru_resource_path: unquote(path)}}=var!(conn), []) do
         unquote(params_block)
         unquote(ep.block)
       end
@@ -34,12 +34,12 @@ defmodule Lazymaru.Router.Endpoint do
   def validate_params([%Validator{action: action, attr_names: attr_names, group: group}|t], params, result) do
     validator =
       try do
-        [ Lazymaru.Validations,
-          action |> Atom.to_string |> Lazymaru.Utils.upper_camel_case
+        [ Maru.Validations,
+          action |> Atom.to_string |> Maru.Utils.upper_camel_case
         ] |> Module.safe_concat
       rescue
         ArgumentError ->
-          Lazymaru.Exceptions.UndefinedValidator |> raise [param: attr_names, validator: action]
+          Maru.Exceptions.UndefinedValidator |> raise [param: attr_names, validator: action]
       end
     params_for_check =
       case group do
@@ -55,20 +55,20 @@ defmodule Lazymaru.Router.Endpoint do
     value =
       case { result[attr_name] || get_in(params, Enum.map(attr_path, &to_string/1)) || p.default, p.required } do
         {nil, false} -> nil
-        {nil, true}  -> Lazymaru.Exceptions.InvalidFormatter
+        {nil, true}  -> Maru.Exceptions.InvalidFormatter
                      |> raise [reason: :required, param: attr_name, option: p]
         {value, _}   -> check_param(attr_name, value, p)
       end
     validate_params(t, params, put_in(result, attr_path, value))
   end
 
-  def validate_params([%Param{attr_name: attr_name, group: group, parser: Lazymaru.ParamType.Map}=p|t], params, result) do
+  def validate_params([%Param{attr_name: attr_name, group: group, parser: Maru.ParamType.Map}=p|t], params, result) do
     attr_path = group ++ [attr_name]
     nested_params = get_in(params, Enum.map(attr_path, &to_string/1))
     {_, rest} = split_param_context(t, attr_path)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
-        Lazymaru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+        Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
       {true, false} ->
         validate_params(rest, params, result)
       {false, _} ->
@@ -76,14 +76,14 @@ defmodule Lazymaru.Router.Endpoint do
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, group: group, parser: Lazymaru.ParamType.List}=p|t], params, result) do
+  def validate_params([%Param{attr_name: attr_name, group: group, parser: Maru.ParamType.List}=p|t], params, result) do
     # TODO rails parser format
     attr_path = group ++ [attr_name]
     nested_params = get_in(params, Enum.map(attr_path, &to_string/1))
     {nested_param_context, rest} = split_param_context(t, attr_path)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
-        Lazymaru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+        Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
       {true, false} ->
         validate_params(rest, params, result)
       {false, _} ->
@@ -109,13 +109,13 @@ defmodule Lazymaru.Router.Endpoint do
 
 
   defp check_param(attr_name, value, param_context) do
-    parser = param_context.parser || Lazymaru.ParamType.Term
+    parser = param_context.parser || Maru.ParamType.Term
     validators = param_context.validators
     value = try do
         parser.from(value)
       rescue
         ArgumentError ->
-          Lazymaru.Exceptions.InvalidFormatter |> raise [reason: :illegal, param: attr_name, value: value, option: validators]
+          Maru.Exceptions.InvalidFormatter |> raise [reason: :illegal, param: attr_name, value: value, option: validators]
       end
     do_check_param(validators, attr_name, value)
   end
@@ -123,12 +123,12 @@ defmodule Lazymaru.Router.Endpoint do
   defp do_check_param([], _attr_name, value), do: value
   defp do_check_param([{validator, option}|t], attr_name, value) do
     validator = try do
-        [ Lazymaru.Validations,
-          validator |> Atom.to_string |> Lazymaru.Utils.upper_camel_case
+        [ Maru.Validations,
+          validator |> Atom.to_string |> Maru.Utils.upper_camel_case
         ] |> Module.safe_concat
       rescue
         ArgumentError ->
-          Lazymaru.Exceptions.UndefinedValidator |> raise [param: attr_name, validator: validator]
+          Maru.Exceptions.UndefinedValidator |> raise [param: attr_name, validator: validator]
       end
     validator.validate_param!(attr_name, value, option)
     do_check_param(t, attr_name, value)

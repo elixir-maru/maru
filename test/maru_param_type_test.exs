@@ -1,6 +1,6 @@
-defmodule Lazymaru.ParamTypeTest do
+defmodule Maru.ParamTypeTest do
   use ExUnit.Case, async: true
-  alias Lazymaru.ParamType
+  alias Maru.ParamType
 
   test "term" do
     assert ParamType.Term.from([1, 2, 3]) == [1, 2, 3]

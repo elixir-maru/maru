@@ -1,4 +1,4 @@
-defmodule Lazymaru.Supervisor do
+defmodule Maru.Supervisor do
   use Supervisor
 
   def start_link do
@@ -6,14 +6,14 @@ defmodule Lazymaru.Supervisor do
   end
 
   # Application.ensure_all_started :plug
-  # for {module, options} <- Lazymaru.Config.plugs do
+  # for {module, options} <- Maru.Config.plugs do
   #   Plug.Adapters.Cowboy.http module, [], [port: options[:port]]
   # end
-  # Lazymaru.Supervisor.start_link
+  # Maru.Supervisor.start_link
 
 
   def init([]) do
-    # for {module, options} <- Lazymaru.Config.plugs do
+    # for {module, options} <- Maru.Config.plugs do
     #   Plug.Adapters.Cowboy.child_spec :http, module, [], [port: options[:port]]
     # end |> IO.inspect |> supervise(strategy: :one_for_one)
 

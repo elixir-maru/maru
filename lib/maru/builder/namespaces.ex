@@ -1,5 +1,5 @@
-defmodule Lazymaru.Builder.Namespaces do
-  alias Lazymaru.Router.Resource
+defmodule Maru.Builder.Namespaces do
+  alias Maru.Router.Resource
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
 

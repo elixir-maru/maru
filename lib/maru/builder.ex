@@ -1,18 +1,18 @@
-defmodule Lazymaru.Builder do
-  alias Lazymaru.Router.Resource
-  alias Lazymaru.Router.Endpoint
-  alias Lazymaru.Router.Path
+defmodule Maru.Builder do
+  alias Maru.Router.Resource
+  alias Maru.Router.Endpoint
+  alias Maru.Router.Path
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
 
   defmacro __using__(_) do
     quote do
-      use Lazymaru.Helpers.Response
-      import Lazymaru.Builder.Namespaces
+      use Maru.Helpers.Response
+      import Maru.Builder.Namespaces
       import Plug.Builder, only: [plug: 1, plug: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :plugs, accumulate: true
-      Module.register_attribute __MODULE__, :lazymaru_router_plugs, accumulate: true
+      Module.register_attribute __MODULE__, :maru_router_plugs, accumulate: true
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
       @resource %Resource{}
       @param_context []
@@ -26,14 +26,14 @@ defmodule Lazymaru.Builder do
 
   defmacro __before_compile__(%Macro.Env{module: module}) do
     plugs = Module.get_attribute(module, :plugs)
-    lazymaru_router_plugs = Module.get_attribute(module, :lazymaru_router_plugs)
+    maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)
     {conn, body} =
-      [ if Lazymaru.Config.is_server?(module) do
-          [{Lazymaru.Plugs.NotFound, [], true}]
+      [ if Maru.Config.is_server?(module) do
+          [{Maru.Plugs.NotFound, [], true}]
         else [] end,
-        lazymaru_router_plugs,
-        [{:endpoint, [], true}, {Lazymaru.Plugs.Prepare, [], true}],
-        if Lazymaru.Config.is_server?(module) do
+        maru_router_plugs,
+        [{:endpoint, [], true}, {Maru.Plugs.Prepare, [], true}],
+        if Maru.Config.is_server?(module) do
           [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
         else [] end,
         plugs
@@ -61,14 +61,14 @@ defmodule Lazymaru.Builder do
 
       if Mix.env == :dev do
         def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
-        def __routers__, do: @lazymaru_router_plugs
+        def __routers__, do: @maru_router_plugs
       end
     end
   end
 
-  defmacro lazymaru_router_plug(plug, opts \\ []) do
+  defmacro maru_router_plug(plug, opts \\ []) do
     quote do
-      @lazymaru_router_plugs {unquote(plug), unquote(opts), true}
+      @maru_router_plugs {unquote(plug), unquote(opts), true}
     end
   end
 
@@ -99,12 +99,12 @@ defmodule Lazymaru.Builder do
 
   defmacro params(block) do
     quote do
-      import Lazymaru.Builder.Namespaces, only: []
-      import Lazymaru.Builder.Params
+      import Maru.Builder.Namespaces, only: []
+      import Maru.Builder.Params
       @group []
       unquote(block)
-      import Lazymaru.Builder.Params, only: []
-      import Lazymaru.Builder.Namespaces
+      import Maru.Builder.Params, only: []
+      import Maru.Builder.Namespaces
     end
   end
 
@@ -130,7 +130,7 @@ defmodule Lazymaru.Builder do
   defmacro mount({_, _, mod}) do
     module = Module.concat mod
     quote do
-      @lazymaru_router_plugs {Lazymaru.Plugs.Router, [router: unquote(module), resource: @resource], true}
+      @maru_router_plugs {Maru.Plugs.Router, [router: unquote(module), resource: @resource], true}
     end
   end
 

@@ -1,11 +1,11 @@
-defmodule Lazymaru.RouterTest do
+defmodule Maru.RouterTest do
   use ExUnit.Case , async: true
-  alias Lazymaru.Router.Param
-  alias Lazymaru.Router.Validator
+  alias Maru.Router.Param
+  alias Maru.Router.Validator
 
   test "optional requires group" do
     defmodule OptionalTest do
-      use Lazymaru.Router
+      use Maru.Router
       params do
         requires :foo, type: :string, regexp: ~r/^[a-z]+$/, desc: "hehe"
         group :group do
@@ -17,17 +17,17 @@ defmodule Lazymaru.RouterTest do
       def pc, do: @param_context
     end
 
-    assert [ %Param{attr_name: :foo,   parser: Lazymaru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
-             %Param{attr_name: :group, parser: Lazymaru.ParamType.List,    required: true, nested: true},
-             %Param{attr_name: :group, parser: Lazymaru.ParamType.Map,     required: true, nested: true, group: [:group]},
-             %Param{attr_name: :bar,   parser: Lazymaru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
+    assert [ %Param{attr_name: :foo,   parser: Maru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
+             %Param{attr_name: :group, parser: Maru.ParamType.List,    required: true, nested: true},
+             %Param{attr_name: :group, parser: Maru.ParamType.Map,     required: true, nested: true, group: [:group]},
+             %Param{attr_name: :bar,   parser: Maru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
            ] == OptionalTest.pc
   end
 
 
   test "validators" do
     defmodule ValidatorsTest do
-      use Lazymaru.Router
+      use Maru.Router
 
       params do
         mutually_exclusive [:a, :b, :c]
@@ -40,7 +40,7 @@ defmodule Lazymaru.RouterTest do
     end
 
     assert [ %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c], group: []},
-             %Param{attr_name: :group, nested: true, parser: Lazymaru.ParamType.List, required: true},
+             %Param{attr_name: :group, nested: true, parser: Maru.ParamType.List, required: true},
              %Validator{action: :exactly_one_of,     attr_names: [:a, :b, :c], group: [:group]},
              %Validator{action: :at_least_one_of,    attr_names: [:a, :b, :c], group: [:group]},
            ] == ValidatorsTest.pc
@@ -49,7 +49,7 @@ defmodule Lazymaru.RouterTest do
 
   test "resources" do
     defmodule ResourcesTest do
-      use Lazymaru.Router
+      use Maru.Router
       resources :level1 do
         resource :level2 do
           route_param :param do
@@ -59,7 +59,7 @@ defmodule Lazymaru.RouterTest do
       end
     end
 
-    assert %Lazymaru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
+    assert %Maru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
                                     } == ResourcesTest.resource
   end
 end
