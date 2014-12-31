@@ -68,16 +68,16 @@ config :maru, MyAPP.API,
   port: 8880
 ```
 
-For more info, you can move to [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md) and [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md)
+For more info, you can move to [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md), [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md) and [Examples](https://github.com/falood/maru_examples)
 
 ## TODO
 
-- [X] params DSL
-- [X] `mutually_exclusive` `exactly_one_of` `at_least_one_of` DSL for params
-- [X] group DSL for params
-- [X] header DSL
-- [X] assign DSL
-- [X] helper DSL
+- [X] params macro
+- [X] `mutually_exclusive` `exactly_one_of` `at_least_one_of` macro for params
+- [X] group macro for params
+- [X] header macro
+- [X] assign macro
+- [X] helper macro
 - [X] generate docs
 - [X] custom params validators
 - [ ] version support
