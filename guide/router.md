@@ -119,3 +119,51 @@ params do
   requires :text, length: 2..6
 end
 ```
+
+
+### Versioning
+
+There are three strategies in which clients can reach your API's endpoints: `:path`, `:accept_version_header` and `:param`. The default strategy is `:path`.
+
+#### Path
+```elixir
+version 'v1', using: :path
+```
+
+Using this versioning strategy, clients should pass the desired version in the URL.
+
+```bash
+curl -H http://localhost:9292/v1/statuses/public_timeline
+```
+
+#### Accept-Version Header
+```elixir
+version 'v1', using: :accept_version_header
+```
+
+Using this versioning strategy, clients should pass the desired version in the HTTP Accept-Version header.
+
+```bash
+curl -H "Accept-Version:v1" http://localhost:9292/statuses/public_timeline
+```
+
+#### Param
+```elixir
+version 'v1', using: :param
+```
+
+Using this versioning strategy, clients should pass the desired version as a request parameter, either in the URL query string or in the request body.
+
+```bash
+curl -H http://localhost:9292/statuses/public_timeline?apiver=v1
+```
+
+The default name for the query parameter is `apiver` but can be specified using the :parameter option.
+
+```elixir
+version 'v1', using: :param, parameter: "v"
+```
+
+```bash
+curl -H http://localhost:9292/statuses/public_timeline?v=v1
+```
