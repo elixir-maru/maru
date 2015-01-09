@@ -80,6 +80,6 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [X] helper macro
 - [X] generate docs
 - [X] custom params validators
-- [ ] version support
+- [X] version support
 - [ ] generate detail docs include params and version
 - [ ] https support

@@ -1,5 +1,5 @@
 defmodule Maru.ValidationsTest do
-  use ExUnit.Case , async: true
+  use ExUnit.Case, async: true
   alias Maru.Validations
 
   test "regexp" do

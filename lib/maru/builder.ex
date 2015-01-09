@@ -14,6 +14,7 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :plugs, accumulate: true
       Module.register_attribute __MODULE__, :maru_router_plugs, accumulate: true
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
+      @version nil
       @resource %Resource{}
       @param_context []
       @desc nil
@@ -36,7 +37,7 @@ defmodule Maru.Builder do
         if Maru.Config.is_server?(module) do
           [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
         else [] end,
-        plugs
+        plugs,
       ] |> Enum.concat |> Plug.Builder.compile
 
     quote do
@@ -44,8 +45,22 @@ defmodule Maru.Builder do
         Module.eval_quoted __MODULE__, (i |> Code.eval_quoted |> elem(0) |> Endpoint.dispatch), [], __ENV__
       end
       defp endpoint(conn, _), do: conn
-      def call(unquote(conn), _) do
-        unquote(body)
+
+      case @version do
+        nil ->
+          def call(unquote(conn), _) do
+            unquote(body)
+          end
+        {v, opts} ->
+          @v v
+          @opts opts
+          def call(unquote(conn)=c, _) do
+            unquote(conn) = unquote(conn) |> Maru.Plugs.Version.call(Maru.Plugs.Version.init(@opts))
+            case unquote(conn).private.maru_version do
+              @v -> unquote(body)
+              _  -> c
+            end
+          end
       end
 
       if Module.defines? __MODULE__, {:error, 2} do
@@ -105,6 +120,14 @@ defmodule Maru.Builder do
       unquote(block)
       import Maru.Builder.Params, only: []
       import Maru.Builder.Namespaces
+    end
+  end
+
+  defmacro version(v, opts) do
+    key = opts |> Keyword.get :using, :path
+    key in [:path, :param, :accept_version_header] || raise "unsupported version type: #{inspect key}"
+    quote do
+      @version {unquote(v), unquote(opts)}
     end
   end
 

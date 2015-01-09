@@ -1,5 +1,5 @@
 defmodule Maru.RouterTest do
-  use ExUnit.Case , async: true
+  use ExUnit.Case, async: true
   alias Maru.Router.Param
   alias Maru.Router.Validator
 
@@ -60,6 +60,6 @@ defmodule Maru.RouterTest do
     end
 
     assert %Maru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
-                                    } == ResourcesTest.resource
+                                } == ResourcesTest.resource
   end
 end

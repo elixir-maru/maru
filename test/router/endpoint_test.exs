@@ -1,5 +1,5 @@
 defmodule Maru.Router.EndpointTest do
-  use ExUnit.Case , async: true
+  use ExUnit.Case, async: true
   alias Maru.Router.Endpoint
   alias Maru.Router.Param
   alias Maru.Router.Validator
