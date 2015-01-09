@@ -77,6 +77,12 @@ defmodule Maru.Builder do
       if Mix.env == :dev do
         def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
         def __routers__, do: @maru_router_plugs
+        def __version__ do
+          case @version do
+            {v, _} -> v
+            nil    -> nil
+          end
+        end
       end
     end
   end

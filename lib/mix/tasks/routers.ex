@@ -6,24 +6,26 @@ defmodule Mix.Tasks.Maru.Routers do
       Mix.env(:dev)
     end
     for {mod, _} <- Maru.Config.servers do
-      mod |> generate_module
+      generate_module(mod, [], nil)
     end
   end
 
-  defp generate_module(mod, path \\ []) do
+  defp generate_module(mod, path, version) do
+    version = version || mod.__version__
     for ep <- mod.__endpoints__ do
-      generate_endpoint(ep, path)
+      generate_endpoint(ep, path, version)
     end
     for {_, [router: m, resource: resource], _} <- mod.__routers__ do
-      generate_module(m, path ++ resource.path)
+      generate_module(m, path ++ resource.path, version)
     end
   end
 
-  defp generate_endpoint(ep, path) do
+  defp generate_endpoint(ep, path, version) do
+    version = String.ljust(version, 5)
     method = String.ljust(ep.method, 7)
     path = generate_path(path ++ ep.path)
     desc = ep.desc
-    IO.puts "#{method} #{path}    #{desc}"
+    IO.puts "#{version} #{method} #{path}    #{desc}"
   end
 
   defp generate_path([]), do: "/"
