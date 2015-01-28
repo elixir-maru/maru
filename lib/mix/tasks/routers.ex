@@ -20,7 +20,11 @@ defmodule Mix.Tasks.Maru.Routers do
     end
   end
 
+  defp generate_endpoint(ep, path, nil) do
+    generate_endpoint(ep, path, "_")
+  end
   defp generate_endpoint(ep, path, version) do
+    # TODO: ep.param_context
     version = String.ljust(version, 5)
     method = String.ljust(ep.method, 7)
     path = generate_path(path ++ ep.path)
