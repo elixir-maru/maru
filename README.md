@@ -81,8 +81,9 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [X] generate docs
 - [X] custom params validators
 - [X] version support
-- [ ] generate detail docs include params
 - [X] https support
+- [ ] <del>generate detail docs include params</del>
+- [ ] swagger support [#1](https://github.com/falood/maru/issues/1)
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
 - [ ] params unused warning
 - [ ] complex path for namespaces
@@ -93,3 +94,4 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [ ] redirecting
 - [ ] error!
 - [ ] jsonp support
+- [ ] validation, before, before\_validation, after, after\_validation
