@@ -26,7 +26,7 @@ defmodule Maru.Plugs.VersionTest do
 
   test "plug version accept version header" do
     assert %Conn{private: %{maru_version: "v1"}} =
-      conn(:get, "/", nil, headers: [{"accept-version", "v1"}]) |> prepare |> Maru.Plugs.Version.call({:accept_version_header, []})
+      conn(:get, "/") |> put_req_header("accept-version", "v1") |> prepare |> Maru.Plugs.Version.call({:accept_version_header, []})
 
     assert %Conn{private: %{maru_version: nil}} =
       conn(:get, "/") |> prepare |> Maru.Plugs.Version.call({:accept_version_header, []})

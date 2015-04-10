@@ -31,7 +31,7 @@ defmodule Maru.Helpers.ResponseTest do
   end
 
   test "header" do
-    conn = conn(:get, "/", nil, headers: [{"foo", "bar"}])
+    conn = conn(:get, "/") |> put_req_header("foo", "bar")
     assert {"foo", "bar"} in headers
     header("baz", "foo")
     assert {"baz", "foo"} in conn.resp_headers

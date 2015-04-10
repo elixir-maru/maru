@@ -25,20 +25,21 @@ defmodule Maru.Builder do
     end
   end
 
-  defmacro __before_compile__(%Macro.Env{module: module}) do
+  defmacro __before_compile__(%Macro.Env{module: module}=env) do
     plugs = Module.get_attribute(module, :plugs)
     maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)
-    {conn, body} =
-      [ if Maru.Config.is_server?(module) do
-          [{Maru.Plugs.NotFound, [], true}]
-        else [] end,
-        maru_router_plugs,
-        [{:endpoint, [], true}, {Maru.Plugs.Prepare, [], true}],
-        if Maru.Config.is_server?(module) do
-          [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
-        else [] end,
-        plugs,
-      ] |> Enum.concat |> Plug.Builder.compile
+    pipeline = [
+      if Maru.Config.is_server?(module) do
+        [{Maru.Plugs.NotFound, [], true}]
+      else [] end,
+      maru_router_plugs,
+      [{:endpoint, [], true}, {Maru.Plugs.Prepare, [], true}],
+      if Maru.Config.is_server?(module) do
+        [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
+      else [] end,
+      plugs,
+    ] |> Enum.concat
+    {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
     quote do
       for i <- @endpoints do
