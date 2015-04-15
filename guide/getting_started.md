@@ -9,7 +9,7 @@
 2. Add maru to your `mix.exs` dependencies:
 
         def deps do
-          [ {:maru, "~> 0.2.8"} ]
+          [ {:maru, "~> 0.2.9"} ]
         end
 
 3. List `:maru` as your application dependencies:
@@ -44,7 +44,7 @@ end
 
 ```elixir
 config :maru, MyAPP.API,
-  port: 8880
+  http: [port: 8880]
 ```
 
 ### Run Server
