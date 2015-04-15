@@ -29,5 +29,4 @@ defmodule Maru.Builder.Namespaces do
       @resource resource
     end
   end
-
 end

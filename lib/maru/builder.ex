@@ -94,6 +94,13 @@ defmodule Maru.Builder do
     end
   end
 
+  defmacro prefix(path) do
+    path = Path.split path
+    quote do
+      %Resource{path: path} = resource = @resource
+      @resource %{resource | path: path ++ (unquote path)}
+    end
+  end
 
   Module.eval_quoted __MODULE__, (for method <- @methods do
     quote do

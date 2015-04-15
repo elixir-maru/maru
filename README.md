@@ -87,7 +87,7 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
 - [ ] params unused warning
 - [ ] complex path for namespaces
-- [ ] prefix macro
+- [X] prefix macro
 - [ ] work with phoenix guide
 - [ ] HTTP Status Code
 - [ ] shared params
