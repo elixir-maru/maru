@@ -90,7 +90,7 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [X] prefix macro
 - [ ] work with phoenix guide
 - [ ] HTTP Status Code
-- [ ] shared params
+- [X] reusable params
 - [ ] redirecting
 - [ ] error!
 - [ ] jsonp support

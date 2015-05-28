@@ -7,13 +7,14 @@ defmodule Maru.Builder do
 
   defmacro __using__(_) do
     quote do
-      use Maru.Helpers.Response
+      import Maru.Helpers.Response
       import Maru.Builder.Namespaces
       import Plug.Builder, only: [plug: 1, plug: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :plugs, accumulate: true
       Module.register_attribute __MODULE__, :maru_router_plugs, accumulate: true
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
+      Module.register_attribute __MODULE__, :shared_params, accumulate: true
       @version nil
       @resource %Resource{}
       @param_context []
@@ -147,13 +148,18 @@ defmodule Maru.Builder do
 
   defmacro helpers([do: block]) do
     quote do
+      import Maru.Helpers.Params
+      import Kernel, except: [use: 1]
       unquote(block)
     end
   end
 
   defmacro helpers({_, _, mod}) do
+    module = Module.concat mod
     quote do
-      import unquote(Module.concat mod)
+      import Maru.Helpers.Params
+      import unquote(module)
+      unquote(module).__shared_params__ |> Enum.each &(@shared_params &1)
     end
   end
 

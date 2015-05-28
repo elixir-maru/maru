@@ -62,4 +62,42 @@ defmodule Maru.RouterTest do
     assert %Maru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
                                 } == ResourcesTest.resource
   end
+
+  test "shared params" do
+    defmodule Helper do
+      use Maru.Helper
+      params :foo0 do
+        optional :bar
+      end
+
+      params :foo1 do
+        requires :baz
+      end
+    end
+
+    defmodule SharedParamsTest do
+      use Maru.Router
+
+      helpers Maru.RouterTest.Helper
+      helpers do
+        params :foo2 do
+          optional :qux
+        end
+      end
+
+      params do
+        requires :foo
+        use [:foo0, :foo1, :foo2]
+      end
+
+      def pc, do: @param_context
+    end
+
+    assert [
+      %Maru.Router.Param{attr_name: :foo},
+      %Maru.Router.Param{attr_name: :bar},
+      %Maru.Router.Param{attr_name: :baz},
+      %Maru.Router.Param{attr_name: :qux},
+    ] = SharedParamsTest.pc
+  end
 end

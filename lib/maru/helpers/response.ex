@@ -1,7 +1,6 @@
 defmodule Maru.Helpers.Response do
   defmacro __using__(_) do
     quote do
-      import Plug.Conn
       import unquote(__MODULE__)
     end
   end
@@ -53,7 +52,7 @@ defmodule Maru.Helpers.Response do
   defmacro json(reply, code \\ 200) do
     quote do
       content_type "application/json"
-      var!(conn) |> send_resp(unquote(code), unquote(reply) |> Poison.encode!) |> halt
+      var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply) |> Poison.encode!) |> Plug.Conn.halt
     end
   end
 
@@ -61,7 +60,7 @@ defmodule Maru.Helpers.Response do
   defmacro html(reply, code \\ 200) do
     quote do
       content_type "text/html"
-      var!(conn) |> send_resp(unquote(code), unquote(reply)) |> halt
+      var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply)) |> Plug.Conn.halt
     end
   end
 
@@ -69,7 +68,7 @@ defmodule Maru.Helpers.Response do
   defmacro text(reply, code \\ 200) do
     quote do
       content_type "text/plain"
-      var!(conn) |> send_resp(unquote(code), unquote(reply)) |> halt
+      var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply)) |> Plug.Conn.halt
     end
   end
 end

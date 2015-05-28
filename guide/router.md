@@ -87,6 +87,54 @@ params do
 end
 ```
 
+### Reusable Params
+
+You can define reusable `params` using helpers.
+
+```elixir
+defmodule API do
+  helpers :name do
+    optional :first_name
+    optional :last_name
+  end
+
+  params do
+    use :name
+  end
+  get do
+    ...
+  end
+end
+```
+
+You can also define reusable `params` using shared helpers.
+
+```elixir
+defmodule SharedParams do
+  use Maru.Helper
+
+  params :period do
+    optional :start_date
+    optional :end_date
+  end
+
+  params :pagination do
+    optional :page, type: Integer
+    optional :per_page, type: Integer
+  end
+end
+
+defmodule API do
+  helpers SharedParams
+
+  params do
+    use [:period, :pagination]
+  end
+  get do
+    ...
+  end
+end
+```
 
 ### Validators
 

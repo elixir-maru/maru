@@ -1,6 +1,7 @@
 defmodule Maru.Helpers.ResponseTest do
   use ExUnit.Case, async: true
   import Plug.Test
+  import Plug.Conn
   use Maru.Helpers.Response
 
   test "json response" do

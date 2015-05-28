@@ -1,6 +1,23 @@
 defmodule Maru.Builder.Params do
   alias Maru.Router.Param
   alias Maru.Router.Validator
+  import Kernel, except: [use: 1]
+
+  defmacro use(param) when is_atom(param) do
+    quote do
+      params = @shared_params[unquote(param)]
+      Module.eval_quoted __MODULE__, params, [], __ENV__
+    end
+  end
+
+  defmacro use(params) do
+    quote do
+      for i <- unquote(params) do
+        params = @shared_params[i]
+        Module.eval_quoted __MODULE__, params, [], __ENV__
+      end
+    end
+  end
 
   defmacro requires(attr_name) do
     param(attr_name, [], [required: true, nested: false])
