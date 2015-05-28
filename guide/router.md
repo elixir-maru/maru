@@ -215,3 +215,26 @@ version 'v1', using: :param, parameter: "v"
 ```bash
 curl -H http://localhost:9292/statuses/public_timeline?v=v1
 ```
+
+### Middleware
+
+`middleware` is a plug.
+There's no `before` or `after` callback within `middleware`, `middleware` is just a plug with `response` helper of `maru`.
+
+```elixir
+defmodule Before do
+  use Maru.Middleware
+
+  def call(conn, _opts) do
+    IO.puts "before request"
+    conn
+  end
+end
+
+defmodule API do
+  use Maru.Router
+
+  plug Before
+  mount Router
+end
+```
