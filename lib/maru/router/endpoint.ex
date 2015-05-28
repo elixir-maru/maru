@@ -8,7 +8,7 @@ defmodule Maru.Router.Endpoint do
   def dispatch(ep) do
     path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
     params_block = quote do
-      var!(params) =
+      var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_params,
         Maru.Router.Endpoint.validate_params(
           Enum.concat(var!(conn).private.maru_param_context, unquote(ep.param_context |> Macro.escape)),
           var!(conn).params,
@@ -17,6 +17,7 @@ defmodule Maru.Router.Endpoint do
             var!(conn).private.maru_route_path ++ unquote(ep.path)
           )
         )
+      )
     end
 
     quote do

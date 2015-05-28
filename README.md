@@ -85,7 +85,7 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 - [ ] <del>generate detail docs include params</del>
 - [ ] swagger support [#1](https://github.com/falood/maru/issues/1)
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
-- [ ] params unused warning
+- [X] params unused warning
 - [ ] complex path for namespaces
 - [X] prefix macro
 - [ ] work with phoenix guide

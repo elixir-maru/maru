@@ -5,6 +5,11 @@ defmodule Maru.Helpers.Response do
     end
   end
 
+  defmacro params do
+    quote do
+      var!(conn).private[:maru_params] || %{}
+    end
+  end
 
   defmacro assigns do
     quote do
