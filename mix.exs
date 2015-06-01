@@ -3,7 +3,7 @@ defmodule Maru.Mixfile do
 
   def project do
     [ app: :maru,
-      version: "0.2.10",
+      version: "0.3.0-dev",
       elixir: "~> 1.0.0",
       deps: deps,
       description: "Elixir copy of grape for creating REST-like APIs.",
@@ -20,7 +20,7 @@ defmodule Maru.Mixfile do
 
   defp deps do
     [ { :cowboy, "~> 1.0.0" },
-      { :plug,   "~> 0.11.3" },
+      { :plug,   "~> 0.12.2" },
       { :poison, "~> 1.3" },
     ]
   end
