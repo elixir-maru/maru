@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.2.10-dev
+## v0.2.10 (2015-6-1)
 
 * Enhancements
   * Support reusable params by `use` DSL within `params`.
