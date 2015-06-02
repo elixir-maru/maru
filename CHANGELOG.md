@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.3.0-dev
+## v0.3.0 (2015-6-2)
 * Enhancements
   * Support Plug v0.12
   * Update to poison v1.4.0

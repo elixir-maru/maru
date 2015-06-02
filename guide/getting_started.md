@@ -9,7 +9,7 @@
 2. Add maru to your `mix.exs` dependencies:
 
         def deps do
-          [ {:maru, "~> 0.2.10"} ]
+          [ {:maru, "~> 0.3.0"} ]
         end
 
 3. List `:maru` as your application dependencies:
