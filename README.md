@@ -14,7 +14,7 @@ defmodule Router.User do
   namespace :user do
     route_param :id do
       get do
-        %{ user: params[:id] } |> json
+        %{ user: params[:id] }
       end
 
       desc "description"
@@ -42,7 +42,7 @@ defmodule Router.Homepage do
 
   resources do
     get do
-      %{ hello: :world } |> json
+      %{ hello: :world }
     end
 
     mount Router.User

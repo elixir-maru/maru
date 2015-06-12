@@ -24,7 +24,11 @@ defmodule Maru.Router.Endpoint do
       defp endpoint(%Plug.Conn{method: unquote(ep.method),
                                private: %{maru_resource_path: unquote(path)}}=var!(conn), []) do
         unquote(params_block)
-        unquote(ep.block)
+        case unquote(ep.block) do
+          %Plug.Conn{halted: true} = conn -> conn
+          %Plug.Conn{}             = conn -> conn |> Plug.Conn.halt
+          resp                            -> Maru.Router.Endpoint.send_resp(var!(conn), resp)
+        end
       end
     end
   end
@@ -133,6 +137,18 @@ defmodule Maru.Router.Endpoint do
       end
     validator.validate_param!(attr_name, value, option)
     do_check_param(t, attr_name, value)
+  end
+
+
+  def send_resp(conn, resp) do
+    status = conn.status || 200
+    body = resp |> Maru.Response.resp_body
+    if Plug.Conn.get_resp_header(conn, "content-type") == [] do
+      content_type = resp |> Maru.Response.content_type
+      conn |> Plug.Conn.put_resp_content_type(content_type)
+    else conn end
+ |> Plug.Conn.send_resp(status, body)
+ |> Plug.Conn.halt
   end
 
 end

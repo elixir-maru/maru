@@ -1,5 +1,6 @@
 defmodule Maru.Router.EndpointTest do
   use ExUnit.Case, async: true
+  import Plug.Test
   alias Maru.Router.Endpoint
   alias Maru.Router.Param
   alias Maru.Router.Validator
@@ -70,5 +71,21 @@ defmodule Maru.Router.EndpointTest do
       Endpoint.validate_params([ %Validator{action: :mutually_exclusive, attr_names: [:foo, :bar, :baz],  group: []}
                                ], %{}, %{foo: "foo", bar: "bar"})
     end
+  end
+
+  test "send_resp status" do
+    conn = %{conn(:get, "/") | status: 201}
+    assert %Plug.Conn{status: 201, halted: true} = Endpoint.send_resp(conn, "")
+
+    conn = conn(:post, "/")
+    assert %Plug.Conn{status: 200, halted: true} = Endpoint.send_resp(conn, "")
+  end
+
+  test "send_resp content_type" do
+    conn = conn(:get, "/") |> Plug.Conn.put_resp_content_type("application/json")
+    assert {"content-type", "application/json; charset=utf-8"} in Endpoint.send_resp(conn, "").resp_headers
+
+    conn = conn(:post, "/")
+    assert {"content-type", "text/plain; charset=utf-8"} in Endpoint.send_resp(conn, "").resp_headers
   end
 end

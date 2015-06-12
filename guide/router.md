@@ -238,3 +238,35 @@ defmodule API do
   mount Router
 end
 ```
+
+### Response
+
+`Maru.Response` protocol is defined to process response with two function: `content_type` and `resp_body`.
+
+By default, `Map` and `List` struct will be processed by `Poison.encode!` with `application/json`, `String` will be return directily with `text/plain`, and any other struct will be processed by `to_string` with `text/plain`.
+
+You can use a custom `struct` like this:
+
+```elixir
+defmodule User do
+  defstruct name: nil, age: nil, password: nil
+end
+
+defimpl Maru.Response, for: User do
+  def content_type(_) do
+    "application/json"
+  end
+
+  def resp_body(user) do
+    %{name: user.name, age: user.age} |> Poison.encode!
+  end
+end
+
+defmodule API do
+  use Maru.Router
+
+  get do
+    %User{name: "falood", age: "25", password: "123456"}
+  end
+end
+```

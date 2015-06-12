@@ -17,7 +17,7 @@ defmodule Maru.MiddlewareTest do
 
       get do
         params
-        "ok" |> text
+        "ok"
       end
     end
 

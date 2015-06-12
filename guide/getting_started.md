@@ -25,7 +25,7 @@ defmodule MyAPP.Router.Homepage do
   use Maru.Router
 
   get do
-    %{ hello: :world } |> json
+    %{ hello: :world }
   end
 end
 
@@ -35,7 +35,8 @@ defmodule MyAPP.API do
   mount MyAPP.Router.Homepage
 
   def error(conn, e) do
-    "Server Error" |> text(500)
+    status 500
+    "Server Error"
   end
 end
 ```
