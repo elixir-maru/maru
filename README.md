@@ -57,7 +57,9 @@ defmodule MyAPP.API do
   mount Router.Homepage
 
   def error(conn, _e) do
-    "Server Error" |> text(500)
+    status 500
+
+    "Server Error"
   end
 end
 ```
