@@ -15,6 +15,15 @@ defmodule Maru.Router.EndpointTest do
     end
   end
 
+  test "identical param keys in groups" do
+    assert %{group: %{name: "name1"}, name: "name2"} ==
+      Endpoint.validate_params([
+        %Param{attr_name: :name,  parser: Maru.ParamType.String, nested: false},
+        %Param{attr_name: :group, parser: Maru.ParamType.Map,    nested: true},
+        %Param{attr_name: :name,  parser: Maru.ParamType.String, group: [:group]}
+      ], %{"group" => %{"name" => "name1"}, "name" => "name2"}, %{})
+  end
+
   test "validate Map nested param" do
     assert %{group: %{name: "name"}} ==
       Endpoint.validate_params([ %Param{attr_name: :group, parser: Maru.ParamType.Map, nested: true},

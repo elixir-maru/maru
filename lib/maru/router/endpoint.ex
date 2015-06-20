@@ -58,7 +58,7 @@ defmodule Maru.Router.Endpoint do
   def validate_params([%Param{attr_name: attr_name, group: group, nested: false}=p|t], params, result) do
     attr_path = group ++ [attr_name]
     value =
-      case { result[attr_name] || get_in(params, Enum.map(attr_path, &to_string/1)) || p.default, p.required } do
+      case { get_in(result, attr_path) || get_in(params, Enum.map(attr_path, &to_string/1)) || p.default, p.required } do
         {nil, false} -> nil
         {nil, true}  -> Maru.Exceptions.InvalidFormatter
                      |> raise [reason: :required, param: attr_name, option: p]
@@ -77,7 +77,7 @@ defmodule Maru.Router.Endpoint do
       {true, false} ->
         validate_params(rest, params, result)
       {false, _} ->
-        validate_params(t, params, put_in(result, group ++ [attr_name], %{}))
+        validate_params(t, params, put_in(result, attr_path, %{}))
     end
   end
 
