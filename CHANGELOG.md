@@ -5,7 +5,7 @@
   * status DSL
 
 * Deprecations
-  * json/1, json/2, html/1, html/2, text/1, text/2 is deprecated in faver of returning data directily.
+  * json/1, json/2, html/1, html/2, text/1, text/2 is deprecated in favor of returning data directly.
 
 * Bugfix
   * param value replaced by identical param keys in group [#5](https://github.com/falood/maru/issues/5).
