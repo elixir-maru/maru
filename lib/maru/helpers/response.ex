@@ -11,6 +11,7 @@ defmodule Maru.Helpers.Response do
     end
   end
 
+
   defmacro assigns do
     quote do
       var!(conn).assigns

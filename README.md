@@ -56,9 +56,15 @@ defmodule MyAPP.API do
   plug Plug.Static, at: "/static", from: "/my/static/path/"
   mount Router.Homepage
 
-  def error(conn, _e) do
-    status 500
+  rescue_from Unauthorized, as: e do
+    IO.inspect e
 
+    status 401
+    "Unauthorized"
+  end
+
+  rescue_from :all do
+    status 500
     "Server Error"
   end
 end

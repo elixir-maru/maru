@@ -15,16 +15,42 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :maru_router_plugs, accumulate: true
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      Module.register_attribute __MODULE__, :exceptions, accumulate: true
       @version nil
       @resource %Resource{}
       @param_context []
       @desc nil
       @group []
-      @exception nil
       @before_compile unquote(__MODULE__)
       def init(_), do: []
     end
   end
+
+
+  defmacro rescue_from(:all, [as: error_var], [do: block]) do
+    quote do
+      @exceptions {:all, unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
+    end
+  end
+
+  defmacro rescue_from(error, [as: error_var], [do: block]) do
+    quote do
+      @exceptions {unquote(error), unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
+    end
+  end
+
+  defmacro rescue_from(:all, [do: block]) do
+    quote do
+      @exceptions {:all, unquote(block |> Macro.escape)}
+    end
+  end
+
+  defmacro rescue_from(error, [do: block]) do
+    quote do
+      @exceptions {unquote(error), unquote(block |> Macro.escape)}
+    end
+  end
+
 
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     plugs = Module.get_attribute(module, :plugs)
@@ -41,6 +67,34 @@ defmodule Maru.Builder do
       plugs,
     ] |> Enum.concat
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
+
+    exceptions = Module.get_attribute(module, :exceptions) |> Enum.map(
+      fn
+        {:all, block} ->
+          quote do
+            _ ->
+              resp = unquote(block)
+              Maru.Router.Endpoint.send_resp(var!(conn), resp)
+          end
+        {error, block} ->
+          quote do
+            unquote(error) ->
+              resp = unquote(block)
+              Maru.Router.Endpoint.send_resp(var!(conn), resp)
+          end
+        {:all, error_var, block} ->
+          quote do
+            unquote(error_var) ->
+              resp = unquote(block)
+              Maru.Router.Endpoint.send_resp(var!(conn), resp)
+          end
+        {error, error_var, block} ->
+          quote do
+            unquote(error_var) in unquote(error) ->
+              resp = unquote(block)
+              Maru.Router.Endpoint.send_resp(var!(conn), resp)
+          end
+    end) |> List.flatten |> Enum.reverse
 
     quote do
       for i <- @endpoints do
@@ -65,13 +119,13 @@ defmodule Maru.Builder do
           end
       end
 
-      if Module.defines? __MODULE__, {:error, 2} do
+      unless Enum.empty? @exceptions do
         defoverridable [call: 2]
-        def call(conn, opts) do
+        def call(var!(conn), opts) do
           try do
-            super(conn, opts)
+            super(var!(conn), opts)
           rescue
-            e -> error(conn, e)
+            unquote(exceptions)
           end
         end
       end

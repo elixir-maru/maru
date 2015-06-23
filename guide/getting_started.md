@@ -34,7 +34,7 @@ defmodule MyAPP.API do
 
   mount MyAPP.Router.Homepage
 
-  def error(conn, e) do
+  rescue_from :all do
     status 500
     "Server Error"
   end
