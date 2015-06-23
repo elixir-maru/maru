@@ -7,22 +7,10 @@ defmodule Maru.ResponseTest do
     assert "ok" == Maru.Response.resp_body(resp)
   end
 
-  test "map response" do
-    resp = %{success: "ok"}
-    assert "application/json" == Maru.Response.content_type(resp)
-    assert ~s[{"success":"ok"}] == Maru.Response.resp_body(resp)
-  end
-
-  test "list response" do
-    resp = [1, 2, 3]
-    assert "application/json" == Maru.Response.content_type(resp)
-    assert "[1,2,3]" == Maru.Response.resp_body(resp)
-  end
-
   test "any response" do
     resp = :atom
-    assert "text/plain" == Maru.Response.content_type(resp)
-    assert "atom" == Maru.Response.resp_body(resp)
+    assert "application/json" == Maru.Response.content_type(resp)
+    assert ~s["atom"] == Maru.Response.resp_body(resp)
   end
 
   test "custom response" do
