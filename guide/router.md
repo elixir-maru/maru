@@ -243,7 +243,7 @@ end
 
 `Maru.Response` protocol is defined to process response with two function: `content_type` and `resp_body`.
 
-By default, `Map` and `List` struct will be processed by `Poison.encode!` with `application/json`, `String` will be return directily with `text/plain`, and any other struct will be processed by `to_string` with `text/plain`.
+By default, `Map` and `List` struct will be processed by `Poison.encode!` with `application/json`, `String` will be return directly with `text/plain`, and any other struct will be processed by `to_string` with `text/plain`.
 
 You can use a custom `struct` like this:
 

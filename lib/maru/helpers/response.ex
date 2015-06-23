@@ -64,7 +64,7 @@ defmodule Maru.Helpers.Response do
 
 
   defmacro json(reply, code \\ 200) do
-    IO.write :stderr, "warning: json/1 and json/2 is deprecated, in faver of returning Map directily.\n"
+    IO.write :stderr, "warning: json/1 and json/2 is deprecated, in faver of returning Map directly.\n"
     quote do
       content_type "application/json"
       var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply) |> Poison.encode!) |> Plug.Conn.halt
@@ -73,7 +73,7 @@ defmodule Maru.Helpers.Response do
 
 
   defmacro html(reply, code \\ 200) do
-    IO.write :stderr, "warning: html/1 and html/2 is deprecated, in faver of setting content_type and returning String directily.\n"
+    IO.write :stderr, "warning: html/1 and html/2 is deprecated, in faver of setting content_type and returning String directly.\n"
     quote do
       content_type "text/html"
       var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply)) |> Plug.Conn.halt
@@ -82,7 +82,7 @@ defmodule Maru.Helpers.Response do
 
 
   defmacro text(reply, code \\ 200) do
-    IO.write :stderr, "warning: test/1 and text/2 is deprecated, in faver of returning String directily.\n"
+    IO.write :stderr, "warning: test/1 and text/2 is deprecated, in faver of returning String directly.\n"
     quote do
       content_type "text/plain"
       var!(conn) |> Plug.Conn.send_resp(unquote(code), unquote(reply)) |> Plug.Conn.halt

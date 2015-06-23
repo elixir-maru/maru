@@ -8,7 +8,7 @@
 
 * Deprecations
   * json/1, json/2, html/1, html/2, text/1, text/2 is deprecated in favor of returning data directly.
-  * error/2 is deprecated in favor of rescue_from/2 and rescue_from/3.
+  * error/2 is deprecated in favor of rescue\_from/2 and rescue\_from/3.
 
 * Bugfix
   * param value replaced by identical param keys in group [#5](https://github.com/falood/maru/issues/5).
