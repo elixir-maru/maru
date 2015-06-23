@@ -137,12 +137,12 @@ defmodule Maru.Router.Endpoint do
   end
 
 
-  def send_resp(_, %Plug.Conn{halted: true}=conn) do
-    conn
+  def send_resp(_, %Plug.Conn{private: %{maru_present: present}}=conn) do
+    send_resp(conn, present)
   end
 
   def send_resp(_, %Plug.Conn{}=conn) do
-    conn |> Plug.Conn.halt
+    conn
   end
 
   def send_resp(conn, resp) do

@@ -63,6 +63,38 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  defmacro present(payload, opts) do
+    quote do
+      var!(conn) = var!(conn) |> unquote(__MODULE__).put_present(unquote(payload), unquote(opts))
+    end
+  end
+
+  defmacro present(key, payload, opts) do
+    quote do
+      var!(conn) = var!(conn) |> unquote(__MODULE__).put_present(unquote(key), unquote(payload), unquote(opts))
+    end
+  end
+
+  def put_present(conn, payload, opts) do
+    value = get_present_value(payload, opts)
+    conn |> Plug.Conn.put_private(:maru_present, value)
+  end
+
+  def put_present(conn, key, payload, opts) do
+    present = conn.private[:maru_present] || %{}
+    value = present |> put_in([key], get_present_value(payload, opts))
+    conn |> Plug.Conn.put_private(:maru_present, value)
+  end
+
+  defp get_present_value(payload, opts) do
+    case Keyword.pop(opts, :with) do
+      {nil, _} ->
+        raise "missing keyword `with`"
+      {entity_klass, opts} ->
+        entity_klass.serialize(payload, opts)
+    end
+  end
+
   defmacro json(reply, code \\ 200) do
     IO.write :stderr, "warning: json/1 and json/2 is deprecated, in faver of returning Map directly.\n"
     quote do

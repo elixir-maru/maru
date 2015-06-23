@@ -27,4 +27,32 @@ defmodule Maru.Helpers.ResponseTest do
     status :ok
     assert 200 = conn.status
   end
+
+  defmodule User do
+    defstruct [:name, :age, :password]
+  end
+
+  defmodule UserEntity do
+    def serialize(payload, _opts) do
+      %{name: payload.name, age: payload.age}
+    end
+  end
+
+  test "present/2" do
+    conn = conn(:get, "/")
+    user = %User{name: "falood", age: 25}
+    present user, with: UserEntity
+    assert %{ age: 25, name: "falood"
+            } = conn.private[:maru_present]
+  end
+
+  test "present/3" do
+    conn = conn(:get, "/")
+    user1 = %User{name: "falood", age: 25}
+    user2 = %User{name: "programiao", age: 23}
+    present :user1, user1, with: UserEntity
+    present :user2, user2, with: UserEntity
+    assert %{ user1: %{age: 25, name: "falood"}, user2: %{age: 23, name: "programiao"}
+            } = conn.private[:maru_present]
+  end
 end
