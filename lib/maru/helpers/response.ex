@@ -87,9 +87,9 @@ defmodule Maru.Helpers.Response do
   end
 
   defp get_present_value(payload, opts) do
-    case Keyword.pop(opts, :with) do
+    opts |> Enum.into(%{}) |> Dict.pop(:with) |> case do
       {nil, _} ->
-        raise "missing keyword `with`"
+        raise "present options missing keyword :with"
       {entity_klass, opts} ->
         entity_klass.serialize(payload, opts)
     end

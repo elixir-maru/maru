@@ -33,7 +33,7 @@ defmodule Maru.Helpers.ResponseTest do
   end
 
   defmodule UserEntity do
-    def serialize(payload, _opts) do
+    def serialize(payload, %{}) do
       %{name: payload.name, age: payload.age}
     end
   end

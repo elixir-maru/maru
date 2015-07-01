@@ -243,7 +243,7 @@ end
 
 `Maru.Response` protocol is defined to process response with two function: `content_type` and `resp_body`.
 
-By default, `Map` and `List` struct will be processed by `Poison.encode!` with `application/json`, `String` will be return directly with `text/plain`, and any other struct will be processed by `to_string` with `text/plain`.
+By default, `String` will be return directly with `text/plain`, and any other struct will be processed by `Poison.encode!` with `application/json`.
 
 You can use a custom `struct` like this:
 
@@ -268,5 +268,23 @@ defmodule API do
   get do
     %User{name: "falood", age: "25", password: "123456"}
   end
+end
+```
+
+If you're using [maru_entity](https://hex.pm/packages/maru_entity), `present` may be the best way to make response.
+
+```elixir
+get do
+  users = User.all
+  present users, with: UserEntity # => [%{name: "name1"}, %{name: "name2"}]
+end
+```
+
+or
+
+```elixir
+get do
+  users = User.all
+  present :data, users, with: UserEntity # => %{data: [%{name: "name1"}, %{name: "name2"}]}
 end
 ```
