@@ -1,9 +1,10 @@
 ## Changelog
 
-## v0.3.1-dev
+## v0.3.1 (2015-7-2)
 * Enhancements
   * status DSL
   * rescue_from DSL
+  * present DSL
   * Maru.Response procotol
 
 * Deprecations
