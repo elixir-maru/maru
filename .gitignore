@@ -3,10 +3,4 @@
 /ebin
 /tmp
 /_build
-erl_crash.dump
-*~
-\#*
-.\#*
 mix.lock
-
-venv
