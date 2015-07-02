@@ -1,5 +1,7 @@
 ## Changelog
 
+## v0.4.0-dev
+
 ## v0.3.1 (2015-7-2)
 * Enhancements
   * status DSL
