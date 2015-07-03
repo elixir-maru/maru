@@ -3,6 +3,7 @@
 ## v0.4.0-dev
 * Enhancements
   * Support Plug v0.13
+  * add Maru.Test
 
 ## v0.3.1 (2015-7-2)
 * Enhancements

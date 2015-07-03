@@ -143,7 +143,7 @@ defmodule Maru.Builder do
         true -> nil
       end
 
-      if Mix.env == :dev do
+      if Mix.env in [:dev, :test] do
         def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
         def __routers__, do: @maru_router_plugs
         def __version__ do
