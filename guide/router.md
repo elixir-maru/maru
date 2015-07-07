@@ -310,3 +310,14 @@ defmodule APITest do
   end
 end
 ```
+
+### Redirecting
+
+You can redirect to a new url temporarily (302) or permanently (301).
+
+```elixir
+redirect '/statuses'
+```
+```elixir
+redirect '/statuses', permanent: true
+```

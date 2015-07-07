@@ -55,4 +55,19 @@ defmodule Maru.Helpers.ResponseTest do
     assert %{ user1: %{age: 25, name: "falood"}, user2: %{age: 23, name: "programiao"}
             } = conn.private[:maru_present]
   end
+
+  test "redirect 302" do
+    conn = conn(:get, "/")
+    redirect("/foo")
+
+    assert {"location", "/foo"} in conn.resp_headers
+    assert 302 == conn.status
+  end
+
+  test "redirect 301" do
+    conn = conn(:get, "/")
+    redirect("/bar", permanent: true)
+    assert {"location", "/bar"} in conn.resp_headers
+    assert 301 == conn.status
+  end
 end

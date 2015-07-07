@@ -4,6 +4,7 @@
 * Enhancements
   * Support Plug v0.13
   * add Maru.Test
+  * redirect DSL
 
 ## v0.3.1 (2015-7-2)
 * Enhancements

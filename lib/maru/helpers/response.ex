@@ -95,6 +95,25 @@ defmodule Maru.Helpers.Response do
     end
   end
 
+
+  defmacro redirect(url) do
+    quote do
+      var!(conn) = var!(conn)
+   |> Plug.Conn.put_resp_header("location", unquote(url))
+   |> Plug.Conn.put_status(302)
+   |> Plug.Conn.halt
+    end
+  end
+
+  defmacro redirect(url, permanent: true) do
+    quote do
+      var!(conn) = var!(conn)
+   |> Plug.Conn.put_resp_header("location", unquote(url))
+   |> Plug.Conn.put_status(301)
+   |> Plug.Conn.halt
+    end
+  end
+
   defmacro json(reply, code \\ 200) do
     IO.write :stderr, "warning: json/1 and json/2 is deprecated, in faver of returning Map directly.\n"
     quote do
