@@ -288,3 +288,25 @@ get do
   present :data, users, with: UserEntity # => %{data: [%{name: "name1"}, %{name: "name2"}]}
 end
 ```
+
+### Unit Test
+
+`Maru.Test` only works with designated `Maru.Router`, so if you want to test a router named `API`, you should use `Maru.Test` like this:
+
+```elixir
+defmodule API do
+  use Maru.Router
+
+  get do
+    ...
+  end
+end
+
+defmodule APITest do
+  use Maru.Test, for: API
+
+  test "/" do
+    assert %Plug.Conn{} = conn(:get, "/") |> make_response
+  end
+end
+```
