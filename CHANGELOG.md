@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.4.0-dev
+## v0.4.0 (2015-7-9)
 * Enhancements
   * Support Plug v0.13
   * add Maru.Test
