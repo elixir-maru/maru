@@ -2,8 +2,9 @@
 
 > Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs.
 
-[![Build Status](https://api.travis-ci.org/falood/maru.svg)](https://travis-ci.org/falood/maru/)
-[![hex.pm Version](https://img.shields.io/hexpm/v/maru.svg)](https://hex.pm/packages/maru)
+[![Build Status](https://img.shields.io/travis/falood/maru.svg?style=flat-square)](https://travis-ci.org/falood/maru)
+[![Hex.pm Version](https://img.shields.io/hexpm/v/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dt/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
 
 ## Usage
 
@@ -80,26 +81,8 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 
 ## TODO
 
-- [X] params macro
-- [X] `mutually_exclusive` `exactly_one_of` `at_least_one_of` macro for params
-- [X] group macro for params
-- [X] header macro
-- [X] assign macro
-- [X] helper macro
-- [X] generate docs
-- [X] custom params validators
-- [X] version support
-- [X] https support
-- [ ] <del>generate detail docs include params</del>
-- [X] swagger support [#1](https://github.com/falood/maru/issues/1)
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
-- [X] params unused warning
 - [ ] complex path for namespaces
-- [X] prefix macro
 - [ ] work with phoenix guide
-- [ ] HTTP Status Code
-- [X] reusable params
-- [ ] redirecting
-- [ ] error!
 - [ ] jsonp support
 - [ ] validation, before, before\_validation, after, after\_validation
