@@ -1,6 +1,8 @@
 ## Changelog
 
 ## v0.4.1-dev
+* Enhancements
+  * print log info when start maru http/https server
 
 ## v0.4.0 (2015-7-9)
 * Enhancements
