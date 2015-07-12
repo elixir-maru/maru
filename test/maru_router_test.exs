@@ -59,8 +59,18 @@ defmodule Maru.RouterTest do
       end
     end
 
-    assert %Maru.Router.Resource{ param_context: [], path: ["level1", "level2", :param]
-                                } == ResourcesTest.resource
+    assert %Maru.Router.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
+  end
+
+  test "complex resources" do
+    defmodule ComplexResourcesTest do
+      use Maru.Router
+      resource "foo/:bar" do
+        def resource, do: @resource
+      end
+    end
+
+    assert %Maru.Router.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
   end
 
   test "shared params" do

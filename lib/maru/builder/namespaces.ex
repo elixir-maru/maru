@@ -1,5 +1,6 @@
 defmodule Maru.Builder.Namespaces do
   alias Maru.Router.Resource
+  alias Maru.Router.Path, as: MaruPath
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
 
@@ -7,9 +8,10 @@ defmodule Maru.Builder.Namespaces do
     quote do
       defmacro unquote(namespace)([do: block]), do: block
       defmacro unquote(namespace)(path, [do: block]) do
+        path = path |> MaruPath.split
         quote do
           %Resource{path: path} = resource = @resource
-          @resource %{resource | path: path ++ [unquote(to_string path)]}
+          @resource %{resource | path: path ++ unquote(path)}
           unquote(block)
           @resource resource
         end

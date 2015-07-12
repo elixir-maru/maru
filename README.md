@@ -82,7 +82,6 @@ For more info, you can move to [Getting Started Guide](https://github.com/falood
 ## TODO
 
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
-- [ ] complex path for namespaces
 - [ ] work with phoenix guide
 - [ ] jsonp support
 - [ ] validation, before, before\_validation, after, after\_validation
