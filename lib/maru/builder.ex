@@ -1,7 +1,7 @@
 defmodule Maru.Builder do
   alias Maru.Router.Resource
   alias Maru.Router.Endpoint
-  alias Maru.Router.Path
+  alias Maru.Router.Path, as: MaruPath
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
 
@@ -163,7 +163,7 @@ defmodule Maru.Builder do
   end
 
   defmacro prefix(path) do
-    path = Path.split path
+    path = MaruPath.split path
     quote do
       %Resource{path: path} = resource = @resource
       @resource %{resource | path: path ++ (unquote path)}
@@ -174,7 +174,7 @@ defmodule Maru.Builder do
     quote do
       defmacro unquote(method)(path \\ "", [do: block]) do
         %{ method: unquote(method) |> to_string |> String.upcase,
-           path: path |> Path.split,
+           path: path |> MaruPath.split,
            block: block |> Macro.escape,
          } |> endpoint
       end
