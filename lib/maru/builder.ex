@@ -156,12 +156,6 @@ defmodule Maru.Builder do
     end
   end
 
-  defmacro maru_router_plug(plug, opts \\ []) do
-    quote do
-      @maru_router_plugs {unquote(plug), unquote(opts), true}
-    end
-  end
-
   defmacro prefix(path) do
     path = MaruPath.split path
     quote do
