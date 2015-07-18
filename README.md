@@ -77,7 +77,7 @@ config :maru, MyAPP.API,
   port: 8880
 ```
 
-For more info, you can move to [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md), [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md) and [Examples](https://github.com/falood/maru_examples)
+For more information, check out [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md), [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md) and [Examples](https://github.com/falood/maru_examples)
 
 ## TODO
 
