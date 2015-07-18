@@ -3,6 +3,11 @@ require Logger
 defmodule Maru do
   use Application
 
+  @version Mix.Project.config[:version]
+  def version do
+    @version
+  end
+
   def start(_type, _args) do
     Application.ensure_all_started :plug
     for {module, options} <- Maru.Config.servers do

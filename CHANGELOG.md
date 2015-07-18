@@ -4,6 +4,7 @@
 * Enhancements
   * rewrite Versioning
   * return variable itself when present options hasn't `:with` key
+  * add Maru.version
 
 ## v0.4.1 (2015-7-18)
 * Enhancements
