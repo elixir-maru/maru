@@ -3,7 +3,7 @@
 ## v0.5.0-dev
 * Enhancements
   * rewrite Versioning
-
+  * return variable itself when present options hasn't `:with` key
 
 ## v0.4.1 (2015-7-18)
 * Enhancements
