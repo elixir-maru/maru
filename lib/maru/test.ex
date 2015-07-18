@@ -6,9 +6,9 @@ defmodule Maru.Test do
       import Plug.Conn
       import unquote(__MODULE__)
 
-      defp make_response(conn) do
+      defp make_response(conn, version \\ nil) do
         router = unquote(router)
-        version = router.__version__
+        version = version || router.__version__
         conn
      |> Maru.Plugs.Prepare.call([])
      |> put_private(:maru_version, version)

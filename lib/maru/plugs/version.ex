@@ -2,7 +2,11 @@ defmodule Maru.Plugs.Version do
   alias Plug.Conn
 
   def init(opts) do
-    opts |> Keyword.pop :using, :path # [:path, :param, :accept_version_header, :header]
+    {strategy, options} = opts |> Keyword.pop :using, :path
+    unless strategy in [:path, :param, :accept_version_header] do
+      IO.write :stderr, "Unsupported versioning strategy: #{strategy}, Ignore."
+    end
+    {strategy, options}
   end
 
   def call(conn, {:path, _opts}) do
@@ -32,5 +36,9 @@ defmodule Maru.Plugs.Version do
       [version] -> conn |> Conn.put_private(:maru_version, version)
       _         -> conn
     end
+  end
+
+  def call(conn, _) do
+    conn
   end
 end

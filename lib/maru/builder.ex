@@ -55,15 +55,20 @@ defmodule Maru.Builder do
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     plugs = Module.get_attribute(module, :plugs)
     maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)
+    config = Maru.Config.server_config(module)
     pipeline = [
-      if Maru.Config.is_server?(module) do
+      if is_nil(config) do [] else
         [{Maru.Plugs.NotFound, [], true}]
-      else [] end,
+      end,
       maru_router_plugs,
-      [{:endpoint, [], true}, {Maru.Plugs.Prepare, [], true}],
-      if Maru.Config.is_server?(module) do
+      [{:endpoint, [], true}],
+      if is_nil(config) or is_nil(config[:versioning]) do [] else
+        [{Maru.Plugs.Version, config[:versioning], true}]
+      end,
+      [{Maru.Plugs.Prepare, [], true}],
+      if is_nil(config) do [] else
         [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
-      else [] end,
+      end,
       plugs,
     ] |> Enum.concat
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
@@ -102,21 +107,9 @@ defmodule Maru.Builder do
       end
       defp endpoint(conn, _), do: conn
 
-      case @version do
-        nil ->
-          def call(unquote(conn), _) do
-            unquote(body)
-          end
-        {v, opts} ->
-          @v v
-          @opts opts
-          def call(unquote(conn)=c, _) do
-            unquote(conn) = unquote(conn) |> Maru.Plugs.Version.call(Maru.Plugs.Version.init(@opts))
-            case unquote(conn).private.maru_version do
-              @v -> unquote(body)
-              _  -> c
-            end
-          end
+
+      def call(unquote(conn), _) do
+        unquote(body)
       end
 
 
@@ -146,12 +139,7 @@ defmodule Maru.Builder do
       if Mix.env in [:dev, :test] do
         def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
         def __routers__, do: @maru_router_plugs
-        def __version__ do
-          case @version do
-            {v, _} -> v
-            nil    -> nil
-          end
-        end
+        def __version__, do: @version
       end
     end
   end
@@ -178,7 +166,9 @@ defmodule Maru.Builder do
   defp endpoint(ep) do
     quote do
       @endpoints %Endpoint{
-        method: unquote(ep.method), desc: @desc,
+        desc: @desc,
+        method: unquote(ep.method),
+        version: @version,
         path: @resource.path ++ unquote(ep.path),
         param_context: @resource.param_context ++ @param_context,
         block: unquote(ep.block),
@@ -199,11 +189,18 @@ defmodule Maru.Builder do
     end
   end
 
-  defmacro version(v, opts) do
-    key = opts |> Keyword.get :using, :path
-    key in [:path, :param, :accept_version_header] || raise "unsupported version type: #{inspect key}"
+  defmacro version(v) do
     quote do
-      @version {unquote(v), unquote(opts)}
+      @version unquote(v)
+    end
+  end
+
+  defmacro version(v, [do: block]) do
+    quote do
+      version = @version
+      @version unquote(v)
+      unquote(block)
+      @version version
     end
   end
 
@@ -234,7 +231,7 @@ defmodule Maru.Builder do
   defmacro mount({_, _, mod}) do
     module = Module.concat mod
     quote do
-      @maru_router_plugs {Maru.Plugs.Router, [router: unquote(module), resource: @resource], true}
+      @maru_router_plugs {Maru.Plugs.Router, [router: unquote(module), resource: @resource, version: @version], true}
     end
   end
 

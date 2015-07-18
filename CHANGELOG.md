@@ -1,6 +1,9 @@
 ## Changelog
 
 ## v0.5.0-dev
+* Enhancements
+  * rewrite Versioning
+
 
 ## v0.4.1 (2015-7-18)
 * Enhancements

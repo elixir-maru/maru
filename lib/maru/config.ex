@@ -8,11 +8,8 @@ defmodule Maru.Config do
     end
   end
 
-  def is_server?(module) do
-    case Application.get_env :maru, module do
-      nil -> false
-      _ -> true
-    end
+  def server_config(module) do
+    Application.get_env :maru, module
   end
 
 end

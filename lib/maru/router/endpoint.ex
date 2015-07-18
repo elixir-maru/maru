@@ -2,11 +2,16 @@ defmodule Maru.Router.Endpoint do
   alias Maru.Router.Param
   alias Maru.Router.Validator
 
-  [ method: nil, path: [], desc: nil, param_context: [], block: nil, helpers: []
+  [ method: nil, path: [], version: nil, desc: nil, param_context: [], block: nil, helpers: []
   ] |> defstruct
 
   def dispatch(ep) do
     path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
+    version =
+      case ep.version do
+        nil -> Macro.var(:_, nil)
+        v   -> v
+      end
     params_block = quote do
       var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_params,
         Maru.Router.Endpoint.validate_params(
@@ -21,8 +26,13 @@ defmodule Maru.Router.Endpoint do
     end
 
     quote do
-      defp endpoint(%Plug.Conn{method: unquote(ep.method),
-                               private: %{maru_resource_path: unquote(path)}}=var!(conn), []) do
+      defp endpoint(%Plug.Conn{
+        method: unquote(ep.method),
+        private: %{
+          maru_resource_path: unquote(path),
+          maru_version: unquote(version),
+        }
+      }=var!(conn), []) do
         unquote(params_block)
         resp = unquote(ep.block)
         Maru.Router.Endpoint.send_resp(var!(conn), resp)

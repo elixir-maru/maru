@@ -5,12 +5,14 @@ defmodule Maru.Plugs.Router do
   def init(opts) do
     router = opts |> Keyword.fetch! :router
     'Elixir.' ++ _ = Atom.to_char_list router
+    version = opts |> Keyword.fetch!(:version)
     %Resource{path: path, param_context: param_context} = opts |> Keyword.get :resource, %Resource{}
-    {router, path, param_context}
+    {router, path, version, param_context}
   end
 
 
-  def call(conn_orig, {router, path, param_context}) do
+  def call(%Conn{private: %{maru_version: v1}}=conn_orig, {router, path, v2, param_context})
+  when is_nil(v2) or v1 == v2 do
     %{ maru_resource_path: maru_resource_path,
        maru_route_path:    maru_route_path,
        maru_param_context: maru_param_context
@@ -30,4 +32,7 @@ defmodule Maru.Plugs.Router do
     end
   end
 
+  def call(conn, _) do
+    conn
+  end
 end

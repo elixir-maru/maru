@@ -10,22 +10,21 @@ defmodule Mix.Tasks.Maru.Routers do
     end
   end
 
-  defp generate_module(mod, path, version) do
-    version = version || mod.__version__
+  defp generate_module(mod, path, module_version) do
     for ep <- mod.__endpoints__ do
-      generate_endpoint(ep, path, version)
+      generate_endpoint(ep, path, module_version)
     end
-    for {_, [router: m, resource: resource], _} <- mod.__routers__ do
+    mod.__routers__
+    for {_, [router: m, resource: resource, version: v], _} <- mod.__routers__ do
+      version = v || module_version
       generate_module(m, path ++ resource.path, version)
     end
   end
 
-  defp generate_endpoint(ep, path, nil) do
-    generate_endpoint(ep, path, "_")
-  end
-  defp generate_endpoint(ep, path, version) do
+  defp generate_endpoint(ep, path, module_version) do
     # TODO: ep.param_context
-    version = String.ljust(version, 5)
+    # TODO: sort by version
+    version = (ep.version || module_version || "_") |> String.ljust(5)
     method = String.ljust(ep.method, 7)
     path = generate_path(path ++ ep.path)
     desc = ep.desc
