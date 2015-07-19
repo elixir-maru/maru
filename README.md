@@ -77,11 +77,10 @@ config :maru, MyAPP.API,
   port: 8880
 ```
 
-For more information, check out [Getting Started Guide](https://github.com/falood/maru/blob/master/guide/getting_started.md), [Router Guide](https://github.com/falood/maru/blob/master/guide/router.md) and [Examples](https://github.com/falood/maru_examples)
+For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/falood/maru_examples)
 
 ## TODO
 
 - [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
-- [ ] work with phoenix guide
 - [ ] jsonp support
 - [ ] validation, before, before\_validation, after, after\_validation
