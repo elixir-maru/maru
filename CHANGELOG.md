@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.5.0-dev
+## v0.5.0 (2015-7-23)
 * Enhancements
   * rewrite Versioning
   * return variable itself when present options hasn't `:with` key
