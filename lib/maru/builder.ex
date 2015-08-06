@@ -17,6 +17,7 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
       Module.register_attribute __MODULE__, :exceptions, accumulate: true
       @version nil
+      @extend nil
       @resource %Resource{}
       @param_context []
       @desc nil
@@ -55,10 +56,14 @@ defmodule Maru.Builder do
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     plugs = Module.get_attribute(module, :plugs)
     maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)
+    extend = Module.get_attribute(module, :extend)
     config = Maru.Config.server_config(module)
     pipeline = [
       if is_nil(config) do [] else
         [{Maru.Plugs.NotFound, [], true}]
+      end,
+      if is_nil(extend) do [] else
+        [extend]
       end,
       maru_router_plugs,
       [{:endpoint, [], true}],
@@ -189,6 +194,7 @@ defmodule Maru.Builder do
     end
   end
 
+
   defmacro version(v) do
     quote do
       @version unquote(v)
@@ -203,6 +209,14 @@ defmodule Maru.Builder do
       @version version
     end
   end
+
+  defmacro version(v, [{:extend, _}, {:at, _} | _]=opts) do
+    quote do
+      @version unquote(v)
+      @extend {Maru.Plugs.Extend, [{:version, unquote(v)} | unquote(opts)], true}
+    end
+  end
+
 
   defmacro helpers([do: block]) do
     quote do
