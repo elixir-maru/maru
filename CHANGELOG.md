@@ -4,6 +4,9 @@
 * Enhancements
   * router extend support
 
+* Bugfix
+  * resolved deprecated functions warning
+
 ## v0.5.0 (2015-7-23)
 * Enhancements
   * rewrite Versioning

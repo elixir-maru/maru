@@ -4,7 +4,7 @@ defmodule Maru.Helpers.ResponseTest do
   use Maru.Helpers.Response
 
   test "header" do
-    conn = conn(:get, "/") |> put_req_header("foo", "bar")
+    conn = conn(:get, "/") |> Plug.Conn.put_req_header("foo", "bar")
     assert {"foo", "bar"} in headers
     header("baz", "foo")
     assert {"baz", "foo"} in conn.resp_headers
