@@ -1,5 +1,7 @@
 ## Changelog
 
+## v0.6.0-dev
+
 ## v0.5.1 (2015-8-12)
 * Enhancements
   * router extend support
