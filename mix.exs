@@ -20,7 +20,7 @@ defmodule Maru.Mixfile do
 
   defp deps do
     [ { :cowboy, "~> 1.0" },
-      { :plug,   "~> 0.13" },
+      { :plug,   "~> 0.14" },
       { :poison, "~> 1.4" },
     ]
   end
