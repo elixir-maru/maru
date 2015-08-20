@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.6.0-dev
+## v0.6.0 (2015-8-20)
 * Enhancements
   * Support Plug v0.14
 
