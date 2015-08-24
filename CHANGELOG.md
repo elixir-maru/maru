@@ -1,6 +1,8 @@
 ## Changelog
 
 ## v0.7.1-dev
+* Bugfix
+  * resolved shared params error
 
 ## v0.7.0 (2015-8-20)
 * Enhancements

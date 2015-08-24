@@ -1,7 +1,6 @@
 defmodule Maru.Builder.Params do
   alias Maru.Router.Param
   alias Maru.Router.Validator
-  import Kernel, except: [use: 1]
 
   defmacro use(param) when is_atom(param) do
     quote do

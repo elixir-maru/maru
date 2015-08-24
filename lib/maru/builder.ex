@@ -186,10 +186,12 @@ defmodule Maru.Builder do
   defmacro params(block) do
     quote do
       import Maru.Builder.Namespaces, only: []
+      import Kernel, except: [use: 1]
       import Maru.Builder.Params
       @group []
       unquote(block)
       import Maru.Builder.Params, only: []
+      import Kernel
       import Maru.Builder.Namespaces
     end
   end
