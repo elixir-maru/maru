@@ -118,27 +118,15 @@ defmodule Maru.Builder do
       end
 
 
-      cond do
-        not Enum.empty? @exceptions ->
-          defoverridable [call: 2]
-          def call(var!(conn), opts) do
-            try do
-              super(var!(conn), opts)
-            rescue
-              unquote(exceptions)
-            end
+      if not Enum.empty?(@exceptions) do
+        defoverridable [call: 2]
+        def call(var!(conn), opts) do
+          try do
+            super(var!(conn), opts)
+          rescue
+            unquote(exceptions)
           end
-        Module.defines? __MODULE__, {:error, 2} ->
-          IO.write :stderr, "warning: error/2 is deprecated, in faver of rescue_from/2 and rescue_from/3.\n"
-          defoverridable [call: 2]
-          def call(conn, opts) do
-            try do
-              super(conn, opts)
-            rescue
-              e -> error(conn, e)
-            end
-          end
-        true -> nil
+        end
       end
 
       if Mix.env in [:dev, :test] do

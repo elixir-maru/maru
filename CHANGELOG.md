@@ -1,6 +1,8 @@
 ## Changelog
 
 ## v0.7.2-dev
+* Enhancements
+  * remove deprecated functions
 
 ## v0.7.1 (2015-9-7)
 * Bugfix

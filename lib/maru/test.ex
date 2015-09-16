@@ -9,7 +9,11 @@ defmodule Maru.Test do
       defp make_response(conn, version \\ nil) do
         router = unquote(router)
         version = version || router.__version__
-        conn
+        case conn do
+          %Plug.Conn{params: %Plug.Conn.Unfetched{}}=c ->
+            c |> Plug.Parsers.call([parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison])
+          c -> c
+        end
      |> Maru.Plugs.Prepare.call([])
      |> put_private(:maru_version, version)
      |> router.call([])
