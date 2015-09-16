@@ -3,6 +3,7 @@
 ## v0.7.2-dev
 * Enhancements
   * remove deprecated functions
+  * add build\_embedded and start\_permanent options
 
 ## v0.7.1 (2015-9-7)
 * Bugfix
