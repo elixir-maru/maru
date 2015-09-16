@@ -20,6 +20,6 @@ defmodule Maru do
         Logger.info "Running #{module} with Cowboy on https://127.0.0.1:#{options[:https][:port]}"
       end
     end
-    Maru.Supervisor.start_link
+    {:ok, self}
   end
 end
