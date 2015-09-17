@@ -8,18 +8,28 @@ defmodule Maru do
     @version
   end
 
+  @default_http_port 4000
+  @default_https_port 4040
   def start(_type, _args) do
     Application.ensure_all_started :plug
     for {module, options} <- Maru.Config.servers do
       if Keyword.has_key? options, :http do
-        Plug.Adapters.Cowboy.http module, [], options[:http]
-        Logger.info "Running #{module} with Cowboy on http://127.0.0.1:#{options[:http][:port]}"
+        opts = options[:http] |> Keyword.merge [port: to_port(options[:http][:port]) || @default_http_port]
+        Plug.Adapters.Cowboy.http module, [], opts
+        Logger.info "Running #{module} with Cowboy on http://127.0.0.1:#{opts[:port]}"
       end
+
       if Keyword.has_key? options, :https do
-        Plug.Adapters.Cowboy.https module, [], options[:https]
-        Logger.info "Running #{module} with Cowboy on https://127.0.0.1:#{options[:https][:port]}"
+        opts = options[:https] |> Keyword.merge [port: to_port(options[:https][:port]) || @default_https_port]
+        Plug.Adapters.Cowboy.https module, [], opts
+        Logger.info "Running #{module} with Cowboy on https://127.0.0.1:#{opts[:port]}"
       end
     end
     {:ok, self}
   end
+
+  defp to_port(nil),                        do: nil
+  defp to_port(port) when is_integer(port), do: port
+  defp to_port(port) when is_binary(port),  do: port |> String.to_integer
+  defp to_port({:system, env_var}),         do: System.get_env(env_var) |> to_port
 end

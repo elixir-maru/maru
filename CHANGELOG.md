@@ -4,6 +4,7 @@
 * Enhancements
   * remove deprecated functions
   * add build\_embedded and start\_permanent options
+  * add support to configure :port by system environment like {:system, "PORT"}
 
 ## v0.7.1 (2015-9-7)
 * Bugfix
