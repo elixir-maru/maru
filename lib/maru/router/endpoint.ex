@@ -41,6 +41,29 @@ defmodule Maru.Router.Endpoint do
   end
 
 
+  def dispatch_405(version, path) do
+    method = Macro.var(:_, nil)
+    path = path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
+    version =
+      case version do
+        nil -> Macro.var(:_, nil)
+        v   -> v
+      end
+
+    quote do
+      defp endpoint(%Plug.Conn{
+        method: unquote(method),
+        private: %{
+          maru_resource_path: unquote(path),
+          maru_version: unquote(version),
+        }
+      }=var!(conn), []) do
+        Maru.Exceptions.MethodNotAllow |> raise [method: var!(conn).method, request_path: var!(conn).request_path]
+      end
+    end
+  end
+
+
   def validate_params([], _params, result), do: result
 
   def validate_params([%Validator{action: action, attr_names: attr_names, group: group}|t], params, result) do

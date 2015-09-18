@@ -20,11 +20,17 @@ defmodule Maru.Exceptions do
     end
   end
 
-
   defmodule NotFound do
-    defexception [:method, :path_info]
+    defexception [:path_info]
     def message(_e) do
       "NotFound"
+    end
+  end
+
+  defmodule MethodNotAllow do
+    defexception [:method, :request_path]
+    def message(_e) do
+      "MethodNotAllow"
     end
   end
 end
