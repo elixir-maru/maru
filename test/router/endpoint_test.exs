@@ -97,4 +97,15 @@ defmodule Maru.Router.EndpointTest do
     conn = conn(:post, "/")
     assert {"content-type", "text/plain; charset=utf-8"} in Endpoint.send_resp(conn, "").resp_headers
   end
+
+  test "dispatch method" do
+    defmodule DispatchTest do
+      Module.eval_quoted __MODULE__, (%Maru.Router.Endpoint{method: "GET", path: [], block: "get"} |> Endpoint.dispatch), [], __ENV__
+      Module.eval_quoted __MODULE__, (%Maru.Router.Endpoint{method: {:_, [], nil}, path: [], block: "match"} |> Endpoint.dispatch), [], __ENV__
+      def e(conn), do: endpoint(conn, [])
+    end
+
+    assert %Plug.Conn{resp_body: "get"} = conn(:get, "/") |> Maru.Plugs.Prepare.call([]) |> DispatchTest.e
+    assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> Maru.Plugs.Prepare.call([]) |> DispatchTest.e
+  end
 end

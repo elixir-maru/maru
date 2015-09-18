@@ -107,7 +107,7 @@ defmodule Maru.Builder do
     end) |> List.flatten |> Enum.reverse
 
     quote do
-      for i <- @endpoints do
+      for i <- @endpoints |> Enum.reverse do
         Module.eval_quoted __MODULE__, (i |> Code.eval_quoted |> elem(0) |> Endpoint.dispatch), [], __ENV__
       end
       defp endpoint(conn, _), do: conn
@@ -145,16 +145,21 @@ defmodule Maru.Builder do
     end
   end
 
-  Module.eval_quoted __MODULE__, (for method <- @methods do
-    quote do
-      defmacro unquote(method)(path \\ "", [do: block]) do
-        %{ method: unquote(method) |> to_string |> String.upcase,
-           path: path |> MaruPath.split,
-           block: block |> Macro.escape,
-         } |> endpoint
-      end
+  for method <- @methods do
+    defmacro unquote(method)(path \\ "", [do: block]) do
+      %{ method: unquote(method) |> to_string |> String.upcase,
+         path: path |> MaruPath.split,
+         block: block |> Macro.escape,
+       } |> endpoint
     end
-  end)
+  end
+
+  defmacro match(path \\ "", [do: block]) do
+    %{ method: Macro.var(:_, nil) |> Macro.escape,
+       path: path |> MaruPath.split,
+       block: block |> Macro.escape,
+     } |> endpoint
+  end
 
   defp endpoint(ep) do
     quote do

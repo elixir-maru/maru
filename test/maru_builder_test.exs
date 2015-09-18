@@ -3,6 +3,27 @@ defmodule Maru.BuilderTest do
   import Plug.Test
   alias Maru.Router.Resource
 
+  test "methods" do
+    defmodule MethodsTest do
+      use Maru.Builder
+
+      get do
+        "get"
+      end
+
+      match do
+        "match"
+      end
+
+      def e, do: @endpoints |> Code.eval_quoted |> elem(0)
+    end
+
+    assert [
+      %{method: {:_, [], nil}, path: []},
+      %{method: "GET", path: []},
+    ] = MethodsTest.e
+  end
+
   test "prefix" do
     defmodule PrefixTest1 do
       use Maru.Builder
