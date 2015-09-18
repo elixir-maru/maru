@@ -1,14 +1,14 @@
 defmodule Maru.Builder do
   alias Maru.Router.Resource
   alias Maru.Router.Endpoint
-  alias Maru.Router.Path, as: MaruPath
-
-  @methods [:get, :post, :put, :patch, :delete, :head, :options]
 
   defmacro __using__(_) do
     quote do
       import Maru.Helpers.Response
       import Maru.Builder.Namespaces
+      import Maru.Builder.Methods
+      import Maru.Builder.Exceptions
+      import Maru.Builder.DSLs
       import Plug.Builder, only: [plug: 1, plug: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :plugs, accumulate: true
@@ -24,31 +24,6 @@ defmodule Maru.Builder do
       @group []
       @before_compile unquote(__MODULE__)
       def init(_), do: []
-    end
-  end
-
-
-  defmacro rescue_from(:all, [as: error_var], [do: block]) do
-    quote do
-      @exceptions {:all, unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
-    end
-  end
-
-  defmacro rescue_from(error, [as: error_var], [do: block]) do
-    quote do
-      @exceptions {unquote(error), unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
-    end
-  end
-
-  defmacro rescue_from(:all, [do: block]) do
-    quote do
-      @exceptions {:all, unquote(block |> Macro.escape)}
-    end
-  end
-
-  defmacro rescue_from(error, [do: block]) do
-    quote do
-      @exceptions {unquote(error), unquote(block |> Macro.escape)}
     end
   end
 
@@ -78,45 +53,23 @@ defmodule Maru.Builder do
     ] |> Enum.concat
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    exceptions = Module.get_attribute(module, :exceptions) |> Enum.map(
-      fn
-        {:all, block} ->
-          quote do
-            _ ->
-              resp = unquote(block)
-              Maru.Router.Endpoint.send_resp(var!(conn), resp)
-          end
-        {error, block} ->
-          quote do
-            unquote(error) ->
-              resp = unquote(block)
-              Maru.Router.Endpoint.send_resp(var!(conn), resp)
-          end
-        {:all, error_var, block} ->
-          quote do
-            unquote(error_var) ->
-              resp = unquote(block)
-              Maru.Router.Endpoint.send_resp(var!(conn), resp)
-          end
-        {error, error_var, block} ->
-          quote do
-            unquote(error_var) in unquote(error) ->
-              resp = unquote(block)
-              Maru.Router.Endpoint.send_resp(var!(conn), resp)
-          end
-    end) |> List.flatten |> Enum.reverse
+    exceptions =
+      Module.get_attribute(module, :exceptions)
+   |> Enum.reverse
+   |> Enum.map(&Maru.Builder.Exceptions.make_rescue_block/1)
+   |> List.flatten
 
     quote do
       for i <- @endpoints |> Enum.reverse do
-        Module.eval_quoted __MODULE__, (i |> Code.eval_quoted |> elem(0) |> Endpoint.dispatch), [], __ENV__
+        Module.eval_quoted __MODULE__, (i |> Endpoint.dispatch), [], __ENV__
       end
+
       defp endpoint(conn, _), do: conn
 
 
       def call(unquote(conn), _) do
         unquote(body)
       end
-
 
       if not Enum.empty?(@exceptions) do
         defoverridable [call: 2]
@@ -130,118 +83,10 @@ defmodule Maru.Builder do
       end
 
       if Mix.env in [:dev, :test] do
-        def __endpoints__, do: @endpoints |> Code.eval_quoted |> elem(0)
+        def __endpoints__, do: @endpoints
         def __routers__, do: @maru_router_plugs
         def __version__, do: @version
       end
     end
   end
-
-  defmacro prefix(path) do
-    path = MaruPath.split path
-    quote do
-      %Resource{path: path} = resource = @resource
-      @resource %{resource | path: path ++ (unquote path)}
-    end
-  end
-
-  for method <- @methods do
-    defmacro unquote(method)(path \\ "", [do: block]) do
-      %{ method: unquote(method) |> to_string |> String.upcase,
-         path: path |> MaruPath.split,
-         block: block |> Macro.escape,
-       } |> endpoint
-    end
-  end
-
-  defmacro match(path \\ "", [do: block]) do
-    %{ method: Macro.var(:_, nil) |> Macro.escape,
-       path: path |> MaruPath.split,
-       block: block |> Macro.escape,
-     } |> endpoint
-  end
-
-  defp endpoint(ep) do
-    quote do
-      @endpoints %Endpoint{
-        desc: @desc,
-        method: unquote(ep.method),
-        version: @version,
-        path: @resource.path ++ unquote(ep.path),
-        param_context: @resource.param_context ++ @param_context,
-        block: unquote(ep.block),
-      } |> Macro.escape
-      @param_context []
-      @desc nil
-    end
-  end
-
-  defmacro params(block) do
-    quote do
-      import Maru.Builder.Namespaces, only: []
-      import Kernel, except: [use: 1]
-      import Maru.Builder.Params
-      @group []
-      unquote(block)
-      import Maru.Builder.Params, only: []
-      import Kernel
-      import Maru.Builder.Namespaces
-    end
-  end
-
-
-  defmacro version(v) do
-    quote do
-      @version unquote(v)
-    end
-  end
-
-  defmacro version(v, [do: block]) do
-    quote do
-      version = @version
-      @version unquote(v)
-      unquote(block)
-      @version version
-    end
-  end
-
-  defmacro version(v, [{:extend, _}, {:at, _} | _]=opts) do
-    quote do
-      @version unquote(v)
-      @extend {Maru.Plugs.Extend, [{:version, unquote(v)} | unquote(opts)], true}
-    end
-  end
-
-
-  defmacro helpers([do: block]) do
-    quote do
-      import Maru.Helpers.Params
-      import Kernel, except: [use: 1]
-      unquote(block)
-    end
-  end
-
-  defmacro helpers({_, _, mod}) do
-    module = Module.concat mod
-    quote do
-      import Maru.Helpers.Params
-      import unquote(module)
-      unquote(module).__shared_params__ |> Enum.each &(@shared_params &1)
-    end
-  end
-
-
-  defmacro desc(desc) do
-    quote do
-      @desc unquote(desc)
-    end
-  end
-
-  defmacro mount({_, _, mod}) do
-    module = Module.concat mod
-    quote do
-      @maru_router_plugs {Maru.Plugs.Router, [router: unquote(module), resource: @resource, version: @version], true}
-    end
-  end
-
 end

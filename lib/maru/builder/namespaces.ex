@@ -4,20 +4,18 @@ defmodule Maru.Builder.Namespaces do
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
 
-  Module.eval_quoted __MODULE__, (for namespace <- @namespaces do
-    quote do
-      defmacro unquote(namespace)([do: block]), do: block
-      defmacro unquote(namespace)(path, [do: block]) do
-        path = path |> MaruPath.split
-        quote do
-          %Resource{path: path} = resource = @resource
-          @resource %{resource | path: path ++ unquote(path)}
-          unquote(block)
-          @resource resource
-        end
+  for namespace <- @namespaces do
+    defmacro unquote(namespace)([do: block]), do: block
+    defmacro unquote(namespace)(path, [do: block]) do
+      path = path |> MaruPath.split
+      quote do
+        %Resource{path: path} = resource = @resource
+        @resource %{resource | path: path ++ unquote(path)}
+        unquote(block)
+        @resource resource
       end
     end
-  end)
+  end
 
   defmacro route_param(param, [do: block]) do
     quote do
