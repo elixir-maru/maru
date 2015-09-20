@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.7.2-dev
+## v0.7.2 (2015-9-20)
 * Enhancements
   * remove deprecated functions
   * add build\_embedded and start\_permanent options
