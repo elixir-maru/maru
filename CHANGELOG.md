@@ -1,5 +1,9 @@
 ## Changelog
 
+## v0.8.0-dev
+* Enhancements
+  * Update to poison v1.5
+
 ## v0.7.2 (2015-9-20)
 * Enhancements
   * remove deprecated functions
