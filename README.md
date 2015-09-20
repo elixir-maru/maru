@@ -1,6 +1,6 @@
 # Maru
 
-> Elixir copy of [grape](http://intridea.github.io/grape/) for creating REST-like APIs.
+> REST-like API micro-framework for elixir inspired by [grape](http://intridea.github.io/grape/).
 
 [![Build Status](https://img.shields.io/travis/falood/maru.svg?style=flat-square)](https://travis-ci.org/falood/maru)
 [![Hex.pm Version](https://img.shields.io/hexpm/v/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
