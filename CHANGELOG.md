@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.8.0-dev
+## v0.8.0 (2015-9-20)
 * Enhancements
   * Update to poison v1.5
 
