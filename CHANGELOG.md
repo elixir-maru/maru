@@ -7,6 +7,7 @@
   * Support configure :port by system environment like {:system, "PORT"}
   * add `match` DSL to handle all method
   * Support HTTP 405 method not allowed
+  * `maru.routers` task support `version extend` now
 
 ## v0.7.1 (2015-9-7)
 * Bugfix

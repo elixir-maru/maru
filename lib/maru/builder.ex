@@ -94,6 +94,7 @@ defmodule Maru.Builder do
         def __endpoints__, do: @endpoints
         def __routers__, do: @maru_router_plugs
         def __version__, do: @version
+        def __extend__, do: @extend
       end
     end
   end
