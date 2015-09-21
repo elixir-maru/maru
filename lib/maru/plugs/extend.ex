@@ -44,6 +44,29 @@ defmodule Maru.Plugs.Extend do
   end
 
 
+  def filter_origin(endpoint, origin_endpoints) do
+    not Enum.any?(origin_endpoints, fn ep ->
+      ep.method == endpoint.method and ep.path == endpoint.path
+    end)
+  end
+
+
+  def filter_only(_, nil), do: true
+  def filter_only(endpoint, only) do
+    not Enum.any?(only, fn {method, path} ->
+      method_match?(endpoint.method, method) and path_match?(endpoint.path, path)
+    end)
+  end
+
+
+  def filter_except(_, nil), do: true
+  def filter_except(endpoint, except) do
+    Enum.any?(except, fn {method, path} ->
+      method_match?(endpoint.method, method) and path_match?(endpoint.path, path)
+    end)
+  end
+
+
   defp method_match?(_m, :match) do
     true
   end
