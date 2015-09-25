@@ -1,5 +1,7 @@
 ## Changelog
 
+## v0.8.2-dev
+
 ## v0.8.1 (2015-9-21)
 * Enhancements
   * add `&Maru.Builder.Routers.generate/1` to generate endpoints details
