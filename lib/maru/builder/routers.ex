@@ -1,5 +1,15 @@
 defmodule Maru.Builder.Routers do
+  @moduledoc false
 
+  @doc """
+  Generate router list for `maru.routers` task and (maru_swagger)[https://hex.pm/packages/maru_swagger].
+
+  Algorithm:
+  1. Traversal modules to find all modules.
+  2. Topological sort modules by module extended.
+  3. Generate endpoints of sorted modules.
+  4. Group modules by `version`.
+  """
   def generate(module) do
     all_modules =
       module

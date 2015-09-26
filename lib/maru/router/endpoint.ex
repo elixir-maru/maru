@@ -1,10 +1,17 @@
 defmodule Maru.Router.Endpoint do
+  @moduledoc """
+  Generate endpoint of maru router.
+  """
+
   alias Maru.Router.Param
   alias Maru.Router.Validator
 
   [ method: nil, path: [], version: nil, desc: nil, param_context: [], block: nil, helpers: []
   ] |> defstruct
 
+  @doc """
+  Generate general endpoint defined by user within method block.
+  """
   def dispatch(ep) do
     path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
     version =
@@ -41,6 +48,9 @@ defmodule Maru.Router.Endpoint do
   end
 
 
+  @doc """
+  Generate MethodNotAllow endpoint for all path without `match` method.
+  """
   def dispatch_405(version, path) do
     method = Macro.var(:_, nil)
     path = path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
@@ -64,6 +74,9 @@ defmodule Maru.Router.Endpoint do
   end
 
 
+  @doc """
+  Parse and validate params.
+  """
   def validate_params([], _params, result), do: result
 
   def validate_params([%Validator{action: action, attr_names: attr_names, group: group}|t], params, result) do
@@ -170,6 +183,9 @@ defmodule Maru.Router.Endpoint do
   end
 
 
+  @doc """
+  Send response for different kinds of data type.
+  """
   def send_resp(_, %Plug.Conn{private: %{maru_present: present}}=conn) do
     send_resp(conn, present)
   end

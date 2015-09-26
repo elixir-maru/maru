@@ -1,10 +1,15 @@
 defmodule Maru.Builder.Methods do
+  @moduledoc """
+  Method DSLs for parsing router.
+  """
+
   alias Maru.Router.Endpoint
   alias Maru.Router.Path, as: MaruPath
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
 
   for method <- @methods do
+    @doc "Handle #{method} method."
     defmacro unquote(method)(path \\ "", [do: block]) do
       %{ method: unquote(method) |> to_string |> String.upcase,
          path: path |> MaruPath.split,
@@ -13,6 +18,7 @@ defmodule Maru.Builder.Methods do
     end
   end
 
+  @doc "Handle all method."
   defmacro match(path \\ "", [do: block]) do
     %{ method: Macro.var(:_, nil) |> Macro.escape,
        path: path |> MaruPath.split,

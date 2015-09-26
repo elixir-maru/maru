@@ -3,4 +3,5 @@
 /ebin
 /tmp
 /_build
+/docs
 mix.lock

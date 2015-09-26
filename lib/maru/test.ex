@@ -1,4 +1,9 @@
 defmodule Maru.Test do
+  @moduledoc """
+  Unittest wrapper for designated router.
+  """
+
+  @doc false
   defmacro __using__(opts) do
     router = Keyword.fetch! opts, :for
     quote do

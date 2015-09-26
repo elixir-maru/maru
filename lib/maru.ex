@@ -1,13 +1,23 @@
 require Logger
 
 defmodule Maru do
+  @moduledoc """
+  This is documentation for maru.
+
+  Maru is a REST-like API micro-framework depends on (plug)[http://hexdocs.pm/plug] for (elixir)[http://elixir-lang.org] inspired by (grape)[https://github.com/ruby-grape/grape].
+  """
+
   use Application
 
+  @doc """
+  Current maru version
+  """
   @version Mix.Project.config[:version]
   def version do
     @version
   end
 
+  @doc false
   @default_http_port 4000
   @default_https_port 4040
   def start(_type, _args) do

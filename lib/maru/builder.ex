@@ -2,6 +2,7 @@ defmodule Maru.Builder do
   alias Maru.Router.Resource
   alias Maru.Router.Endpoint
 
+  @doc false
   defmacro __using__(_) do
     quote do
       import Maru.Helpers.Response
@@ -28,6 +29,7 @@ defmodule Maru.Builder do
   end
 
 
+  @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     plugs = Module.get_attribute(module, :plugs)
     maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)

@@ -1,4 +1,7 @@
 defmodule Maru.Router.Path do
+  @moduledoc false
+
+  @doc false
   def split(path) when is_atom(path), do: [path |> to_string]
   def split(path) when is_binary(path) do
     func = fn ("", r) -> r
@@ -10,12 +13,14 @@ defmodule Maru.Router.Path do
   def split(_path), do: raise "path should be Atom or String"
 
 
+  @doc false
   def lstrip(rest, []),                       do: {:ok, rest}
   def lstrip([h|t1], [h|t2]),                 do: lstrip(t1, t2)
   def lstrip([_|t1], [h|t2]) when is_atom(h), do: lstrip(t1, t2)
   def lstrip(_, _),                           do: nil
 
 
+  @doc false
   def parse_params(conn_path_info, route_path) do
     do_parse_params(conn_path_info, route_path , %{})
   end

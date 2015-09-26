@@ -1,19 +1,39 @@
 defmodule Maru.ParamType do
   defmodule Term do
+    @moduledoc """
+    Keep param without conversion.
+    """
+
+    @doc false
     def from(any), do: any
   end
 
   defmodule String do
+    @moduledoc """
+    Conversion param to string.
+    """
+
+    @doc false
     def from(s), do: s |> to_string
   end
 
 
   defmodule Integer do
+    @moduledoc """
+    Conversion param to integer.
+    """
+
+    @doc false
     def from(s), do: s |> to_string |> Elixir.String.to_integer
   end
 
 
   defmodule Float do
+    @moduledoc """
+    Conversion param to float.
+    """
+
+    @doc false
     def from(s) when is_float(s), do: s
     def from(s) when is_integer(s), do: :erlang.float(s)
     def from(s) do
@@ -26,6 +46,11 @@ defmodule Maru.ParamType do
 
 
   defmodule Boolean do
+    @moduledoc """
+    Conversion param to boolean.
+    """
+
+    @doc false
     def from(s) when is_boolean(s), do: s
     def from(nil), do: false
     def from("false"), do: false
@@ -34,25 +59,50 @@ defmodule Maru.ParamType do
 
 
   defmodule CharList do
+    @moduledoc """
+    Conversion param to chat list.
+    """
+
+    @doc false
     def from(s), do: s |> to_char_list
   end
 
 
   defmodule Atom do
+    @moduledoc """
+    Conversion param to existing atom.
+    """
+
+    @doc false
     def from(s) when is_atom(s), do: s
     def from(s), do: s |> to_string |> Elixir.String.to_existing_atom
   end
 
 
   defmodule File do
+    @moduledoc """
+    Check param match `Plug.Upload` struct.
+    """
+
+    @doc false
     def from(%Plug.Upload{}=f), do: f
   end
 
   defmodule List do
+    @moduledoc """
+    Check type of param is list.
+    """
+
+    @doc false
     def from(list) when is_list(list), do: list
   end
 
   defmodule Map do
+    @moduledoc """
+    Check type of param is type.
+    """
+
+    @doc false
     def from(map) when is_map(map), do: map
   end
 end

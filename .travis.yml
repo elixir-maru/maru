@@ -13,3 +13,6 @@ notifications:
     - self@falood.me
 before_script:
   - mix deps.get --only test
+after_script:
+  - MIX_ENV=docs mix deps.get
+  - MIX_ENV=docs mix inch.report

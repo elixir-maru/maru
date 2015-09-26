@@ -1,7 +1,12 @@
 defmodule Maru.Builder.Params do
+  @moduledoc """
+  Parse and build param_content block.
+  """
+
   alias Maru.Router.Param
   alias Maru.Router.Validator
 
+  @doc false
   defmacro use(param) when is_atom(param) do
     quote do
       params = @shared_params[unquote(param)]
@@ -18,6 +23,9 @@ defmodule Maru.Builder.Params do
     end
   end
 
+  @doc """
+  Define a param should be present.
+  """
   defmacro requires(attr_name) do
     param(attr_name, [], [required: true, nested: false])
   end
@@ -49,6 +57,9 @@ defmodule Maru.Builder.Params do
   end
 
 
+  @doc """
+  Define a params group.
+  """
   defmacro group(group_name, options \\ [], [do: block]) do
     [ param(group_name, Dict.merge([type: :list], options), [required: true, nested: true]),
       quote do
@@ -60,6 +71,9 @@ defmodule Maru.Builder.Params do
     ]
   end
 
+  @doc """
+  Define a param should be present or not.
+  """
   defmacro optional(attr_name) do
     param(attr_name, [], [required: false, nested: false])
   end
@@ -112,6 +126,7 @@ defmodule Maru.Builder.Params do
   @actions [:mutually_exclusive, :exactly_one_of, :at_least_one_of]
   Module.eval_quoted __MODULE__, (for action <- @actions do
     quote do
+      @doc "Validator: #{unquote action}"
       defmacro unquote(action)(attr_names) do
         action = unquote(action)
         quote do

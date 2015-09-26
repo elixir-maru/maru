@@ -1,4 +1,9 @@
 defmodule Maru.Middleware do
+  @moduledoc """
+  Middleware of maru is a standalone plug with `Maru.Response` helper.
+  """
+
+  @doc false
   defmacro __using__(_) do
     quote do
       import Maru.Helpers.Response

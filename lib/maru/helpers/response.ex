@@ -1,10 +1,18 @@
 defmodule Maru.Helpers.Response do
+  @moduledoc """
+  This module is a wrapper for request and response of maru.
+  """
+
+  @doc false
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
     end
   end
 
+  @doc """
+  Get params.
+  """
   defmacro params do
     quote do
       var!(conn).private[:maru_params] || %{}
@@ -12,12 +20,19 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Get assigns.
+  """
   defmacro assigns do
     quote do
       var!(conn).assigns
     end
   end
 
+
+  @doc """
+  Set assign.
+  """
   defmacro assign(key, value) do
     quote do
       var!(conn) = var!(conn)
@@ -26,12 +41,19 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Get headers.
+  """
   defmacro headers do
     quote do
       var!(conn).req_headers |> Enum.into %{}
     end
   end
 
+
+  @doc """
+  Set or delete header.
+  """
   defmacro header(key, nil) do
     quote do
       var!(conn) = var!(conn)
@@ -47,6 +69,9 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Set content_type.
+  """
   defmacro content_type(value) do
     quote do
       var!(conn) = var!(conn)
@@ -55,6 +80,9 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Set status.
+  """
   defmacro status(value) do
     quote do
       var!(conn) = var!(conn)
@@ -63,6 +91,9 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Make response by (maru_entity)[https://hex.pm/packages/maru_entity] or key-value pairs.
+  """
   defmacro present(payload, opts) do
     quote do
       var!(conn) = var!(conn) |> unquote(__MODULE__).put_present(unquote(payload), unquote(opts))
@@ -96,6 +127,9 @@ defmodule Maru.Helpers.Response do
   end
 
 
+  @doc """
+  Make response by url redirect.
+  """
   defmacro redirect(url) do
     quote do
       var!(conn) = var!(conn)
