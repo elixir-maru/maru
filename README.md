@@ -4,8 +4,8 @@
 
 [![Build Status](https://img.shields.io/travis/falood/maru.svg?style=flat-square)](https://travis-ci.org/falood/maru)
 [![Hex.pm Version](https://img.shields.io/hexpm/v/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
+[![Docs](https://inch-ci.org/github/falood/maru.svg?branch=master&style=flat-square)](https://inch-ci.org/github/falood/maru)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
-
 ## Usage
 
 ```elixir
