@@ -3,6 +3,7 @@
 ## v0.8.2-dev
 * Documentation
   * add documentation
+  * add ex_doc
 
 ## v0.8.1 (2015-9-21)
 * Enhancements

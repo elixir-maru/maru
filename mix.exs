@@ -3,6 +3,7 @@ defmodule Maru.Mixfile do
 
   def project do
     [ app: :maru,
+      name: "Maru",
       version: "0.8.2-dev",
       elixir: "~> 1.0",
       build_embedded: Mix.env == :prod,
@@ -10,7 +11,11 @@ defmodule Maru.Mixfile do
       deps: deps,
       description: "REST-like API micro-framework for elixir inspired by grape.",
       source_url: "https://github.com/falood/maru",
+      homepage_url: "https://maru.readme.io",
       package: package,
+      docs: [
+        extras: ["README.md"]
+      ]
     ]
   end
 
@@ -25,6 +30,8 @@ defmodule Maru.Mixfile do
       { :plug,   "~> 1.0" },
       { :poison, "~> 1.5" },
       { :inch_ex, only: :docs },
+      { :earmark, "~> 0.1", only: :docs },
+      { :ex_doc, "~> 0.10", only: :docs },
     ]
   end
 
