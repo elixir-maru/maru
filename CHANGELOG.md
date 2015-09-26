@@ -5,6 +5,9 @@
   * add documentation
   * add ex_doc
 
+* Deprecations
+  * remove unused plug: Maru.Plugs.Forword
+
 ## v0.8.1 (2015-9-21)
 * Enhancements
   * add `&Maru.Builder.Routers.generate/1` to generate endpoints details
