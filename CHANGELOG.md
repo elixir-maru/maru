@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.8.2-dev
+## v0.8.2 (2015-9-26)
 * Documentation
   * add documentation
   * add ex_doc
