@@ -14,7 +14,8 @@ defmodule Maru.Mixfile do
       homepage_url: "https://maru.readme.io",
       package: package,
       docs: [
-        extras: ["README.md"]
+        extras: ["README.md"],
+        main: "extra-readme",
       ]
     ]
   end
