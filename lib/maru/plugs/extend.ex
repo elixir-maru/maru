@@ -1,6 +1,11 @@
 defmodule Maru.Plugs.Extend do
+  @moduledoc """
+  This module is a plug, route extended modules.
+  """
+
   alias Plug.Conn
 
+  @doc false
   def init(opts) do
     router = opts |> Keyword.fetch! :at
     'Elixir.' ++ _ = Atom.to_char_list router
@@ -15,6 +20,7 @@ defmodule Maru.Plugs.Extend do
   end
 
 
+  @doc false
   def call(%Conn{private: %{maru_version: v1}}=conn, {_router, v2, _extend, _only, _except}) when v1 != v2 do
     conn
   end
@@ -44,6 +50,9 @@ defmodule Maru.Plugs.Extend do
   end
 
 
+  @doc """
+  Filter extended endpoints from extended module.
+  """
   def filter_origin(endpoint, origin_endpoints) do
     not Enum.any?(origin_endpoints, fn ep ->
       ep.method == endpoint.method and ep.path == endpoint.path
@@ -51,6 +60,9 @@ defmodule Maru.Plugs.Extend do
   end
 
 
+  @doc """
+  Filter extended endpoints from extended module by `:only` regular.
+  """
   def filter_only(_, nil), do: true
   def filter_only(endpoint, only) do
     not Enum.any?(only, fn {method, path} ->
@@ -59,6 +71,9 @@ defmodule Maru.Plugs.Extend do
   end
 
 
+  @doc """
+  Filter extended endpoints from extended module by `:except` regular.
+  """
   def filter_except(_, nil), do: true
   def filter_except(endpoint, except) do
     Enum.any?(except, fn {method, path} ->

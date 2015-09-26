@@ -1,8 +1,14 @@
 defmodule Maru.Plugs.Prepare do
+  @moduledoc """
+  This module is a plug, prepare private variable.
+  """
+
   alias Plug.Conn
 
+  @doc false
   def init(_), do: []
 
+  @doc false
   def call(conn, []) do
     conn |> check_path |> check_route_path |> check_param_context |> check_version
   end

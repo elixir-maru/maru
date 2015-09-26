@@ -1,7 +1,12 @@
 defmodule Maru.Plugs.Router do
+  @moduledoc """
+  This module is a plug, route mounted routers.
+  """
+
   alias Maru.Router.Resource
   alias Plug.Conn
 
+  @doc false
   def init(opts) do
     router = opts |> Keyword.fetch! :router
     'Elixir.' ++ _ = Atom.to_char_list router
@@ -10,6 +15,7 @@ defmodule Maru.Plugs.Router do
     {router, path, version, param_context}
   end
 
+  @doc false
   def call(%Conn{private: %{maru_version: v1}}=conn_orig, {router, path, v2, param_context})
   when is_nil(v2) or v1 == v2 do
     %{ maru_resource_path: maru_resource_path,

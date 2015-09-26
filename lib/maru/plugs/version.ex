@@ -1,6 +1,11 @@
 defmodule Maru.Plugs.Version do
+  @moduledoc """
+  This module is a plug, fetch `version` from connect and wirte to private variable `maru_version`.
+  """
+
   alias Plug.Conn
 
+  @doc false
   def init(opts) do
     {strategy, options} = opts |> Keyword.pop :using, :path
     unless strategy in [:path, :param, :accept_version_header] do
@@ -9,6 +14,7 @@ defmodule Maru.Plugs.Version do
     {strategy, options}
   end
 
+  @doc false
   def call(conn, {:path, _opts}) do
     case conn.private do
       %{ maru_resource_path: [version | rest],
