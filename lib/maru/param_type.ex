@@ -10,7 +10,7 @@ defmodule Maru.ParamType do
 
   defmodule String do
     @moduledoc """
-    Conversion param to string.
+    Convert param to string.
     """
 
     @doc false
@@ -20,7 +20,7 @@ defmodule Maru.ParamType do
 
   defmodule Integer do
     @moduledoc """
-    Conversion param to integer.
+    Convert param to integer.
     """
 
     @doc false
@@ -30,7 +30,7 @@ defmodule Maru.ParamType do
 
   defmodule Float do
     @moduledoc """
-    Conversion param to float.
+    Convert param to float.
     """
 
     @doc false
@@ -47,7 +47,7 @@ defmodule Maru.ParamType do
 
   defmodule Boolean do
     @moduledoc """
-    Conversion param to boolean.
+    Convert param to boolean.
     """
 
     @doc false
@@ -60,7 +60,7 @@ defmodule Maru.ParamType do
 
   defmodule CharList do
     @moduledoc """
-    Conversion param to chat list.
+    Convert param to chat list.
     """
 
     @doc false
@@ -70,7 +70,7 @@ defmodule Maru.ParamType do
 
   defmodule Atom do
     @moduledoc """
-    Conversion param to existing atom.
+    Convert param to existing atom.
     """
 
     @doc false
