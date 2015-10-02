@@ -140,6 +140,22 @@ defmodule Maru.Router.Endpoint do
     end
   end
 
+  def validate_params([%Param{attr_name: attr_name, group: group, parser: Maru.ParamType.Json}=p|t], params, result) do
+    attr_path = group ++ [attr_name]
+    nested_params = get_in(params, Enum.map(attr_path, &to_string/1)) |> Poison.decode!
+    params = put_in(params, Enum.map(attr_path, &to_string/1), nested_params)
+    {_, rest} = split_param_context(t, attr_path)
+    case {is_nil(nested_params), p.required} do
+      {true, true} ->
+        Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+      {true, false} ->
+        validate_params(rest, params, result)
+      {false, _} ->
+        validate_params(t, params, put_in(result, attr_path, %{}))
+    end
+  end
+
+
   defp split_param_context(list, group) do
     split_param_context(list, group, {[], []})
   end
