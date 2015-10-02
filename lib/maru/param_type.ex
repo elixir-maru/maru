@@ -87,22 +87,4 @@ defmodule Maru.ParamType do
     @doc false
     def from(%Plug.Upload{}=f), do: f
   end
-
-  defmodule List do
-    @moduledoc """
-    Check type of param is list.
-    """
-
-    @doc false
-    def from(list) when is_list(list), do: list
-  end
-
-  defmodule Map do
-    @moduledoc """
-    Check type of param is type.
-    """
-
-    @doc false
-    def from(map) when is_map(map), do: map
-  end
 end
