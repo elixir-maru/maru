@@ -106,18 +106,33 @@ defmodule Maru.Builder.Params do
 
 
   defp param(attr_name, options, [required: required, nested: nested]) do
-    parser = case options[:type] do
-       nil -> nil
-       {:__aliases__, _, [t]} -> [Maru.ParamType, t] |> Module.concat
-       t when is_atom(t) ->
-         [ Maru.ParamType, t |> Atom.to_string |> Maru.Utils.upper_camel_case |> String.to_atom
-         ] |> Module.safe_concat
-    end
+    parser =
+      case options[:type] do
+        nil -> nil
+        {:__aliases__, _, [t]} -> [Maru.ParamType, t] |> Module.concat
+        t when is_atom(t) ->
+          [ Maru.ParamType, t |> Atom.to_string |> Maru.Utils.upper_camel_case |> String.to_atom
+          ] |> Module.safe_concat
+      end
+
+    coercer =
+      case options[:coerce_with] do
+        nil -> nil
+        {:__aliases__, _, [module]} -> module |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
+        c when is_atom(c) -> c
+      end
+
     quote do
       @param_context @param_context ++ [%Param{
-        attr_name: unquote(attr_name), default: unquote(options[:default]), desc: unquote(options[:desc]),
-        group: @group, required: unquote(required), nested: unquote(nested), parser: unquote(parser),
-        validators: unquote(options) |> Dict.drop([:type, :default, :desc])
+        attr_name: unquote(attr_name),
+        default: unquote(options[:default]),
+        desc: unquote(options[:desc]),
+        group: @group,
+        required: unquote(required),
+        nested: unquote(nested),
+        coerce_with: unquote(coercer),
+        parser: unquote(parser),
+        validators: unquote(options) |> Dict.drop([:type, :default, :desc, :coerce_with])
       }]
     end
   end

@@ -8,7 +8,16 @@ defmodule Maru.Router do
   defmodule Param do
     @moduledoc false
 
-    defstruct attr_name: nil, default: nil, desc: nil, group: [], required: true, nested: false, parser: nil, validators: []
+    [ attr_name: nil,
+      default: nil,
+      desc: nil,
+      group: [],
+      required: true,
+      nested: false,
+      coerce_with: nil,
+      parser: nil,
+      validators: []
+    ] |> defstruct
   end
 
   defmodule Validator do

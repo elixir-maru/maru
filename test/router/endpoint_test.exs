@@ -60,12 +60,12 @@ defmodule Maru.Router.EndpointTest do
 
   test "validate Json nested param" do
     assert %{group: %{name: "name"}} ==
-      Endpoint.validate_params([ %Param{attr_name: :group, parser: Maru.ParamType.Json, nested: true},
+      Endpoint.validate_params([ %Param{attr_name: :group, parser: Maru.ParamType.Map, coerce_with: :json, nested: true},
                                  %Param{attr_name: :name, parser: Maru.ParamType.String, group: [:group]}
                                ], %{"group" => ~s({"name":"name"})}, %{})
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
       Endpoint.validate_params([ %Param{attr_name: :group,  parser: Maru.ParamType.Map, nested: true},
-                                 %Param{attr_name: :group2, parser: Maru.ParamType.Json, nested: true, group: [:group]},
+                                 %Param{attr_name: :group2, parser: Maru.ParamType.Map, coerce_with: :json, nested: true, group: [:group]},
                                  %Param{attr_name: :name,   parser: Maru.ParamType.String, group: [:group, :group2]},
                                  %Param{attr_name: :name2,  parser: Maru.ParamType.String, group: [:group, :group2]},
                                ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}}, %{})

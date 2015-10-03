@@ -3,6 +3,7 @@
 ## v0.8.3-dev
 * Enhancements
   * add paramer type `Json`
+  * support parameter coercion using `coerce_with`
 
 ## v0.8.2 (2015-9-26)
 * Documentation
