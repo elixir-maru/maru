@@ -47,6 +47,17 @@ defmodule Maru.ParamTypeTest do
     assert ParamType.File.from(f).__struct__ == Plug.Upload
   end
 
+  test "list" do
+    assert ParamType.List.from([1, 2, 3]) == [1, 2, 3]
+  end
+
+  test "map" do
+    assert ParamType.Map.from(%{a: 1}) == %{a: 1}
+    assert_raise FunctionClauseError, fn ->
+      ParamType.Map.from([a: 1]) == [a: 1]
+    end
+  end
+
   test "json" do
     assert ParamType.Json.from(~s({"hello":"world"})) == %{"hello" => "world"}
   end

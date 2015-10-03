@@ -88,6 +88,24 @@ defmodule Maru.ParamType do
     def from(%Plug.Upload{}=f), do: f
   end
 
+  defmodule List do
+    @moduledoc """
+    Check type of param is list.
+    """
+
+    @doc false
+    def from(list) when is_list(list), do: list
+  end
+
+  defmodule Map do
+    @moduledoc """
+    Check type of param is map.
+    """
+
+    @doc false
+    def from(map) when is_map(map), do: map
+  end
+
   defmodule Json do
     @moduledoc """
     Convert param to map from json.
