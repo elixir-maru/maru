@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.8.3-dev
+## v0.8.3 (2015-10-03)
 * Enhancements
   * add paramer type `Json`
   * support parameter coercion using `coerce_with`
