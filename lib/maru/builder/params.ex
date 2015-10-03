@@ -120,6 +120,8 @@ defmodule Maru.Builder.Params do
         nil -> nil
         {:__aliases__, _, [module]} -> module |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
         c when is_atom(c) -> c
+        {:fn, _, _}=c -> c |> Macro.escape
+        {:&, _, _}=c  -> c |> Code.eval_quoted |> elem(0)
       end
 
     quote do

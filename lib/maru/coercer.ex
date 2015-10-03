@@ -6,6 +6,11 @@ defmodule Maru.Coercer do
     value
   end
 
+  def parse(value, {:fn, _, _}=coercer) do
+    f = coercer |> Code.eval_quoted |> elem(0)
+    f.(value)
+  end
+
   def parse(value, coercer) when is_function(coercer) do
     coercer.(value)
   end

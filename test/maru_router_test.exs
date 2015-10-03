@@ -73,6 +73,32 @@ defmodule Maru.RouterTest do
     assert %Maru.Router.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
   end
 
+  test "test coercion" do
+    defmodule Coercion do
+      use Maru.Router
+
+      helpers do
+        def baz(s), do: s
+      end
+
+      params do
+        optional :foo, coerce_with: Base64
+        optional :bar, coerce_with: fn s -> s end
+        optional :baz, coerce_with: &Coercion.baz/1
+      end
+
+      def pc, do: @param_context
+    end
+
+    assert [
+      %Param{attr_name: :foo, coerce_with: :base64},
+      %Param{attr_name: :bar, coerce_with: {:fn, _, _}},
+      %Param{attr_name: :baz, coerce_with: f}
+    ] = Coercion.pc
+
+    assert is_function(f)
+  end
+
   test "shared params" do
     defmodule Helper do
       use Maru.Helper
