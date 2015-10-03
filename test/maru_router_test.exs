@@ -17,10 +17,10 @@ defmodule Maru.RouterTest do
       def pc, do: @param_context
     end
 
-    assert [ %Param{attr_name: :foo,   parser: Maru.ParamType.String,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
-             %Param{attr_name: :group, parser: Maru.ParamType.List,    required: true, nested: true},
-             %Param{attr_name: :group, parser: Maru.ParamType.Map,     required: true, nested: true, group: [:group]},
-             %Param{attr_name: :bar,   parser: Maru.ParamType.Integer, required: false, group: [:group, :group], validators: [range: 1..100]}
+    assert [ %Param{attr_name: :foo,   parser: :string,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
+             %Param{attr_name: :group, parser: :list,    required: true, nested: true},
+             %Param{attr_name: :group, parser: :map,     required: true, nested: true, group: [:group]},
+             %Param{attr_name: :bar,   parser: :integer, required: false, group: [:group, :group], validators: [range: 1..100]}
            ] == OptionalTest.pc
   end
 
@@ -40,7 +40,7 @@ defmodule Maru.RouterTest do
     end
 
     assert [ %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c], group: []},
-             %Param{attr_name: :group, nested: true, parser: Maru.ParamType.List, required: true},
+             %Param{attr_name: :group, nested: true, parser: :list, required: true},
              %Validator{action: :exactly_one_of,     attr_names: [:a, :b, :c], group: [:group]},
              %Validator{action: :at_least_one_of,    attr_names: [:a, :b, :c], group: [:group]},
            ] == ValidatorsTest.pc

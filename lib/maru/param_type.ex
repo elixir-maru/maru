@@ -1,4 +1,13 @@
 defmodule Maru.ParamType do
+  @moduledoc false
+
+  @doc false
+  def parse(value, parser) do
+    module = parser |> Atom.to_string |> Maru.Utils.upper_camel_case |> String.to_atom
+    m = [ Maru.ParamType, module] |> Module.safe_concat
+    m.from(value)
+  end
+
   defmodule Term do
     @moduledoc """
     Keep param without conversion.

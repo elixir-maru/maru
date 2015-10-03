@@ -108,11 +108,9 @@ defmodule Maru.Builder.Params do
   defp param(attr_name, options, [required: required, nested: nested]) do
     parser =
       case options[:type] do
-        nil -> nil
-        {:__aliases__, _, [t]} -> [Maru.ParamType, t] |> Module.concat
-        t when is_atom(t) ->
-          [ Maru.ParamType, t |> Atom.to_string |> Maru.Utils.upper_camel_case |> String.to_atom
-          ] |> Module.safe_concat
+        nil -> :term
+        {:__aliases__, _, [t]} -> t |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
+        t when is_atom(t) -> t
       end
 
     coercer =

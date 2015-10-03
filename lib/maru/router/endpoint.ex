@@ -115,7 +115,7 @@ defmodule Maru.Router.Endpoint do
     validate_params(t, params, put_in(result, attr_path, value))
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: Maru.ParamType.Map}=p|t], params, result) do
+  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: :map}=p|t], params, result) do
     attr_path = group ++ [attr_name]
     param_attr_path = attr_path |> Enum.map &to_string/1
     nested_params = params |> get_in(param_attr_path) |> Maru.Coercer.parse(coercer)
@@ -131,7 +131,7 @@ defmodule Maru.Router.Endpoint do
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: Maru.ParamType.List}=p|t], params, result) do
+  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: :list}=p|t], params, result) do
     # TODO rails parser format
     attr_path = group ++ [attr_name]
     param_attr_path = attr_path |> Enum.map &to_string/1
@@ -166,10 +166,10 @@ defmodule Maru.Router.Endpoint do
 
 
   defp check_param(attr_name, value, param_context) do
-    parser = param_context.parser || Maru.ParamType.Term
     validators = param_context.validators
-    value = try do
-        parser.from(value)
+    value =
+      try do
+        Maru.ParamType.parse(value, param_context.parser)
       rescue
         ArgumentError ->
           Maru.Exceptions.InvalidFormatter |> raise [reason: :illegal, param: attr_name, value: value, option: validators]
