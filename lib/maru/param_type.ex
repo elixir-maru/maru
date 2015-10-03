@@ -87,4 +87,13 @@ defmodule Maru.ParamType do
     @doc false
     def from(%Plug.Upload{}=f), do: f
   end
+
+  defmodule Json do
+    @moduledoc """
+    Convert param to map from json.
+    """
+
+    @doc false
+    def from(s), do: s |> Poison.decode!
+  end
 end

@@ -2,7 +2,7 @@
 
 ## v0.8.3-dev
 * Enhancements
-  * add nested paramer type `Json`
+  * add paramer type `Json`
 
 ## v0.8.2 (2015-9-26)
 * Documentation

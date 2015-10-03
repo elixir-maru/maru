@@ -46,4 +46,8 @@ defmodule Maru.ParamTypeTest do
     f = %Plug.Upload{content_type: "image/jpeg", filename: "pic.jpg", path: "/tmp/pic.jpg"}
     assert ParamType.File.from(f).__struct__ == Plug.Upload
   end
+
+  test "json" do
+    assert ParamType.Json.from(~s({"hello":"world"})) == %{"hello" => "world"}
+  end
 end
