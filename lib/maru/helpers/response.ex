@@ -70,6 +70,30 @@ defmodule Maru.Helpers.Response do
 
 
   @doc """
+  fetch request body.
+  """
+  defmacro fetch_req_body do
+    quote do
+      {state, body, _} = var!(conn) |> Plug.Conn.read_body
+      var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_body, {state, body})
+    end
+  end
+
+
+  @doc """
+  Get request body.
+  """
+  defmacro req_body do
+    quote do
+      case var!(conn).private.maru_body do
+        nil -> {:error, :unfetched}
+        body -> body
+      end
+    end
+  end
+
+
+  @doc """
   Set content_type.
   """
   defmacro content_type(value) do

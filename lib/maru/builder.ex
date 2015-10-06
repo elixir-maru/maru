@@ -46,10 +46,10 @@ defmodule Maru.Builder do
       if is_nil(config) or is_nil(config[:versioning]) do [] else
         [{Maru.Plugs.Version, config[:versioning], true}]
       end,
-      [{Maru.Plugs.Prepare, [], true}],
       if is_nil(config) do [] else
-        [{Plug.Parsers, [parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison], true}]
+        [{Plug.Parsers, [parsers: [Maru.Parsers.URLENCODED, Maru.Parsers.JSON, :multipart], pass: ["*/*"], json_decoder: Poison], true}]
       end,
+      [{Maru.Plugs.Prepare, [], true}],
       plugs,
     ] |> Enum.concat
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
