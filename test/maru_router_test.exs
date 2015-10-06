@@ -17,11 +17,14 @@ defmodule Maru.RouterTest do
       def pc, do: @param_context
     end
 
-    assert [ %Param{attr_name: :foo,   parser: :string,  required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
-             %Param{attr_name: :group, parser: :list,    required: true, nested: true},
-             %Param{attr_name: :group, parser: :map,     required: true, nested: true, group: [:group]},
-             %Param{attr_name: :bar,   parser: :integer, required: false, group: [:group, :group], validators: [range: 1..100]}
-           ] == OptionalTest.pc
+    assert [
+      %Param{attr_name: :foo, parser: :string, required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
+      %Param{attr_name: :group, parser: :list, required: true, children: [
+        %Param{attr_name: :group, parser: :map, required: true, children: [
+          %Param{attr_name: :bar, parser: :integer, required: false, validators: [range: 1..100]}
+        ]}
+      ]}
+    ] = OptionalTest.pc
   end
 
 
@@ -32,18 +35,20 @@ defmodule Maru.RouterTest do
       params do
         mutually_exclusive [:a, :b, :c]
         group :group do
-          exactly_one_of     [:a, :b, :c]
-          at_least_one_of    [:a, :b, :c]
+          exactly_one_of  [:a, :b, :c]
+          at_least_one_of [:a, :b, :c]
         end
       end
       def pc, do: @param_context
     end
 
-    assert [ %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c], group: []},
-             %Param{attr_name: :group, nested: true, parser: :list, required: true},
-             %Validator{action: :exactly_one_of,     attr_names: [:a, :b, :c], group: [:group]},
-             %Validator{action: :at_least_one_of,    attr_names: [:a, :b, :c], group: [:group]},
-           ] == ValidatorsTest.pc
+    assert [
+      %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c]},
+      %Param{attr_name: :group, required: true, children: [
+        %Validator{action: :exactly_one_of, attr_names: [:a, :b, :c]},
+        %Validator{action: :at_least_one_of, attr_names: [:a, :b, :c]}
+      ]}
+    ] = ValidatorsTest.pc
   end
 
 
@@ -130,10 +135,10 @@ defmodule Maru.RouterTest do
     end
 
     assert [
-      %Maru.Router.Param{attr_name: :foo},
-      %Maru.Router.Param{attr_name: :bar},
-      %Maru.Router.Param{attr_name: :baz},
-      %Maru.Router.Param{attr_name: :qux},
+      %Param{attr_name: :foo},
+      %Param{attr_name: :bar},
+      %Param{attr_name: :baz},
+      %Param{attr_name: :qux},
     ] = SharedParamsTest.pc
   end
 end

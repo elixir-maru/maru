@@ -11,9 +11,8 @@ defmodule Maru.Router do
     [ attr_name: nil,
       default: nil,
       desc: nil,
-      group: [],
       required: true,
-      nested: false,
+      children: [],
       coerce_with: nil,
       parser: nil,
       validators: []
@@ -23,7 +22,7 @@ defmodule Maru.Router do
   defmodule Validator do
     @moduledoc false
 
-    defstruct action: nil, attr_names: [], group: []
+    defstruct action: nil, attr_names: []
   end
 
   defmodule Resource do

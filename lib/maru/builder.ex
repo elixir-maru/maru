@@ -22,7 +22,6 @@ defmodule Maru.Builder do
       @resource %Resource{}
       @param_context []
       @desc nil
-      @group []
       @before_compile unquote(__MODULE__)
       def init(_), do: []
     end

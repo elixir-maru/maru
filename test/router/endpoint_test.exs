@@ -18,80 +18,115 @@ defmodule Maru.Router.EndpointTest do
   test "identical param keys in groups" do
     assert %{group: %{name: "name1"}, name: "name2"} ==
       Endpoint.validate_params([
-        %Param{attr_name: :name,  parser: :string, nested: false},
-        %Param{attr_name: :group, parser: :map,    nested: true},
-        %Param{attr_name: :name,  parser: :string, group: [:group]}
+        %Param{attr_name: :name, parser: :string},
+        %Param{attr_name: :group, parser: :map, children: [
+          %Param{attr_name: :name, parser: :string}
+        ]}
       ], %{"group" => %{"name" => "name1"}, "name" => "name2"}, %{})
   end
 
   test "validate Map nested param" do
     assert %{group: %{name: "name"}} ==
-      Endpoint.validate_params([ %Param{attr_name: :group, parser: :map, nested: true},
-                                 %Param{attr_name: :name, parser: :string, group: [:group]}
-                               ], %{"group" => %{"name" => "name"}}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, children: [
+          %Param{attr_name: :name, parser: :string}
+        ]}
+      ], %{"group" => %{"name" => "name"}}, %{})
+
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
-      Endpoint.validate_params([ %Param{attr_name: :group,  parser: :map, nested: true},
-                                 %Param{attr_name: :group2, parser: :map, nested: true, group: [:group]},
-                                 %Param{attr_name: :name,   parser: :string, group: [:group, :group2]},
-                                 %Param{attr_name: :name2,  parser: :string, group: [:group, :group2]},
-                               ], %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, children: [
+          %Param{attr_name: :group2, parser: :map, children: [
+            %Param{attr_name: :name, parser: :string},
+            %Param{attr_name: :name2, parser: :string},
+          ]}
+        ]}
+      ], %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}}, %{})
   end
 
   test "validate List nested param" do
     assert %{group: [%{foo: "foo1", bar: "default"}, %{foo: "foo2", bar: "bar"}]} ==
-      Endpoint.validate_params([ %Param{attr_name: :group,  parser: :list, nested: true},
-                                 %Param{attr_name: :foo,    parser: :string, group: [:group]},
-                                 %Param{attr_name: :bar,    parser: :string, group: [:group], default: "default"},
-                                 %Validator{action: :at_least_one_of, attr_names: [:foo, :bar],  group: [:group]},
-                               ], %{"group" => [%{"foo" => "foo1"}, %{"foo" => "foo2", "bar" => "bar"}]}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :list, children: [
+          %Param{attr_name: :foo, parser: :string},
+          %Param{attr_name: :bar, parser: :string, default: "default"},
+          %Validator{action: :at_least_one_of, attr_names: [:foo, :bar]},
+        ]}
+      ], %{"group" => [%{"foo" => "foo1"}, %{"foo" => "foo2", "bar" => "bar"}]}, %{})
+
     assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
-      Endpoint.validate_params([ %Param{attr_name: :group,  parser: :list, nested: true},
-                                 %Param{attr_name: :foo,    parser: :list, nested: true, group: [:group]},
-                                 %Param{attr_name: :bar,    parser: :map,  nested: true, group: [:group, :foo]},
-                                 %Param{attr_name: :baz,    parser: :string, group: [:group, :foo, :bar]}
-                               ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :list, children: [
+          %Param{attr_name: :foo, parser: :list, children: [
+            %Param{attr_name: :bar, parser: :map, children: [
+              %Param{attr_name: :baz, parser: :string}
+            ]}
+          ]}
+        ]}
+      ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}, %{})
+
     assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
-      Endpoint.validate_params([ %Param{attr_name: :group,  parser: :list, nested: true},
-                                 %Param{attr_name: :foo,    parser: :list, nested: true, group: [:group]},
-                                 %Param{attr_name: :bar,    parser: :map,  nested: true, group: [:group, :foo]},
-                                 %Param{attr_name: :baz,    parser: :string, group: [:group, :foo, :bar]},
-                               ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :list, children: [
+          %Param{attr_name: :foo, parser: :list, children: [
+            %Param{attr_name: :bar, parser: :map, children: [
+              %Param{attr_name: :baz, parser: :string}
+            ]}
+          ]}
+        ]}
+      ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}, %{})
   end
 
   test "validate Json nested param" do
     assert %{group: %{name: "name"}} ==
-      Endpoint.validate_params([ %Param{attr_name: :group, parser: :map, coerce_with: :json, nested: true},
-                                 %Param{attr_name: :name, parser: :string, group: [:group]}
-                               ], %{"group" => ~s({"name":"name"})}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, coerce_with: :json, children: [
+          %Param{attr_name: :name, parser: :string}
+        ]}
+      ], %{"group" => ~s({"name":"name"})}, %{})
+
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
-      Endpoint.validate_params([ %Param{attr_name: :group,  parser: :map, nested: true},
-                                 %Param{attr_name: :group2, parser: :map, coerce_with: :json, nested: true, group: [:group]},
-                                 %Param{attr_name: :name,   parser: :string, group: [:group, :group2]},
-                                 %Param{attr_name: :name2,  parser: :string, group: [:group, :group2]},
-                               ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, children: [
+          %Param{attr_name: :group2, parser: :map, coerce_with: :json, children: [
+            %Param{attr_name: :name, parser: :string},
+            %Param{attr_name: :name2, parser: :string},
+          ]}
+        ]}
+      ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}}, %{})
   end
 
   test "validate optional nested param" do
     assert %{} ==
-      Endpoint.validate_params([ %Param{attr_name: :group, parser: :list,   required: false, nested: true},
-                                 %Param{attr_name: :foo,   parser: :string, required: true,  group: [:group]},
-                               ], %{}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :list, required: false, children: [
+          %Param{attr_name: :foo, parser: :string, required: true},
+        ]}
+      ], %{}, %{})
+
     assert %{} ==
-      Endpoint.validate_params([ %Param{attr_name: :group, parser: :map,    required: false, nested: true},
-                                 %Param{attr_name: :foo,   parser: :string, required: true,  group: [:group]},
-                               ], %{}, %{})
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, required: false, children: [
+          %Param{attr_name: :foo,   parser: :string, required: true}
+        ]}
+      ], %{}, %{})
   end
 
   test "validate Action Validator" do
-    assert %{group: %{foo: "foo"}} ==
-      Endpoint.validate_params([ %Validator{action: :exactly_one_of, attr_names: [:foo, :bar, :baz],  group: [:group]}
-                               ], %{}, %{group: %{foo: "foo"}})
+    assert %{foo: "foo"} ==
+      Endpoint.validate_params([
+        %Validator{action: :exactly_one_of, attr_names: [:foo, :bar, :baz]}
+      ], %{}, %{foo: "foo"})
+
     assert %{foo: "foo", bar: "bar"} ==
-      Endpoint.validate_params([ %Validator{action: :at_least_one_of, attr_names: [:foo, :bar, :baz],  group: []}
-                               ], %{}, %{foo: "foo", bar: "bar"})
+      Endpoint.validate_params([
+        %Validator{action: :at_least_one_of, attr_names: [:foo, :bar, :baz]}
+      ], %{}, %{foo: "foo", bar: "bar"})
+
     assert_raise Maru.Exceptions.Validation, fn ->
-      Endpoint.validate_params([ %Validator{action: :mutually_exclusive, attr_names: [:foo, :bar, :baz],  group: []}
-                               ], %{}, %{foo: "foo", bar: "bar"})
+      Endpoint.validate_params([
+        %Validator{action: :mutually_exclusive, attr_names: [:foo, :bar, :baz]}
+      ], %{}, %{foo: "foo", bar: "bar"})
     end
   end
 

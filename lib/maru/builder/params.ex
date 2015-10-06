@@ -27,33 +27,60 @@ defmodule Maru.Builder.Params do
   Define a param should be present.
   """
   defmacro requires(attr_name) do
-    param(attr_name, [], [required: true, nested: false])
+    quote do
+      @param_context @param_context ++ [
+        parse_options |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: true,
+          children: [],
+        })
+      ]
+    end
   end
 
   defmacro requires(attr_name, options, [do: block]) do
-    [ param(attr_name, Dict.merge([type: :list], options), [required: true, nested: false]),
-      quote do
-        group = @group
-        @group group ++ [unquote(attr_name)]
-        unquote(block)
-        @group group
-      end
-    ]
+    options = Dict.merge([type: :list], options) |> escape_options
+    quote do
+      param_context = @param_context
+      @param_context []
+      unquote(block)
+      @param_context param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: true,
+          children: @param_context,
+        })
+      ]
+    end
   end
 
   defmacro requires(attr_name, [do: block]) do
-    [ param(attr_name, [type: :list], [required: true, nested: true]),
-      quote do
-        group = @group
-        @group group ++ [unquote(attr_name)]
-        unquote(block)
-        @group group
-      end
-    ]
+    options = [type: :list]
+    quote do
+      param_context = @param_context
+      @param_context []
+      unquote(block)
+      @param_context param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: true,
+          children: @param_context,
+        })
+      ]
+    end
   end
 
   defmacro requires(attr_name, options) do
-    param(attr_name, options, [required: true, nested: false])
+    options = options |> escape_options
+    quote do
+      @param_context @param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: true,
+          children: [],
+        })
+      ]
+    end
   end
 
 
@@ -61,79 +88,124 @@ defmodule Maru.Builder.Params do
   Define a params group.
   """
   defmacro group(group_name, options \\ [], [do: block]) do
-    [ param(group_name, Dict.merge([type: :list], options), [required: true, nested: true]),
-      quote do
-        group = @group
-        @group group ++ [unquote group_name]
-        unquote(block)
-        @group group
-      end
-    ]
+    options = Dict.merge([type: :list], options) |> escape_options
+    quote do
+      param_context = @param_context
+      @param_context []
+      unquote(block)
+      @param_context param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(group_name),
+          required: true,
+          children: @param_context,
+        })
+      ]
+    end
   end
+
 
   @doc """
   Define a param should be present or not.
   """
   defmacro optional(attr_name) do
-    param(attr_name, [], [required: false, nested: false])
+    quote do
+      @param_context @param_context ++ [
+        parse_options |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: false,
+          children: [],
+        })
+      ]
+    end
   end
 
   defmacro optional(attr_name, options, [do: block]) do
-    [ param(attr_name, Dict.merge([type: :list], options), [required: false, nested: true]),
-      quote do
-        group = @group
-        @group group ++ [unquote(attr_name)]
-        unquote(block)
-        @group group
-      end
-    ]
+    options = Dict.merge([type: :list], options) |> escape_options
+    quote do
+      param_context = @param_context
+      @param_context []
+      unquote(block)
+      @param_context param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: false,
+          children: @param_context,
+        })
+      ]
+    end
   end
 
   defmacro optional(attr_name, [do: block]) do
-    [ param(attr_name, [type: :list], [required: false, nested: true]),
-      quote do
-        group = @group
-        @group group ++ [unquote(attr_name)]
-        unquote(block)
-        @group group
-      end
-    ]
+    options = [type: :list]
+    quote do
+      param_context = @param_context
+      @param_context []
+      unquote(block)
+      @param_context param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: false,
+          children: @param_context,
+        })
+      ]
+    end
   end
 
   defmacro optional(attr_name, options) do
-    param(attr_name, options, [required: false, nested: false])
+    options = options |> escape_options
+    quote do
+      @param_context @param_context ++ [
+        parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(attr_name),
+          required: false,
+          children: [],
+        })
+      ]
+    end
   end
 
 
-  defp param(attr_name, options, [required: required, nested: nested]) do
-    parser =
-      case options[:type] do
-        nil -> :term
+  def parse_options, do: %Param{}
+  def parse_options(options), do: parse_options(options, %Param{})
+  def parse_options([], result), do: result
+
+  def parse_options([{:type, v} | t], result) do
+    value =
+      case v do
+        nil -> nil
         {:__aliases__, _, [t]} -> t |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
         t when is_atom(t) -> t
       end
+    parse_options(t, %{result | parser: value})
+  end
 
-    coercer =
-      case options[:coerce_with] do
+  def parse_options([{:coerce_with, v} | t], result) do
+    value =
+      case v do
         nil -> nil
         {:__aliases__, _, [module]} -> module |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
         c when is_atom(c) -> c
-        {:fn, _, _}=c -> c |> Macro.escape
+        {:fn, _, _}=c -> c
         {:&, _, _}=c  -> c |> Code.eval_quoted |> elem(0)
       end
+    parse_options(t, %{result | coerce_with: value})
+  end
 
-    quote do
-      @param_context @param_context ++ [%Param{
-        attr_name: unquote(attr_name),
-        default: unquote(options[:default]),
-        desc: unquote(options[:desc]),
-        group: @group,
-        required: unquote(required),
-        nested: unquote(nested),
-        coerce_with: unquote(coercer),
-        parser: unquote(parser),
-        validators: unquote(options) |> Dict.drop([:type, :default, :desc, :coerce_with])
-      }]
+  def parse_options([{k, _}=h | t], result) when k in [:default, :desc] do
+    m = [h] |> Enum.into %{}
+    result = result |> Map.merge m
+    parse_options(t, result)
+  end
+
+  def parse_options([h | t], %Param{validators: validators}=result) do
+    parse_options(t, %{result | validators: validators ++ [h]})
+  end
+
+
+  defp escape_options(options) do
+    options |> Enum.map fn
+      {key, value} when key in [:coerce_with, :type] -> {key, value |> Macro.escape}
+      kv -> kv
     end
   end
 
@@ -146,7 +218,7 @@ defmodule Maru.Builder.Params do
         action = unquote(action)
         quote do
           @param_context @param_context ++ [
-            %Validator{action: unquote(action), attr_names: unquote(attr_names), group: @group}
+            %Validator{action: unquote(action), attr_names: unquote(attr_names)}
           ]
         end
       end

@@ -79,7 +79,7 @@ defmodule Maru.Router.Endpoint do
   """
   def validate_params([], _params, result), do: result
 
-  def validate_params([%Validator{action: action, attr_names: attr_names, group: group}|t], params, result) do
+  def validate_params([%Validator{action: action, attr_names: attr_names}|t], params, result) do
     validator =
       try do
         [ Maru.Validations,
@@ -89,21 +89,14 @@ defmodule Maru.Router.Endpoint do
         ArgumentError ->
           Maru.Exceptions.UndefinedValidator |> raise [param: attr_names, validator: action]
       end
-    params_for_check =
-      case group do
-        [] -> result
-        _  -> get_in(result, group)
-      end
-    validator.validate!(attr_names, params_for_check)
+    validator.validate!(attr_names, result)
     validate_params(t, params, result)
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, nested: false}=p|t], params, result) do
-    attr_path = group ++ [attr_name]
-    param_attr_path = attr_path |> Enum.map &to_string/1
+  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: []}=p|t], params, result) do
     attr_value =
-      result |> get_in(attr_path) ||
-      params |> get_in(param_attr_path) |> Maru.Coercer.parse(coercer) ||
+      result |> Dict.get(attr_name) ||
+      params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer) ||
       p.default
     value =
       case {attr_value, p.required} do
@@ -112,57 +105,34 @@ defmodule Maru.Router.Endpoint do
                      |> raise [reason: :required, param: attr_name, option: p]
         {value, _}   -> check_param(attr_name, value, p)
       end
-    validate_params(t, params, put_in(result, attr_path, value))
+    validate_params(t, params, put_in(result, [attr_name], value))
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: :map}=p|t], params, result) do
-    attr_path = group ++ [attr_name]
-    param_attr_path = attr_path |> Enum.map &to_string/1
-    nested_params = params |> get_in(param_attr_path) |> Maru.Coercer.parse(coercer)
-    params = params |> put_in(param_attr_path, nested_params)
-    {_, rest} = split_param_context(t, attr_path)
+  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
+    nested_params = params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
       {true, false} ->
-        validate_params(rest, params, result)
+        validate_params(t, params, result)
       {false, _} ->
-        validate_params(t, params, put_in(result, attr_path, %{}))
+        value = validate_params(children, nested_params, %{})
+        validate_params(t, params, put_in(result, [attr_name], value))
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, group: group, parser: :list}=p|t], params, result) do
-    # TODO rails parser format
-    attr_path = group ++ [attr_name]
-    param_attr_path = attr_path |> Enum.map &to_string/1
-    nested_params = params |> get_in(param_attr_path) |> Maru.Coercer.parse(coercer)
-    params = params |> put_in(param_attr_path, nested_params)
-    {nested_param_context, rest} = split_param_context(t, attr_path)
+  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
+    nested_params = params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
       {true, false} ->
-        validate_params(rest, params, result)
+        validate_params(t, params, result)
       {false, _} ->
-        nested_result = nested_params |> Enum.map &validate_params(nested_param_context, &1, %{})
-        validate_params(rest, params, put_in(result, attr_path, nested_result))
+        value = nested_params |> Enum.map &validate_params(children, &1, %{})
+        validate_params(t, params, put_in(result, [attr_name], value))
     end
   end
-
-  defp split_param_context(list, group) do
-    split_param_context(list, group, {[], []})
-  end
-  defp split_param_context([], _group, {left, right}), do: {Enum.reverse(left), Enum.reverse(right)}
-  defp split_param_context([p|t], group, {left, right}) do
-    case lstrip(p.group, group) do
-      nil          -> split_param_context(t, group, {left, [p | right]})
-      {:ok, rest}  -> split_param_context(t, group, {[%{p | group: rest} | left], right})
-    end
-  end
-
-  defp lstrip(rest, []),       do: {:ok, rest}
-  defp lstrip([h|t1], [h|t2]), do: lstrip(t1, t2)
-  defp lstrip(_, _),           do: nil
 
 
   defp check_param(attr_name, value, param_context) do
