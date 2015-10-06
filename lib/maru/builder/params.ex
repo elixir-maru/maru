@@ -172,7 +172,6 @@ defmodule Maru.Builder.Params do
   def parse_options([{:type, v} | t], result) do
     value =
       case v do
-        nil -> nil
         {:__aliases__, _, [t]} -> t |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
         t when is_atom(t) -> t
       end

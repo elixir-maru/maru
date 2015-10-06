@@ -15,7 +15,7 @@ defmodule Maru.Router do
       required: true,
       children: [],
       coerce_with: nil,
-      parser: nil,
+      parser: :term,
       validators: []
     ] |> defstruct
   end

@@ -7,6 +7,7 @@ defmodule Maru.RouterTest do
     defmodule OptionalTest do
       use Maru.Router
       params do
+        optional :attr
         requires :foo, type: :string, regexp: ~r/^[a-z]+$/, desc: "hehe"
         group :group do
           group :group, type: Map do
@@ -18,6 +19,7 @@ defmodule Maru.RouterTest do
     end
 
     assert [
+      %Param{attr_name: :attr, parser: :term, required: false},
       %Param{attr_name: :foo, parser: :string, required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
       %Param{attr_name: :group, parser: :list, required: true, children: [
         %Param{attr_name: :group, parser: :map, required: true, children: [
