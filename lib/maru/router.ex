@@ -9,6 +9,7 @@ defmodule Maru.Router do
     @moduledoc false
 
     [ attr_name: nil,
+      source: nil,
       default: nil,
       desc: nil,
       required: true,

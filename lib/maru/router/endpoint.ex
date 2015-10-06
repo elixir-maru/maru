@@ -93,10 +93,10 @@ defmodule Maru.Router.Endpoint do
     validate_params(t, params, result)
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: []}=p|t], params, result) do
+  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
     attr_value =
       result |> Dict.get(attr_name) ||
-      params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer) ||
+      params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer) ||
       p.default
     value =
       case {attr_value, p.required} do
@@ -108,8 +108,8 @@ defmodule Maru.Router.Endpoint do
     validate_params(t, params, put_in(result, [attr_name], value))
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
-    nested_params = params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer)
+  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
+    nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
@@ -121,8 +121,8 @@ defmodule Maru.Router.Endpoint do
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
-    nested_params = params |> Dict.get(attr_name |> to_string) |> Maru.Coercer.parse(coercer)
+  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
+    nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]

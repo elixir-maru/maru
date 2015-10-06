@@ -191,7 +191,7 @@ defmodule Maru.Builder.Params do
     parse_options(t, %{result | coerce_with: value})
   end
 
-  def parse_options([{k, _}=h | t], result) when k in [:default, :desc] do
+  def parse_options([{k, _}=h | t], result) when k in [:default, :desc, :source] do
     m = [h] |> Enum.into %{}
     result = result |> Map.merge m
     parse_options(t, result)

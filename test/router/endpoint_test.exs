@@ -96,6 +96,15 @@ defmodule Maru.Router.EndpointTest do
       ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}}, %{})
   end
 
+  test "param rename" do
+    assert %{group: %{name: "name"}} ==
+      Endpoint.validate_params([
+        %Param{attr_name: :group, parser: :map, coerce_with: :json, children: [
+          %Param{attr_name: :name, source: "name-test", parser: :string}
+        ]}
+      ], %{"group" => ~s({"name-test":"name"})}, %{})
+  end
+
   test "validate optional nested param" do
     assert %{} ==
       Endpoint.validate_params([
