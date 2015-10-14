@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.8.4-dev
+## v0.8.4 (2015-10-14)
 * Enhancements
   * support rename parameter using `source`
   * fork plug params for reusing request body
