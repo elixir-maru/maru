@@ -48,4 +48,29 @@ defmodule Maru.TestTest do
     assert %Plug.Conn{resp_body: "resp v1"} = TestTest2.test1
     assert %Plug.Conn{resp_body: "resp v2"} = TestTest2.test2
   end
+
+  test "parser test" do
+    defmodule Test3 do
+      use Maru.Router
+
+      params do
+        requires :foo
+      end
+      post do
+        params
+      end
+    end
+
+    defmodule TestTest3 do
+      use Maru.Test, for: Test3
+
+      def test do
+        conn(:post, "/", ~s({"foo":"bar"}))
+     |> Plug.Conn.put_req_header("content-type", "application/json")
+     |> make_response
+      end
+    end
+
+    assert %Plug.Conn{resp_body: ~s({"foo":"bar"})} = TestTest3.test
+  end
 end

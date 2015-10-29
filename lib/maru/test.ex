@@ -14,13 +14,23 @@ defmodule Maru.Test do
       defp make_response(conn, version \\ nil) do
         router = unquote(router)
         version = version || router.__version__
-        case conn do
-          %Plug.Conn{params: %Plug.Conn.Unfetched{}}=c ->
-            c |> Plug.Parsers.call([parsers: [:urlencoded, :multipart, :json], pass: ["*/*"], json_decoder: Poison])
-          c -> c
-        end
+        conn
      |> Maru.Plugs.Prepare.call([])
      |> put_private(:maru_version, version)
+     |> case do
+          %Plug.Conn{params: %Plug.Conn.Unfetched{}}=c ->
+            opts = [
+              parsers: [
+                Maru.Parsers.URLENCODED,
+                Maru.Parsers.JSON,
+                Plug.Parsers.MULTIPART,
+              ],
+              pass: ["*/*"],
+              json_decoder: Poison
+            ] |> Plug.Parsers.init
+            Plug.Parsers.call(c, opts)
+          c -> c
+        end
      |> router.call([])
       end
     end

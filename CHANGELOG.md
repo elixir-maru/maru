@@ -1,6 +1,8 @@
 ## Changelog
 
 ## v0.8.5
+* Bugfix
+  * params parser error within `Maru.Test`
 
 ## v0.8.4 (2015-10-14)
 * Enhancements

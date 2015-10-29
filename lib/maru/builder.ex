@@ -47,7 +47,7 @@ defmodule Maru.Builder do
         [{Maru.Plugs.Version, config[:versioning], true}]
       end,
       if is_nil(config) do [] else
-        [{Plug.Parsers, [parsers: [Maru.Parsers.URLENCODED, Maru.Parsers.JSON, :multipart], pass: ["*/*"], json_decoder: Poison], true}]
+        [{Plug.Parsers, [parsers: [Maru.Parsers.URLENCODED, Maru.Parsers.JSON, Plug.Parsers.MULTIPART], pass: ["*/*"], json_decoder: Poison], true}]
       end,
       [{Maru.Plugs.Prepare, [], true}],
       plugs,
