@@ -4,7 +4,7 @@ defmodule Maru do
   @moduledoc """
   This is documentation for maru.
 
-  Maru is a REST-like API micro-framework depends on (plug)[http://hexdocs.pm/plug] for (elixir)[http://elixir-lang.org] inspired by (grape)[https://github.com/ruby-grape/grape].
+  Maru is a REST-like API micro-framework depends on [plug](http://hexdocs.pm/plug) for [elixir](http://elixir-lang.org) inspired by [grape](https://github.com/ruby-grape/grape).
   """
 
   use Application
