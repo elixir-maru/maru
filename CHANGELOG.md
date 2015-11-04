@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.8.5
+## v0.8.5 (2015-11-4)
 * Bugfix
   * params parser error within `Maru.Test`
 
@@ -9,7 +9,7 @@
   * support rename parameter using `source`
   * fork plug params for reusing request body
 
-## v0.8.3 (2015-10-03)
+## v0.8.3 (2015-10-3)
 * Enhancements
   * add paramer type `Json`
   * support parameter coercion using `coerce_with`
