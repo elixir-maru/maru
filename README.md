@@ -74,7 +74,7 @@ end
 then add the `maru` to your `config/config.exs`
 ```elixir
 config :maru, MyAPP.API,
-  port: 8880
+  http: [port: 8880]
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/falood/maru_examples)
