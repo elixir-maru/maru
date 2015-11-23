@@ -1,6 +1,9 @@
 ## Changelog
 
 ## v0.9.0-dev
+* Bugfix
+  * `maru.routers` raise module undefined
+
 
 ## v0.8.5 (2015-11-4)
 * Bugfix

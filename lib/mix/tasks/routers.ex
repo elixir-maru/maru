@@ -1,10 +1,11 @@
 defmodule Mix.Tasks.Maru.Routers do
   use Mix.Task
 
-  def run(_) do
+  def run(args) do
     unless System.get_env("MIX_ENV") do
       Mix.env(:dev)
     end
+    Mix.Task.run "compile", args
     for {module, _} <- Maru.Config.servers do
       module
    |> Maru.Builder.Routers.generate
