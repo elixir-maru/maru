@@ -6,11 +6,11 @@ defmodule Maru.Builder.MethodsTest do
       use Maru.Builder
 
       get do
-        "get"
+        text conn, "get"
       end
 
       match do
-        "match"
+        text conn, "match"
       end
 
       def e, do: @endpoints

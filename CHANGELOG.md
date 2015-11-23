@@ -1,9 +1,16 @@
 ## Changelog
 
 ## v0.9.0-dev
+* Enhancements
+  * import `Plug.Conn` for Maru.Router by default
+  * reuse `text` `html` and `json` to make response
+
 * Bugfix
   * `maru.routers` raise module undefined
 
+* Dependencies
+  * return NOT Plug.Conn struct by endpoint
+  * custom response helpers: `assigns` `assign` `headers` `header` `content_type` `status` `present` in faver of functions of Plug.Conn.
 
 ## v0.8.5 (2015-11-4)
 * Bugfix

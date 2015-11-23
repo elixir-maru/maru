@@ -12,11 +12,11 @@ defmodule Maru.Builder.RoutersTest do
       mount Maru.Builder.RoutersTest.V5
 
       get do
-        "get without version"
+        text conn, "get without version"
       end
 
       match do
-        "hehe"
+        text conn, "hehe"
       end
     end
 
@@ -26,12 +26,12 @@ defmodule Maru.Builder.RoutersTest do
 
       desc "1.0"
       get do
-        "get v1"
+        text conn, "get v1"
       end
 
       desc "1.1"
       post do
-        "post v1"
+        text conn, "post v1"
       end
     end
 
@@ -41,7 +41,7 @@ defmodule Maru.Builder.RoutersTest do
 
       desc "2.0"
       get do
-        "get v2"
+        text conn, "get v2"
       end
     end
 
@@ -53,7 +53,7 @@ defmodule Maru.Builder.RoutersTest do
 
       desc "3.0"
       get :foo do
-        "get foo v3"
+        text conn, "get foo v3"
       end
     end
 
@@ -65,7 +65,7 @@ defmodule Maru.Builder.RoutersTest do
 
       desc "4.0"
       get :foo do
-        "get foo v4"
+        text conn, "get foo v4"
       end
     end
 
@@ -77,60 +77,60 @@ defmodule Maru.Builder.RoutersTest do
     assert %{
       nil => [
         %Maru.Router.Endpoint{
-          block: "hehe", desc: nil, helpers: [],
+          block: {:text, _, [_, "hehe"]}, desc: nil, helpers: [],
           method: {:_, [], nil}, param_context: [], path: [], version: nil
         },
         %Maru.Router.Endpoint{
-          block: "get without version", desc: nil, helpers: [],
+          block: {:text, _, [_, "get without version"]}, desc: nil, helpers: [],
           method: "GET", param_context: [], path: [], version: nil
         }
       ],
       "v1" => [
         %Maru.Router.Endpoint{
-          block: "post v1", desc: "1.1", helpers: [],
+          block: {:text, _, [_, "post v1"]}, desc: "1.1", helpers: [],
           method: "POST", param_context: [], path: [], version: "v1"
         },
         %Maru.Router.Endpoint{
-          block: "get v1", desc: "1.0", helpers: [],
+          block: {:text, _, [_, "get v1"]}, desc: "1.0", helpers: [],
           method: "GET", param_context: [], path: [], version: "v1"
         }
       ],
       "v2" => [
         %Maru.Router.Endpoint{
-          block: "get v2", desc: "2.0", helpers: [],
+          block: {:text, _, [_, "get v2"]}, desc: "2.0", helpers: [],
           method: "GET", param_context: [], path: [], version: "v2"
         },
         %Maru.Router.Endpoint{
-          block: "post v1", desc: "1.1", helpers: [],
+          block: {:text, _, [_, "post v1"]}, desc: "1.1", helpers: [],
           method: "POST", param_context: [], path: [], version: "v2"
         }
       ],
       "v3" => [
         %Maru.Router.Endpoint{
-          block: "get foo v3", desc: "3.0", helpers: [],
+          block: {:text, _, [_, "get foo v3"]}, desc: "3.0", helpers: [],
           method: "GET", param_context: [], path: ["foo"], version: "v3"
         },
         %Maru.Router.Endpoint{
-          block: "post v1", desc: "1.1", helpers: [],
+          block: {:text, _, [_, "post v1"]}, desc: "1.1", helpers: [],
           method: "POST", param_context: [], path: [], version: "v3"
         }
       ],
       "v4" => [
         %Maru.Router.Endpoint{
-          block: "get foo v4", desc: "4.0", helpers: [],
+          block: {:text, _, [_, "get foo v4"]}, desc: "4.0", helpers: [],
           method: "GET", param_context: [], path: ["foo"], version: "v4"
         }
       ],
       "v5" => [
         %Maru.Router.Endpoint{
-          block: "get v2", desc: "2.0", helpers: [],
+          block: {:text, _, [_, "get v2"]}, desc: "2.0", helpers: [],
           method: "GET", param_context: [], path: [], version: "v5"
         },
         %Maru.Router.Endpoint{
-          block: "post v1", desc: "1.1", helpers: [],
+          block: {:text, _, [_, "post v1"]}, desc: "1.1", helpers: [],
           method: "POST", param_context: [], path: [], version: "v5"
         }
       ]
-    } == generate(API)
+    } = generate(API)
   end
 end

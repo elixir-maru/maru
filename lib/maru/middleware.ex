@@ -6,7 +6,7 @@ defmodule Maru.Middleware do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Maru.Helpers.Response
+      use Maru.Helpers.Response
 
       def init(opts), do: opts
       def call(conn, _opts), do: conn

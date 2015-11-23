@@ -5,7 +5,7 @@ defmodule Maru.Builder do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Maru.Helpers.Response
+      use Maru.Helpers.Response
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
       import Maru.Builder.Exceptions

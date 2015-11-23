@@ -7,8 +7,7 @@ defmodule Maru.MiddlewareTest do
       use Maru.Middleware
 
       def call(conn, _opts) do
-        assign(:user_id, 1)
-        conn
+        conn |> assign(:user_id, 1)
       end
     end
 
@@ -17,7 +16,7 @@ defmodule Maru.MiddlewareTest do
 
       get do
         params
-        "ok"
+        text conn, "ok"
       end
     end
 

@@ -41,8 +41,7 @@ defmodule Maru.Router.Endpoint do
         }
       }=var!(conn), []) do
         unquote(params_block)
-        resp = unquote(ep.block)
-        Maru.Router.Endpoint.send_resp(var!(conn), resp)
+        unquote(ep.block)
       end
     end
   end
@@ -159,29 +158,6 @@ defmodule Maru.Router.Endpoint do
       end
     validator.validate_param!(attr_name, value, option)
     do_check_param(t, attr_name, value)
-  end
-
-
-  @doc """
-  Send response for different kinds of data type.
-  """
-  def send_resp(_, %Plug.Conn{private: %{maru_present: present}}=conn) do
-    send_resp(conn, present)
-  end
-
-  def send_resp(_, %Plug.Conn{}=conn) do
-    conn
-  end
-
-  def send_resp(conn, resp) do
-    status = conn.status || 200
-    body = resp |> Maru.Response.resp_body
-    if Plug.Conn.get_resp_header(conn, "content-type") == [] do
-      content_type = resp |> Maru.Response.content_type
-      conn |> Plug.Conn.put_resp_content_type(content_type)
-    else conn end
- |> Plug.Conn.send_resp(status, body)
- |> Plug.Conn.halt
   end
 
 end

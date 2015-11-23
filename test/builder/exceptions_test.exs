@@ -2,40 +2,49 @@ defmodule Maru.Builder.ExceptionsTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
+
   test "rescue_from" do
     defmodule RescueTest do
       use Maru.Router
+
+      defp unwarn(_), do: nil
 
       get :test1 do
         [] = conn
       end
 
       get :test2 do
+        unwarn(conn)
         List.first %{}
       end
 
       get :test3 do
+        unwarn(conn)
         raise "err"
       end
 
       rescue_from MatchError do
-        status 500
-        "match error"
+        conn
+     |> put_status(500)
+     |> text("match error")
       end
 
       rescue_from [UndefinedFunctionError, FunctionClauseError] do
-        status 500
-        "function error"
+        conn
+     |> put_status(500)
+     |> text("function error")
       end
 
       rescue_from Maru.Exceptions.MethodNotAllow do
-        status 405
-        "MethodNotAllow"
+        conn
+     |> put_status(405)
+     |> text("MethodNotAllow")
       end
 
       rescue_from :all, as: e do
-        status 500
-        e.message
+        conn
+     |> put_status(500)
+     |> text(e.message)
       end
     end
 

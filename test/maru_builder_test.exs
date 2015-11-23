@@ -7,11 +7,11 @@ defmodule Maru.BuilderTest do
       use Maru.Builder
 
       get do
-        "get"
+        text conn, "get"
       end
 
       match do
-        "match"
+        text conn, "match"
       end
 
       def e(conn), do: endpoint(conn, [])
@@ -27,11 +27,11 @@ defmodule Maru.BuilderTest do
       use Maru.Builder
 
       get "path" do
-        "get"
+        text conn, "get"
       end
 
       post ":var/path" do
-        "post"
+        text conn, "post"
       end
 
       def e(conn), do: endpoint(conn, [])

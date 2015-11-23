@@ -139,26 +139,19 @@ defmodule Maru.Router.EndpointTest do
     end
   end
 
-  test "send_resp status" do
-    conn = %{conn(:get, "/") | status: 201}
-    assert %Plug.Conn{status: 201, halted: true} = Endpoint.send_resp(conn, "")
-
-    conn = conn(:post, "/")
-    assert %Plug.Conn{status: 200, halted: true} = Endpoint.send_resp(conn, "")
-  end
-
-  test "send_resp content_type" do
-    conn = conn(:get, "/") |> Plug.Conn.put_resp_content_type("application/json")
-    assert {"content-type", "application/json; charset=utf-8"} in Endpoint.send_resp(conn, "").resp_headers
-
-    conn = conn(:post, "/")
-    assert {"content-type", "text/plain; charset=utf-8"} in Endpoint.send_resp(conn, "").resp_headers
-  end
-
   test "dispatch method" do
     defmodule DispatchTest do
-      Module.eval_quoted __MODULE__, (%Maru.Router.Endpoint{method: "GET", path: [], block: "get"} |> Endpoint.dispatch), [], __ENV__
-      Module.eval_quoted __MODULE__, (%Maru.Router.Endpoint{method: {:_, [], nil}, path: [], block: "match"} |> Endpoint.dispatch), [], __ENV__
+      use Maru.Helpers.Response
+      Module.eval_quoted __MODULE__, (
+        %Maru.Router.Endpoint{
+          method: "GET", path: [], block: {:text, [], [{:conn, [], nil}, "get"]}
+        } |> Endpoint.dispatch
+      ), [], __ENV__
+      Module.eval_quoted __MODULE__, (
+        %Maru.Router.Endpoint{
+          method: {:_, [], nil}, path: [], block: {:text, [], [{:conn, [], nil}, "match"]}
+        } |> Endpoint.dispatch
+      ), [], __ENV__
       def e(conn), do: endpoint(conn, [])
     end
 

@@ -7,11 +7,11 @@ defmodule Maru.Plugs.ExtendTest do
     version "v1"
 
     get :test1 do
-      "test1 v1"
+      text conn, "test1 v1"
     end
 
     get :test2 do
-      "test2 v1"
+      text conn, "test2 v1"
     end
   end
 

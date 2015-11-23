@@ -6,7 +6,9 @@ defmodule Maru.TestTest do
       use Maru.Router
       version "v3"
 
-      get do: "resp"
+      get do
+        text conn, "resp"
+      end
     end
 
     defmodule TestTest1 do
@@ -25,11 +27,15 @@ defmodule Maru.TestTest do
       use Maru.Router
 
       version "v1" do
-        get do: "resp v1"
+        get do
+          text conn, "resp v1"
+        end
       end
 
       version "v2" do
-        get do: "resp v2"
+        get do
+          text conn, "resp v2"
+        end
       end
     end
 
@@ -57,7 +63,7 @@ defmodule Maru.TestTest do
         requires :foo
       end
       post do
-        params
+        json conn, params
       end
     end
 
