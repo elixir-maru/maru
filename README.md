@@ -43,7 +43,7 @@ defmodule Router.Homepage do
 
   resources do
     get do
-      %{ hello: :world }
+      json conn, %{ hello: :world }
     end
 
     mount Router.User
@@ -60,13 +60,15 @@ defmodule MyAPP.API do
   rescue_from Unauthorized, as: e do
     IO.inspect e
 
-    status 401
-    "Unauthorized"
+    conn
+    |> put_status(401)
+    |> text("Unauthorized")
   end
 
   rescue_from :all do
-    status 500
-    "Server Error"
+    conn
+    |> put_status(500)
+    |> text("Server Error")
   end
 end
 ```
