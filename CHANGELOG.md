@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.9.0-dev
+## v0.9.0 (2015-11-29)
 * Enhancements
   * import `Plug.Conn` for Maru.Router by default
   * reuse `text` `html` and `json` to make response
