@@ -8,7 +8,7 @@
 * Bugfix
   * `maru.routers` raise module undefined
 
-* Dependencies
+* Deprecations
   * return NOT Plug.Conn struct by endpoint
   * custom response helpers: `assigns` `assign` `headers` `header` `content_type` `status` `present` in faver of functions of Plug.Conn.
 
