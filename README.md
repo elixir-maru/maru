@@ -15,7 +15,7 @@ defmodule Router.User do
   namespace :user do
     route_param :id do
       get do
-        %{ user: params[:id] }
+        json conn, %{ user: params[:id] }
       end
 
       desc "description"
