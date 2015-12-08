@@ -77,7 +77,7 @@ defmodule Maru.Helpers.Response do
 
   @doc false
   defmacro fetch_req_body do
-    IO.puts :stderr, "retch_req_body/1 is deprecated."
+    IO.puts :stderr, "fetch_req_body/1 is deprecated. Access request details through conn"
     quote do
       {state, body, _} = var!(conn) |> Plug.Conn.read_body
       var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_body, {state, body})
