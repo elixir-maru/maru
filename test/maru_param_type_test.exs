@@ -17,9 +17,12 @@ defmodule Maru.ParamTypeTest do
   end
 
   test "float" do
-    assert ParamType.Float.from(1)     == 1.0
-    assert ParamType.Float.from("1")   == 1.0
-    assert ParamType.Float.from("1.0") == 1.0
+    assert ParamType.Float.from(1)      == 1.0
+    assert ParamType.Float.from("1")    == 1.0
+    assert ParamType.Float.from("1.0")  == 1.0
+    assert ParamType.Float.from(-1)     == -1.0
+    assert ParamType.Float.from("-1")   == -1.0
+    assert ParamType.Float.from("-1.0") == -1.0
   end
 
   test "boolean" do

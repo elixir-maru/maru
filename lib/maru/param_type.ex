@@ -47,8 +47,8 @@ defmodule Maru.ParamType do
     def from(s) when is_integer(s), do: :erlang.float(s)
     def from(s) do
       cond do
-        Regex.match?(~r/^[0-9]+\.[0-9]+$/, s) -> s |> Elixir.String.to_float
-        Regex.match?(~r/^[0-9]+$/, s) -> "#{s}.0" |> Elixir.String.to_float
+        Regex.match?(~r/^[-+]?[0-9]+\.[0-9]+$/, s) -> s |> Elixir.String.to_float
+        Regex.match?(~r/^[-+]?[0-9]+$/, s) -> "#{s}.0" |> Elixir.String.to_float
       end
     end
   end
