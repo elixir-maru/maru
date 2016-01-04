@@ -13,7 +13,7 @@ defmodule Maru.Router.Endpoint do
   Generate general endpoint defined by user within method block.
   """
   def dispatch(ep) do
-    path = ep.path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
+    path = ep.path |> Enum.map(fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end)
     version =
       case ep.version do
         nil -> Macro.var(:_, nil)
@@ -52,7 +52,7 @@ defmodule Maru.Router.Endpoint do
   """
   def dispatch_405(version, path) do
     method = Macro.var(:_, nil)
-    path = path |> Enum.map fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end
+    path = path |> Enum.map(fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end)
     version =
       case version do
         nil -> Macro.var(:_, nil)
@@ -67,7 +67,7 @@ defmodule Maru.Router.Endpoint do
           maru_version: unquote(version),
         }
       }=var!(conn), []) do
-        Maru.Exceptions.MethodNotAllow |> raise [method: var!(conn).method, request_path: var!(conn).request_path]
+        Maru.Exceptions.MethodNotAllow |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
       end
     end
   end
@@ -86,7 +86,7 @@ defmodule Maru.Router.Endpoint do
         ] |> Module.safe_concat
       rescue
         ArgumentError ->
-          Maru.Exceptions.UndefinedValidator |> raise [param: attr_names, validator: action]
+          Maru.Exceptions.UndefinedValidator |> raise([param: attr_names, validator: action])
       end
     validator.validate!(attr_names, result)
     validate_params(t, params, result)
@@ -101,7 +101,7 @@ defmodule Maru.Router.Endpoint do
       case {attr_value, p.required} do
         {nil, false} -> nil
         {nil, true}  -> Maru.Exceptions.InvalidFormatter
-                     |> raise [reason: :required, param: attr_name, option: p]
+                     |> raise([reason: :required, param: attr_name, option: p])
         {value, _}   -> check_param(attr_name, value, p)
       end
     validate_params(t, params, put_in(result, [attr_name], value))
@@ -111,7 +111,7 @@ defmodule Maru.Router.Endpoint do
     nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
-        Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+        Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
       {true, false} ->
         validate_params(t, params, result)
       {false, _} ->
@@ -124,11 +124,11 @@ defmodule Maru.Router.Endpoint do
     nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
-        Maru.Exceptions.InvalidFormatter |> raise [reason: :required, param: attr_name, option: p]
+        Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
       {true, false} ->
         validate_params(t, params, result)
       {false, _} ->
-        value = nested_params |> Enum.map &validate_params(children, &1, %{})
+        value = nested_params |> Enum.map(&validate_params(children, &1, %{}))
         validate_params(t, params, put_in(result, [attr_name], value))
     end
   end
@@ -141,7 +141,7 @@ defmodule Maru.Router.Endpoint do
         Maru.ParamType.parse(value, param_context.parser)
       rescue
         ArgumentError ->
-          Maru.Exceptions.InvalidFormatter |> raise [reason: :illegal, param: attr_name, value: value, option: validators]
+          Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: attr_name, value: value, option: validators])
       end
     do_check_param(validators, attr_name, value)
   end
@@ -154,7 +154,7 @@ defmodule Maru.Router.Endpoint do
         ] |> Module.safe_concat
       rescue
         ArgumentError ->
-          Maru.Exceptions.UndefinedValidator |> raise [param: attr_name, validator: validator]
+          Maru.Exceptions.UndefinedValidator |> raise([param: attr_name, validator: validator])
       end
     validator.validate_param!(attr_name, value, option)
     do_check_param(t, attr_name, value)

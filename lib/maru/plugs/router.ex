@@ -8,10 +8,10 @@ defmodule Maru.Plugs.Router do
 
   @doc false
   def init(opts) do
-    router = opts |> Keyword.fetch! :router
+    router = opts |> Keyword.fetch!(:router)
     'Elixir.' ++ _ = Atom.to_char_list router
-    version = opts |> Keyword.fetch! :version
-    %Resource{path: path, param_context: param_context} = opts |> Keyword.get :resource, %Resource{}
+    version = opts |> Keyword.fetch!(:version)
+    %Resource{path: path, param_context: param_context} = opts |> Keyword.get(:resource, %Resource{})
     {router, path, version, param_context}
   end
 

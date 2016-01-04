@@ -7,7 +7,7 @@ defmodule Maru.Plugs.Version do
 
   @doc false
   def init(opts) do
-    {strategy, options} = opts |> Keyword.pop :using, :path
+    {strategy, options} = opts |> Keyword.pop(:using, :path)
     unless strategy in [:path, :param, :accept_version_header] do
       IO.write :stderr, "Unsupported versioning strategy: #{strategy}, Ignore."
     end

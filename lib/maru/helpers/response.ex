@@ -50,7 +50,7 @@ defmodule Maru.Helpers.Response do
   defmacro headers do
     IO.puts :stderr, "headers is deprecated in favor of conn.req_headers."
     quote do
-      var!(conn).req_headers |> Enum.into %{}
+      var!(conn).req_headers |> Enum.into(%{})
     end
   end
 

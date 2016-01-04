@@ -7,12 +7,12 @@ defmodule Maru.Plugs.Extend do
 
   @doc false
   def init(opts) do
-    router = opts |> Keyword.fetch! :at
+    router = opts |> Keyword.fetch!(:at)
     'Elixir.' ++ _ = Atom.to_char_list router
-    version = opts |> Keyword.fetch! :version
-    extend = opts |> Keyword.fetch! :extend
-    only = opts |> Keyword.get :only, nil
-    except = opts |> Keyword.get :except, nil
+    version = opts |> Keyword.fetch!(:version)
+    extend  = opts |> Keyword.fetch!(:extend)
+    only    = opts |> Keyword.get(:only, nil)
+    except  = opts |> Keyword.get(:except, nil)
     unless is_nil(only) or is_nil(except) do
       raise ":only and :except are in conflict!"
     end

@@ -83,7 +83,7 @@ defmodule Maru.Builder.DSLs do
     quote do
       import Maru.Helpers.Params
       import unquote(module)
-      unquote(module).__shared_params__ |> Enum.each &(@shared_params &1)
+      unquote(module).__shared_params__ |> Enum.each(&(@shared_params &1))
     end
   end
 

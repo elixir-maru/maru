@@ -61,17 +61,17 @@ defmodule Maru.Builder do
    |> List.flatten
 
     quote do
-      @endpoints |> Enum.reverse |> Enum.map fn ep ->
+      @endpoints |> Enum.reverse |> Enum.map(fn ep ->
         Module.eval_quoted __MODULE__, (ep |> Endpoint.dispatch), [], __ENV__
-      end
+      end)
 
       @endpoints
    |> Enum.group_by(fn ep -> {ep.version, ep.path} end)
-   |> Enum.map fn {{version, path}, endpoints} ->
+   |> Enum.map(fn {{version, path}, endpoints} ->
         unless Enum.any?(endpoints, fn i -> i.method == {:_, [], nil} end) do
           Module.eval_quoted __MODULE__, (Endpoint.dispatch_405 version, path), [], __ENV__
         end
-      end
+      end)
 
       defp endpoint(conn, _), do: conn
 

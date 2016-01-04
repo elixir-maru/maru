@@ -6,26 +6,26 @@ defmodule Maru.Builder.Exceptions do
   @doc false
   defmacro rescue_from(:all, [as: error_var], [do: block]) do
     quote do
-      @exceptions {:all, unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
+      @exceptions {:all, unquote(Macro.escape error_var), unquote(Macro.escape block)}
     end
   end
 
   defmacro rescue_from(error, [as: error_var], [do: block]) do
     quote do
-      @exceptions {unquote(error), unquote(error_var |> Macro.escape), unquote(block |> Macro.escape)}
+      @exceptions {unquote(error), unquote(Macro.escape error_var), unquote(Macro.escape block)}
     end
   end
 
   @doc false
   defmacro rescue_from(:all, [do: block]) do
     quote do
-      @exceptions {:all, unquote(block |> Macro.escape)}
+      @exceptions {:all, unquote(Macro.escape block)}
     end
   end
 
   defmacro rescue_from(error, [do: block]) do
     quote do
-      @exceptions {unquote(error), unquote(block |> Macro.escape)}
+      @exceptions {unquote(error), unquote(Macro.escape block)}
     end
   end
 

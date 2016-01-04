@@ -32,8 +32,8 @@ defmodule Maru.Builder.Routers do
 
     mount_endpoints =
       Enum.map(module.__routers__, fn {_, mounted, _} ->
-        m = mounted |> Keyword.fetch! :router
-        resource = mounted |> Keyword.fetch! :resource
+        m = mounted |> Keyword.fetch!(:router)
+        resource = mounted |> Keyword.fetch!(:resource)
         version = mount_version || m.__version__
         generate_detail(m, mount_path ++ resource.path, version, all_modules)
       end) |> List.flatten
@@ -56,7 +56,7 @@ defmodule Maru.Builder.Routers do
     topological_sort(t, [h | r])
   end
   defp topological_sort([{_, opts}=h | t], r) do
-    depend = opts |> Keyword.fetch! :at
+    depend = opts |> Keyword.fetch!(:at)
     t
  |> Enum.any?(fn
       {m, _} when m == depend -> true
@@ -73,12 +73,12 @@ defmodule Maru.Builder.Routers do
     endpoints = module.__endpoints__
 
     if is_nil(options) or is_nil(Keyword.get options, :extend) do
-      generated |> put_in [module], endpoints
+      generated |> put_in([module], endpoints)
     else
-      extended_module = options |> Keyword.fetch! :at
+      extended_module = options |> Keyword.fetch!(:at)
       extended_endpoints = generated[extended_module]
-      only = options |> Keyword.get :only, nil
-      except = options |> Keyword.get :except, nil
+      only = options |> Keyword.get(:only, nil)
+      except = options |> Keyword.get(:except, nil)
 
       extended_endpoints =
         extended_endpoints
@@ -87,7 +87,7 @@ defmodule Maru.Builder.Routers do
      |> Enum.filter(&Maru.Plugs.Extend.filter_only(&1, only))
      |> Enum.filter(&Maru.Plugs.Extend.filter_except(&1, except))
 
-      generated |> put_in [module], endpoints ++ extended_endpoints
+      generated |> put_in([module], endpoints ++ extended_endpoints)
     end
   end
 

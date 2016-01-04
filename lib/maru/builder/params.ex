@@ -191,8 +191,8 @@ defmodule Maru.Builder.Params do
   end
 
   def parse_options([{k, _}=h | t], result) when k in [:default, :desc, :source] do
-    m = [h] |> Enum.into %{}
-    result = result |> Map.merge m
+    m = [h] |> Enum.into(%{})
+    result = result |> Map.merge(m)
     parse_options(t, result)
   end
 
@@ -202,10 +202,10 @@ defmodule Maru.Builder.Params do
 
 
   defp escape_options(options) do
-    options |> Enum.map fn
+    options |> Enum.map(fn
       {key, value} when key in [:coerce_with, :type] -> {key, value |> Macro.escape}
       kv -> kv
-    end
+    end)
   end
 
 
