@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.9.2
+## v0.9.2 (2016-1-6)
 * Enhancements
   * no longer keep nil value for optional params
 
