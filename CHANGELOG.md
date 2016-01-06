@@ -1,5 +1,16 @@
 ## Changelog
 
+## v0.9.2
+* Enhancements
+  * no longer keep nil value for optional params
+
+## v0.9.1 (2016-1-4)
+* Enhancements
+  * update to elixir v1.2
+
+* Bugfix
+  * floats can be negative
+
 ## v0.9.0 (2015-11-29)
 * Enhancements
   * import `Plug.Conn` for Maru.Router by default
