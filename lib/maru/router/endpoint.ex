@@ -97,14 +97,14 @@ defmodule Maru.Router.Endpoint do
       result |> Dict.get(attr_name) ||
       params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer) ||
       p.default
-    value =
-      case {attr_value, p.required} do
-        {nil, false} -> nil
-        {nil, true}  -> Maru.Exceptions.InvalidFormatter
-                     |> raise([reason: :required, param: attr_name, option: p])
-        {value, _}   -> check_param(attr_name, value, p)
-      end
-    validate_params(t, params, put_in(result, [attr_name], value))
+    case {attr_value, p.required} do
+      {nil, false} -> validate_params(t, params, result)
+      {nil, true}  -> Maru.Exceptions.InvalidFormatter
+                   |> raise([reason: :required, param: attr_name, option: p])
+      {value, _}   ->
+        value = check_param(attr_name, value, p)
+        validate_params(t, params, put_in(result, [attr_name], value))
+    end
   end
 
   def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
