@@ -2,6 +2,48 @@ defmodule Maru.Builder.RoutersTest do
   use ExUnit.Case, async: true
   import Maru.Builder.Routers
 
+  test "generate with namespace" do
+    defmodule NamespacedAPI do
+      use Maru.Router
+
+      get do
+        text conn, "get without version"
+      end
+
+      match do
+        text conn, "hehe"
+      end
+    end
+
+    namespace = "/api/foo/bar"
+
+    assert %{
+      nil => [
+        %Maru.Router.Endpoint{
+          block: {:text, _, [_, "hehe"]}, desc: nil, helpers: [],
+          method: {:_, [], nil}, param_context: [], path: [namespace], version: nil
+        },
+        %Maru.Router.Endpoint{
+          block: {:text, _, [_, "get without version"]}, desc: nil, helpers: [],
+          method: "GET", param_context: [], path: [namespace], version: nil
+        }
+      ],
+    } = generate(NamespacedAPI, [namespace])
+
+    assert %{
+      nil => [
+        %Maru.Router.Endpoint{
+          block: {:text, _, [_, "hehe"]}, desc: nil, helpers: [],
+          method: {:_, [], nil}, param_context: [], path: [namespace], version: nil
+        },
+        %Maru.Router.Endpoint{
+          block: {:text, _, [_, "get without version"]}, desc: nil, helpers: [],
+          method: "GET", param_context: [], path: [namespace], version: nil
+        }
+      ],
+    } = generate(NamespacedAPI, namespace)
+  end
+
   test "generate" do
     defmodule API do
       use Maru.Router
