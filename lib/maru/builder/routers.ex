@@ -10,25 +10,29 @@ defmodule Maru.Builder.Routers do
   3. Generate endpoints of sorted modules.
   4. Group modules by `version`.
   """
-  def generate(module) do
+  def generate(module, mount_path) when is_list(mount_path) do
     all_modules =
       module
-   |> traversal_module
-   |> topological_sort([])
-   |> Enum.reduce(%{}, fn ({module, options}, acc) ->
-        generate_module(module, options, acc)
-      end)
+      |> traversal_module
+      |> topological_sort([])
+      |> Enum.reduce(%{}, fn ({module, options}, acc) ->
+           generate_module(module, options, acc)
+         end)
 
-    generate_detail(module, [], nil, all_modules)
- |> Enum.sort(fn ep1, ep2 -> ep1.version < ep2.version end)
- |> Enum.group_by(fn ep -> ep.version end)
+    generate_detail(module, mount_path, nil, all_modules)
+    |> Enum.sort(fn ep1, ep2 -> ep1.version < ep2.version end)
+    |> Enum.group_by(fn ep -> ep.version end)
   end
+
+  def generate(module, "/"<>mount_path), do: generate(module, ["/"<>mount_path])
+
+  def generate(module), do: generate(module, [])
 
   defp generate_detail(module, mount_path, mount_version, all_modules) do
     module_endpoints =
       all_modules[module]
-   |> Enum.map(&change_version(&1, mount_version))
-   |> Enum.map(fn endpoint -> %{endpoint | path: mount_path ++ endpoint.path} end)
+      |> Enum.map(&change_version(&1, mount_version))
+      |> Enum.map(fn endpoint -> %{endpoint | path: mount_path ++ endpoint.path} end)
 
     mount_endpoints =
       Enum.map(module.__routers__, fn {_, mounted, _} ->
@@ -40,7 +44,6 @@ defmodule Maru.Builder.Routers do
 
     module_endpoints ++ mount_endpoints
   end
-
 
   defp traversal_module(module) do
     [ {module, module.__extend__ |> get_extend_opts} |
@@ -58,15 +61,15 @@ defmodule Maru.Builder.Routers do
   defp topological_sort([{_, opts}=h | t], r) do
     depend = opts |> Keyword.fetch!(:at)
     t
- |> Enum.any?(fn
-      {m, _} when m == depend -> true
-      _                       -> false
-    end)
- |> if do
-      topological_sort(t ++ [h], r)
-    else
-      topological_sort(t, [h | r])
-    end
+    |> Enum.any?(fn
+         {m, _} when m == depend -> true
+         _                       -> false
+       end)
+    |> if do
+         topological_sort(t ++ [h], r)
+       else
+         topological_sort(t, [h | r])
+       end
   end
 
   defp generate_module(module, options, generated) do
@@ -82,10 +85,10 @@ defmodule Maru.Builder.Routers do
 
       extended_endpoints =
         extended_endpoints
-     |> Enum.map(&change_version(&1, options[:version]))
-     |> Enum.filter(&Maru.Plugs.Extend.filter_origin(&1, endpoints))
-     |> Enum.filter(&Maru.Plugs.Extend.filter_only(&1, only))
-     |> Enum.filter(&Maru.Plugs.Extend.filter_except(&1, except))
+        |> Enum.map(&change_version(&1, options[:version]))
+        |> Enum.filter(&Maru.Plugs.Extend.filter_origin(&1, endpoints))
+        |> Enum.filter(&Maru.Plugs.Extend.filter_only(&1, only))
+        |> Enum.filter(&Maru.Plugs.Extend.filter_except(&1, except))
 
       generated |> put_in([module], endpoints ++ extended_endpoints)
     end
