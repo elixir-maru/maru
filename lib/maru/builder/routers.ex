@@ -2,7 +2,7 @@ defmodule Maru.Builder.Routers do
   @moduledoc false
 
   @doc """
-  Generate router list for `maru.routers` task and (maru_swagger)[https://hex.pm/packages/maru_swagger].
+  Generate router list for `maru.routes` task and (maru_swagger)[https://hex.pm/packages/maru_swagger].
 
   Algorithm:
   1. Traversal modules to find all modules.

@@ -6,6 +6,7 @@ defmodule Mix.Tasks.Maru.Routers do
       Mix.env(:dev)
     end
     Mix.Task.run "compile", args
+    IO.puts :stderr, "maru.routers is deprecated in favor of maru.routes"
     for {module, _} <- Maru.Config.servers do
       module
    |> Maru.Builder.Routers.generate
