@@ -2,6 +2,7 @@
 ## v0.9.3-dev
 * Enhancements
   * `maru.routers` is deprecated in favor of `maru.routes`
+  * make poison 1.5 and 2.0 compatible
 
 ## v0.9.2 (2016-1-6)
 * Enhancements
