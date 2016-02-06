@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Maru.Routes do
   defp generate_module(module, prefix) do
     module
     |> Maru.Builder.Routers.generate
-    |> Dict.values
+    |> Map.values
     |> List.flatten
     |> Enum.map(&generate_endpoint(&1, prefix))
     |> Enum.map(&IO.puts/1)

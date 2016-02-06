@@ -39,7 +39,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro requires(attr_name, options, [do: block]) do
-    options = Dict.merge([type: :list], options) |> escape_options
+    options = Keyword.merge([type: :list], options) |> escape_options
     quote do
       param_context = @param_context
       @param_context []
@@ -88,7 +88,7 @@ defmodule Maru.Builder.Params do
   Define a params group.
   """
   defmacro group(group_name, options \\ [], [do: block]) do
-    options = Dict.merge([type: :list], options) |> escape_options
+    options = Keyword.merge([type: :list], options) |> escape_options
     quote do
       param_context = @param_context
       @param_context []
@@ -120,7 +120,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro optional(attr_name, options, [do: block]) do
-    options = Dict.merge([type: :list], options) |> escape_options
+    options = Keyword.merge([type: :list], options) |> escape_options
     quote do
       param_context = @param_context
       @param_context []

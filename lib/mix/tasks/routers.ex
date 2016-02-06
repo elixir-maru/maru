@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Maru.Routers do
     for {module, _} <- Maru.Config.servers do
       module
    |> Maru.Builder.Routers.generate
-   |> Dict.values
+   |> Map.values
    |> List.flatten
    |> Enum.map(&generate_endpoint/1)
    |> Enum.map(&IO.puts/1)

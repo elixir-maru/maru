@@ -95,8 +95,8 @@ defmodule Maru.Router.Endpoint do
   def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
     attr_value =
       pickup([
-        result |> Dict.get(attr_name),
-        params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer),
+        result |> Map.get(attr_name),
+        params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer),
         p.default
       ])
     case {attr_value, p.required} do
@@ -110,7 +110,7 @@ defmodule Maru.Router.Endpoint do
   end
 
   def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
-    nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
+    nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
@@ -123,7 +123,7 @@ defmodule Maru.Router.Endpoint do
   end
 
   def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
-    nested_params = params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
+    nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
         Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
