@@ -1,4 +1,6 @@
 ## Changelog
+## v0.9.4-dev
+
 ## v0.9.3 (2016-1-29)
 * Enhancements
   * `maru.routers` is deprecated in favor of `maru.routes`
