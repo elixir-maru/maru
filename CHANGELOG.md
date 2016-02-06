@@ -1,5 +1,7 @@
 ## Changelog
 ## v0.9.4-dev
+* Bugfix
+  * parse bool type error.
 
 ## v0.9.3 (2016-1-29)
 * Enhancements

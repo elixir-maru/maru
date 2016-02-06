@@ -94,9 +94,11 @@ defmodule Maru.Router.Endpoint do
 
   def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
     attr_value =
-      result |> Dict.get(attr_name) ||
-      params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer) ||
-      p.default
+      pickup([
+        result |> Dict.get(attr_name),
+        params |> Dict.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer),
+        p.default
+      ])
     case {attr_value, p.required} do
       {nil, false} -> validate_params(t, params, result)
       {nil, true}  -> Maru.Exceptions.InvalidFormatter
@@ -130,6 +132,16 @@ defmodule Maru.Router.Endpoint do
       {false, _} ->
         value = nested_params |> Enum.map(&validate_params(children, &1, %{}))
         validate_params(t, params, put_in(result, [attr_name], value))
+    end
+  end
+
+
+  defp pickup([e]), do: e
+  defp pickup([h | t]) do
+    if is_nil(h) do
+      pickup(t)
+    else
+      h
     end
   end
 

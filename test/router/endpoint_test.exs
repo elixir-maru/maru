@@ -8,6 +8,7 @@ defmodule Maru.Router.EndpointTest do
   test "validate param" do
     assert %{id: 1} == Endpoint.validate_params([%Param{attr_name: :id, parser: :integer}], %{"id" => 1}, %{})
     assert %{} == Endpoint.validate_params([%Param{attr_name: :id, parser: :integer, required: false}], %{}, %{})
+    assert %{bool: false} == Endpoint.validate_params([%Param{attr_name: :bool, parser: :boolean, required: false}], %{"bool" => "false"}, %{})
     assert_raise Maru.Exceptions.InvalidFormatter, fn ->
       Endpoint.validate_params([%Param{attr_name: :id, parser: :integer}], %{"id" => "id"}, %{})
     end
@@ -159,4 +160,5 @@ defmodule Maru.Router.EndpointTest do
     assert %Plug.Conn{resp_body: "get"} = conn(:get, "/") |> Maru.Plugs.Prepare.call([]) |> DispatchTest.e
     assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> Maru.Plugs.Prepare.call([]) |> DispatchTest.e
   end
+
 end
