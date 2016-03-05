@@ -4,6 +4,7 @@ defmodule Maru.Builder.Namespaces do
   """
 
   alias Maru.Builder.Params
+  alias Maru.Router.Param
   alias Maru.Router.Resource
   alias Maru.Router.Path, as: MaruPath
 
@@ -15,10 +16,10 @@ defmodule Maru.Builder.Namespaces do
     defmacro unquote(namespace)(path, [do: block]) do
       path = path |> MaruPath.split
       quote do
-        %Resource{path: path} = resource = @resource
-        @resource %{resource | path: path ++ unquote(path)}
+        r = Resource.snapshot
+        Resource.push_path(unquote(path))
         unquote(block)
-        @resource resource
+        Resource.restore(r)
       end
     end
   end
@@ -26,36 +27,31 @@ defmodule Maru.Builder.Namespaces do
   @doc "Special namespace which save path to param list."
   defmacro route_param(param, [do: block]) do
     quote do
-      %Resource{path: path, param_context: param_context} = resource = @resource
-      @resource %{ resource |
-                   path: path ++ [unquote(param)],
-                   param_context: param_context ++ @param_context
-                 }
-      @param_context []
+      r = Resource.snapshot
+      Resource.push_path(unquote(param))
+      Resource.push_param(Param.pop)
       unquote(block)
-      @resource resource
+      Resource.restore(r)
     end
   end
 
   @doc "Special namespace which save path to param list with options."
   defmacro route_param(param, options, [do: block]) do
+    options = options |> Params.escape_options
     quote do
-      %Resource{path: path, param_context: param_context} = resource = @resource
-      @resource %{ resource |
-                   path: path ++ [unquote(param)],
-                   param_context: param_context ++ @param_context
-                 }
-      param_context = @param_context
-      @param_context [
-        Params.parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(param),
-          required: true,
-          children: []
-        })
-      ]
+      p = Param.snapshot
+      r = Resource.snapshot
+      Resource.push_path(unquote(param))
+      Param.push(%{
+        Params.parse_options(unquote options) |
+        attr_name: unquote(param),
+        required: true,
+        children: []
+      })
+      Resource.push_param(Param.pop)
       unquote(block)
-      @param_context param_context
-      @resource resource
+      Resource.restore(r)
+      Param.restore(p)
     end
   end
 

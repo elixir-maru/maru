@@ -64,14 +64,14 @@ defmodule Maru.RouterTest do
           end
 
           route_param :param_with_options, type: Integer do
-            def param_context, do: @param_context
+            def param_context, do: @resource.param_context
           end
         end
       end
     end
 
     assert %Maru.Router.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
-    assert [%Maru.Router.Param{attr_name: :param_with_options, parser: Integer, required: true}] = ResourcesTest.param_context
+    assert [%Maru.Router.Param{attr_name: :param_with_options, parser: :integer, required: true}] = ResourcesTest.param_context
   end
 
   test "complex resources" do

@@ -28,58 +28,47 @@ defmodule Maru.Builder.Params do
   """
   defmacro requires(attr_name) do
     quote do
-      @param_context @param_context ++ [
-        parse_options |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: true,
-          children: [],
-        })
-      ]
+      Param.push(%{
+        parse_options |
+        attr_name: unquote(attr_name),
+        required: true,
+        children: [],
+      })
     end
   end
 
   defmacro requires(attr_name, options, [do: block]) do
     options = Keyword.merge([type: :list], options) |> escape_options
     quote do
-      param_context = @param_context
-      @param_context []
+      s = Param.snapshot
+      Param.pop
       unquote(block)
-      @param_context param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: true,
-          children: @param_context,
-        })
-      ]
+      children = Param.pop
+      Param.restore(s)
+      Param.push(%{
+        parse_options(unquote options) |
+        attr_name: unquote(attr_name),
+        required: true,
+        children: children,
+      })
     end
   end
 
-  defmacro requires(attr_name, [do: block]) do
-    options = [type: :list]
+  defmacro requires(attr_name, [do: _]=block) do
     quote do
-      param_context = @param_context
-      @param_context []
-      unquote(block)
-      @param_context param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: true,
-          children: @param_context,
-        })
-      ]
+      requires(unquote(attr_name), [type: :list], unquote(block))
     end
   end
 
   defmacro requires(attr_name, options) do
     options = options |> escape_options
     quote do
-      @param_context @param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: true,
-          children: [],
-        })
-      ]
+      Param.push(%{
+        parse_options(unquote options) |
+        attr_name: unquote(attr_name),
+        required: true,
+        children: [],
+      })
     end
   end
 
@@ -87,19 +76,9 @@ defmodule Maru.Builder.Params do
   @doc """
   Define a params group.
   """
-  defmacro group(group_name, options \\ [], [do: block]) do
-    options = Keyword.merge([type: :list], options) |> escape_options
+  defmacro group(group_name, options \\ [], block) do
     quote do
-      param_context = @param_context
-      @param_context []
-      unquote(block)
-      @param_context param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(group_name),
-          required: true,
-          children: @param_context,
-        })
-      ]
+      requires(unquote(group_name), unquote(options), unquote(block))
     end
   end
 
@@ -109,58 +88,48 @@ defmodule Maru.Builder.Params do
   """
   defmacro optional(attr_name) do
     quote do
-      @param_context @param_context ++ [
-        parse_options |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: false,
-          children: [],
-        })
-      ]
+      Param.push(%{
+        parse_options |
+        attr_name: unquote(attr_name),
+        required: false,
+        children: [],
+      })
     end
   end
 
   defmacro optional(attr_name, options, [do: block]) do
     options = Keyword.merge([type: :list], options) |> escape_options
     quote do
-      param_context = @param_context
-      @param_context []
+      s = Param.snapshot
+      Param.pop
       unquote(block)
-      @param_context param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: false,
-          children: @param_context,
-        })
-      ]
+      children = Param.pop
+      Param.restore(s)
+      Param.push(%{
+        parse_options(unquote options) |
+        attr_name: unquote(attr_name),
+        required: false,
+        children: children,
+      })
     end
   end
 
-  defmacro optional(attr_name, [do: block]) do
-    options = [type: :list]
+
+  defmacro optional(attr_name, [do: _]=block) do
     quote do
-      param_context = @param_context
-      @param_context []
-      unquote(block)
-      @param_context param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: false,
-          children: @param_context,
-        })
-      ]
+      optional(unquote(attr_name), [type: :list], unquote(block))
     end
   end
 
   defmacro optional(attr_name, options) do
     options = options |> escape_options
     quote do
-      @param_context @param_context ++ [
-        parse_options(unquote options) |> Map.merge(%{
-          attr_name: unquote(attr_name),
-          required: false,
-          children: [],
-        })
-      ]
+      Param.push(%{
+        parse_options(unquote options) |
+        attr_name: unquote(attr_name),
+        required: false,
+        children: [],
+      })
     end
   end
 
@@ -201,7 +170,7 @@ defmodule Maru.Builder.Params do
   end
 
 
-  defp escape_options(options) do
+  def escape_options(options) do
     options |> Enum.map(fn
       {key, value} when key in [:coerce_with, :type] -> {key, value |> Macro.escape}
       kv -> kv

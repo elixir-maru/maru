@@ -12,8 +12,7 @@ defmodule Maru.Builder.DSLs do
   defmacro prefix(path) do
     path = MaruPath.split path
     quote do
-      %Resource{path: path} = resource = @resource
-      @resource %{resource | path: path ++ (unquote path)}
+      Resource.push_path(unquote(path))
     end
   end
 

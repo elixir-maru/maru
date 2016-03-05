@@ -6,6 +6,11 @@ defmodule Maru.Builder do
   defmacro __using__(_) do
     quote do
       use Maru.Helpers.Response
+
+      require Maru.Router.Param
+      require Maru.Router.Resource
+
+
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
       import Maru.Builder.Exceptions
