@@ -1,5 +1,8 @@
 ## Changelog
 ## v0.9.4-dev
+* Enhancements
+  * Allow param type definition in route_param.
+
 * Bugfix
   * parse bool type error.
 

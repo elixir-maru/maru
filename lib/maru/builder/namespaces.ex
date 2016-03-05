@@ -3,6 +3,7 @@ defmodule Maru.Builder.Namespaces do
   Namespace DSLs for parsing router.
   """
 
+  alias Maru.Builder.Params
   alias Maru.Router.Resource
   alias Maru.Router.Path, as: MaruPath
 
@@ -35,4 +36,27 @@ defmodule Maru.Builder.Namespaces do
       @resource resource
     end
   end
+
+  @doc "Special namespace which save path to param list with options."
+  defmacro route_param(param, options, [do: block]) do
+    quote do
+      %Resource{path: path, param_context: param_context} = resource = @resource
+      @resource %{ resource |
+                   path: path ++ [unquote(param)],
+                   param_context: param_context ++ @param_context
+                 }
+      param_context = @param_context
+      @param_context [
+        Params.parse_options(unquote options) |> Map.merge(%{
+          attr_name: unquote(param),
+          required: true,
+          children: []
+        })
+      ]
+      unquote(block)
+      @param_context param_context
+      @resource resource
+    end
+  end
+
 end
