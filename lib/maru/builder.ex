@@ -10,7 +10,6 @@ defmodule Maru.Builder do
       require Maru.Router.Param
       require Maru.Router.Resource
 
-
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
       import Maru.Builder.Exceptions
@@ -52,7 +51,7 @@ defmodule Maru.Builder do
         [{Maru.Plugs.Version, config[:versioning], true}]
       end,
       if is_nil(config) do [] else
-        [{Plug.Parsers, [parsers: [Maru.Parsers.URLENCODED, Maru.Parsers.JSON, Plug.Parsers.MULTIPART], pass: ["*/*"], json_decoder: Poison], true}]
+        [{Plug.Parsers, [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART], pass: ["*/*"], json_decoder: Poison], true}]
       end,
       [{Maru.Plugs.Prepare, [], true}],
       plugs,

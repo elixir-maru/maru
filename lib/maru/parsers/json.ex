@@ -1,6 +1,6 @@
 defmodule Maru.Parsers.JSON do
   @moduledoc """
-  Fork from Plug.Parsers.JSON, version: plug v1.0.2
+  Deprecated. Fork from Plug.Parsers.JSON, version: plug v1.0.2
   """
 
   @behaviour Plug.Parsers

@@ -1,6 +1,6 @@
 defmodule Maru.Parsers.URLENCODED do
   @moduledoc """
-  Fork from Plug.Parsers.URLENCODED, version: plug v1.0.2
+  Deprecated. Fork from Plug.Parsers.URLENCODED, version: plug v1.0.2
   """
 
   @behaviour Plug.Parsers

@@ -1,9 +1,13 @@
 ## Changelog
 
 ## v0.9.5-dev
-# Enhancements
+* Enhancements
+
 * Bugfix
   * param options for route_param DSL
+
+* Deprecated
+  * Maru.Parsers forked from plug
 
 ## v0.9.4 (2016-3-5)
 * Enhancements
