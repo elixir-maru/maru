@@ -1,5 +1,9 @@
 ## Changelog
+
 ## v0.9.5-dev
+# Enhancements
+* Bugfix
+  * param options for route_param DSL
 
 ## v0.9.4 (2016-3-5)
 * Enhancements
