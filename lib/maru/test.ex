@@ -21,8 +21,8 @@ defmodule Maru.Test do
           %Plug.Conn{params: %Plug.Conn.Unfetched{}}=c ->
             opts = [
               parsers: [
-                Maru.Parsers.URLENCODED,
-                Maru.Parsers.JSON,
+                Plug.Parsers.URLENCODED,
+                Plug.Parsers.JSON,
                 Plug.Parsers.MULTIPART,
               ],
               pass: ["*/*"],
