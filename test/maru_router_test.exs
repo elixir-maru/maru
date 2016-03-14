@@ -40,6 +40,11 @@ defmodule Maru.RouterTest do
           exactly_one_of  [:a, :b, :c]
           at_least_one_of [:a, :b, :c]
         end
+        group :group2 do
+          optional :id, type: Integer
+          optional :name, type: String
+          at_least_one_of :above_all
+        end
       end
       def pc, do: @param_context
     end
@@ -49,6 +54,11 @@ defmodule Maru.RouterTest do
       %Param{attr_name: :group, required: true, children: [
         %Validator{action: :exactly_one_of, attr_names: [:a, :b, :c]},
         %Validator{action: :at_least_one_of, attr_names: [:a, :b, :c]}
+      ]},
+      %Param{attr_name: :group2, required: true, children: [
+        %Param{attr_name: :id, required: false, children: []},
+        %Param{attr_name: :name, required: false, children: []},
+        %Validator{action: :at_least_one_of, attr_names: [:id, :name]}
       ]}
     ] = ValidatorsTest.pc
   end

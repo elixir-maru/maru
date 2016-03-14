@@ -2,6 +2,7 @@
 
 ## v0.9.5-dev
 * Enhancements
+  * `mutually_exclusive`, `exactly_one_of` and `at_least_one_of` support `:above_all`
 
 * Bugfix
   * param options for route_param DSL

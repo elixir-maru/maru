@@ -179,17 +179,27 @@ defmodule Maru.Builder.Params do
 
 
   @actions [:mutually_exclusive, :exactly_one_of, :at_least_one_of]
-  Module.eval_quoted __MODULE__, (for action <- @actions do
-    quote do
-      @doc "Validator: #{unquote action}"
-      defmacro unquote(action)(attr_names) do
-        action = unquote(action)
-        quote do
-          @param_context @param_context ++ [
-            %Validator{action: unquote(action), attr_names: unquote(attr_names)}
-          ]
-        end
+  for action <- @actions do
+    @doc "Validator: #{action}"
+    defmacro unquote(action)(:above_all) do
+      action = unquote(action)
+      quote do
+        attr_names =
+          for %Param{attr_name: attr_name} <- @param_context do
+            attr_name
+          end
+        unquote(action)(attr_names)
       end
     end
-  end)
+
+    defmacro unquote(action)(attr_names) do
+      action = unquote(action)
+      quote do
+        @param_context @param_context ++ [
+          %Validator{action: unquote(action), attr_names: unquote(attr_names)}
+        ]
+      end
+    end
+  end
+
 end
