@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.9.5-dev
+## v0.9.5 (2016-3-15)
 * Enhancements
   * `mutually_exclusive`, `exactly_one_of` and `at_least_one_of` support `:above_all`
 
