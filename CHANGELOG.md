@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.9.6
+## v0.9.6 (2016-4-5)
 * Bugfix
   * define helper functions for all environments except `:prod`
 
