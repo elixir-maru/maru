@@ -95,7 +95,7 @@ defmodule Maru.Builder do
         end
       end
 
-      if Mix.env in [:dev, :test] do
+      unless Mix.env == :prod do
         def __endpoints__, do: @endpoints
         def __routers__, do: @maru_router_plugs
         def __version__, do: @version
