@@ -15,7 +15,7 @@ defmodule Maru.Plugs.VersionTest do
 
   test "plug version param" do
     assert %Conn{private: %{maru_version: "v1"}} =
-    conn(:get, "/", %{"apiver" => "v1"}) |> prepare |> Maru.Plugs.Version.call({:param, []})
+      conn(:get, "/", %{"apiver" => "v1"}) |> prepare |> Maru.Plugs.Version.call({:param, []})
 
     assert %Conn{private: %{maru_version: "v2"}} =
       conn(:get, "/", %{"v" => "v2"}) |> prepare |> Maru.Plugs.Version.call({:param, [parameter: "v"]})

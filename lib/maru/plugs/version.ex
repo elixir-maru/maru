@@ -28,13 +28,10 @@ defmodule Maru.Plugs.Version do
   end
 
   def call(conn, {:param, opts}) do
-    case opts |> Keyword.get(:parameter, :apiver) do
-      nil ->
-        conn
-      key ->
-        version = conn.params[to_string(key)]
-        conn |> Conn.put_private(:maru_version, version)
-    end
+    key  = opts |> Keyword.get(:parameter, :apiver) |> to_string
+    conn = conn |> Conn.fetch_query_params
+    vsn  = conn.params |> Map.get(key)
+    conn |> Conn.put_private(:maru_version, vsn)
   end
 
   def call(conn, {:accept_version_header, _opts}) do
