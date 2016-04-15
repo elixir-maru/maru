@@ -38,24 +38,26 @@ defmodule Maru.Builder do
     maru_router_plugs = Module.get_attribute(module, :maru_router_plugs)
     extend = Module.get_attribute(module, :extend)
     config = Maru.Config.server_config(module)
+
     pipeline = [
-      if is_nil(config) do [] else
-        [{Maru.Plugs.NotFound, [], true}]
-      end,
-      if is_nil(extend) do [] else
-        [extend]
-      end,
-      maru_router_plugs,
-      [{:endpoint, [], true}],
+      plugs,
+      [{Maru.Plugs.Prepare, [], true}],
       if is_nil(config) or is_nil(config[:versioning]) do [] else
         [{Maru.Plugs.Version, config[:versioning], true}]
       end,
       if is_nil(config) do [] else
         [{Plug.Parsers, [parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART], pass: ["*/*"], json_decoder: Poison], true}]
       end,
-      [{Maru.Plugs.Prepare, [], true}],
-      plugs,
-    ] |> Enum.concat
+      [{:endpoint, [], true}],
+      maru_router_plugs,
+      if is_nil(extend) do [] else
+        [extend]
+      end,
+      if is_nil(config) do [] else
+        [{Maru.Plugs.NotFound, [], true}]
+      end,
+    ] |> Enum.concat |> Enum.reverse
+
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
     exceptions =
