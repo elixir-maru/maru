@@ -7,7 +7,7 @@ defmodule Maru.TestTest do
       version "v3"
 
       get do
-        text conn, "resp"
+        text(conn, "resp")
       end
     end
 
@@ -28,13 +28,13 @@ defmodule Maru.TestTest do
 
       version "v1" do
         get do
-          text conn, "resp v1"
+          text(conn, "resp v1")
         end
       end
 
       version "v2" do
         get do
-          text conn, "resp v2"
+          text(conn, "resp v2")
         end
       end
     end
@@ -63,7 +63,7 @@ defmodule Maru.TestTest do
         requires :foo
       end
       post do
-        json conn, params
+        json(conn, params)
       end
     end
 
@@ -71,12 +71,20 @@ defmodule Maru.TestTest do
       use Maru.Test, for: Test3
 
       def test do
+        opts = Plug.Parsers.init([
+          parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
+          pass: ["*/*"],
+          json_decoder: Poison,
+        ])
+
         conn(:post, "/", ~s({"foo":"bar"}))
-     |> Plug.Conn.put_req_header("content-type", "application/json")
-     |> make_response
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> Plug.Parsers.call(opts)
+        |> make_response
       end
     end
 
     assert %Plug.Conn{resp_body: ~s({"foo":"bar"})} = TestTest3.test
   end
+
 end

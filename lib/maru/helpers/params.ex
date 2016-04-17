@@ -11,4 +11,5 @@ defmodule Maru.Helpers.Params do
       @shared_params unquote({name, block |> Macro.escape})
     end
   end
+
 end

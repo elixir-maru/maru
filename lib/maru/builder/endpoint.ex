@@ -1,72 +1,70 @@
-defmodule Maru.Router.Endpoint do
+defmodule Maru.Builder.Endpoint do
   @moduledoc """
   Generate endpoint of maru router.
   """
 
-  alias Maru.Router.Param
-  alias Maru.Router.Validator
-
-  [ method: nil, path: [], version: nil, desc: nil, param_context: [], block: nil, helpers: []
-  ] |> defstruct
+  alias Maru.Struct.Parameter
+  alias Maru.Struct.Validator
 
   @doc """
   Generate general endpoint defined by user within method block.
   """
-  def dispatch(ep) do
-    path = ep.path |> Enum.map(fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end)
-    version =
-      case ep.version do
-        nil -> Macro.var(:_, nil)
-        v   -> v
-      end
+  def dispatch(ep, env, adapter) do
+    pipeline =
+      Enum.map(ep.plugs, fn p ->
+        {p.plug, p.options, p.guards}
+      end) |> Enum.reverse
+
+    {conn, body} = Plug.Builder.compile(env, pipeline, [])
+
     params_block = quote do
       var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_params,
-        Maru.Router.Endpoint.validate_params(
-          Enum.concat(var!(conn).private.maru_param_context, unquote(ep.param_context |> Macro.escape)),
+        Maru.Builder.Endpoint.validate_params(
+          unquote(ep.parameters |> Macro.escape),
           var!(conn).params,
-          Maru.Router.Path.parse_params(
+          Maru.Builder.Path.parse_params(
             var!(conn).path_info,
-            var!(conn).private.maru_route_path ++ unquote(ep.path)
+            unquote(adapter.path_for_params(ep.path, ep.version))
           )
         )
       )
     end
 
+    helpers =
+      Enum.filter(ep.helpers, fn
+        {:import, _, [module]} -> module != env.module
+        _                      -> true
+      end)
+
     quote do
-      defp endpoint(%Plug.Conn{
-        method: unquote(ep.method),
-        private: %{
-          maru_resource_path: unquote(path),
-          maru_version: unquote(version),
-        }
-      }=var!(conn), []) do
-        unquote(params_block)
-        unquote(ep.block)
+      @file unquote(ep.__file__)
+
+      defp unquote(adapter.func_name)(unquote(
+        adapter.conn_for_match(ep.method, ep.version, ep.path)
+      )=unquote(conn), []) do
+        case unquote(body) do
+          %Plug.Conn{halted: true} = conn ->
+            conn
+          %Plug.Conn{} = var!(conn) ->
+            unquote(helpers)
+            unquote(params_block)
+            unquote(ep.block)
+        end
       end
     end
-  end
 
+  end
 
   @doc """
   Generate MethodNotAllow endpoint for all path without `match` method.
   """
-  def dispatch_405(version, path) do
+  def dispatch_405(version, path, adapter) do
     method = Macro.var(:_, nil)
-    path = path |> Enum.map(fn x when is_atom(x) -> Macro.var(:_, nil); x -> x end)
-    version =
-      case version do
-        nil -> Macro.var(:_, nil)
-        v   -> v
-      end
 
     quote do
-      defp endpoint(%Plug.Conn{
-        method: unquote(method),
-        private: %{
-          maru_resource_path: unquote(path),
-          maru_version: unquote(version),
-        }
-      }=var!(conn), []) do
+      defp endpoint(unquote(
+        adapter.conn_for_match(method, version, path)
+      )=var!(conn), []) do
         Maru.Exceptions.MethodNotAllow |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
       end
     end
@@ -92,7 +90,7 @@ defmodule Maru.Router.Endpoint do
     validate_params(t, params, result)
   end
 
-  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
+  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
     attr_value =
       pickup([
         result |> Map.get(attr_name),
@@ -109,7 +107,7 @@ defmodule Maru.Router.Endpoint do
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
+  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
     nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
@@ -122,7 +120,7 @@ defmodule Maru.Router.Endpoint do
     end
   end
 
-  def validate_params([%Param{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
+  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
     nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
     case {is_nil(nested_params), p.required} do
       {true, true} ->
@@ -146,11 +144,11 @@ defmodule Maru.Router.Endpoint do
   end
 
 
-  defp check_param(attr_name, value, param_context) do
-    validators = param_context.validators
+  defp check_param(attr_name, value, parameters) do
+    validators = parameters.validators
     value =
       try do
-        Maru.ParamType.parse(value, param_context.parser)
+        Maru.ParamType.parse(value, parameters.parser)
       rescue
         ArgumentError ->
           Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: attr_name, value: value, option: validators])

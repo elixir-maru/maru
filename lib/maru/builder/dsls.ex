@@ -3,8 +3,9 @@ defmodule Maru.Builder.DSLs do
   General DSLs for parsing router.
   """
 
-  alias Maru.Router.Resource
-  alias Maru.Router.Path, as: MaruPath
+  alias Maru.Struct.Resource
+  alias Maru.Struct.Plug, as: MaruPlug
+  alias Maru.Builder.Path, as: MaruPath
 
   @doc """
   Define path prefix of current router.
@@ -39,7 +40,7 @@ defmodule Maru.Builder.DSLs do
   """
   defmacro version(v) do
     quote do
-      @version unquote(v)
+      Resource.set_version(unquote(v))
     end
   end
 
@@ -52,17 +53,17 @@ defmodule Maru.Builder.DSLs do
   """
   defmacro version(v, [do: block]) do
     quote do
-      version = @version
-      @version unquote(v)
+      s = Resource.snapshot
+      Resource.set_version(unquote(v))
       unquote(block)
-      @version version
+      Resource.restore(s)
     end
   end
 
-  defmacro version(v, [{:extend, _}, {:at, _} | _]=opts) do
+  defmacro version(v, opts) do
     quote do
-      @version unquote(v)
-      @extend {Maru.Plugs.Extend, [{:version, unquote(v)} | unquote(opts)], true}
+      Resource.set_version(unquote(v))
+      @extend {unquote(v), unquote(opts)}
     end
   end
 
@@ -70,18 +71,41 @@ defmodule Maru.Builder.DSLs do
   Import helpers used by current router.
   """
   defmacro helpers([do: block]) do
+    block =
+      case block do
+        nil -> []
+        {:__block__, _, list} -> list
+        any -> [any]
+      end
+      |> Maru.Utils.group_by(fn block ->
+        case block do
+          {method, _, _} when method in [:import, :alias, :require] -> :helpers
+          {method, _, _} when method in [:def]                      -> :def
+          {method, _, _} when method in [:defp]                     -> :defp
+          {method, _, _} when method in [:params]                   -> :params
+          {_, _, _}                                                 -> :ignore
+        end
+      end)
+      |> Enum.into([])
+    import? = not is_nil(block[:def])
     quote do
+      Resource.push_helper(unquote(block[:helpers] |> Macro.escape))
+      if unquote(import?) do
+        Resource.push_helper(quote do import unquote(__MODULE__) end)
+      end
       import Maru.Helpers.Params
-      import Kernel, except: [use: 1]
-      unquote(block)
+      unquote(block[:def])
+      unquote(block[:defp])
+      unquote(block[:params])
+      import Maru.Helpers.Params, only: []
     end
   end
 
-  defmacro helpers({_, _, mod}) do
-    module = Module.concat mod
+  defmacro helpers({_, _, module}) do
+    module = Module.concat(module)
+    block = quote do import unquote(module) end |> Macro.escape
     quote do
-      import Maru.Helpers.Params
-      import unquote(module)
+      Resource.push_helper(unquote(block))
       unquote(module).__shared_params__ |> Enum.each(&(@shared_params &1))
     end
   end
@@ -99,9 +123,51 @@ defmodule Maru.Builder.DSLs do
   Mount another router to current router.
   """
   defmacro mount({_, _, mod}) do
-    module = Module.concat mod
+    module = Module.concat(mod)
     quote do
-      @maru_router_plugs {Maru.Plugs.Router, [router: unquote(module), resource: @resource, version: @version], true}
+      for ep <- unquote(module).__endpoints__ do
+        @mounted Maru.Struct.Endpoint.merge(
+          @resource, ep
+        )
+      end
     end
   end
+
+  @doc """
+  Push a `Plug` struct to current resource scope.
+  """
+  defmacro plug(plug)
+
+  defmacro plug({:when, _, [plug, guards]}) do
+    do_plug(plug, [], guards)
+  end
+
+  defmacro plug(plug) do
+    do_plug(plug, [], true)
+  end
+
+  @doc """
+  Push a `Plug` struct with options and guards to current resource scope.
+  """
+  defmacro plug(plug, opts)
+
+  defmacro plug(plug, {:when, _, [opts, guards]}) do
+    do_plug(plug, opts, guards)
+  end
+
+  defmacro plug(plug, opts) do
+    do_plug(plug, opts, true)
+  end
+
+  defp do_plug(plug, opts, guards) do
+    quote do
+      Resource.push_plug(%MaruPlug{
+        name:    nil,
+        plug:    unquote(plug),
+        options: unquote(opts),
+        guards:  unquote(Macro.escape(guards)),
+     })
+    end
+  end
+
 end

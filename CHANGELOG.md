@@ -1,6 +1,8 @@
 ## Changelog
 
 ## v0.10.0-dev
+* Enhancements
+  * totally rewrite route logic
 
 ## v0.9.5 (2016-3-15)
 * Enhancements

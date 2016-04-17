@@ -5,6 +5,8 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "rescue_from" do
     defmodule RescueTest do
+      Application.put_env(:maru, RescueTest, [])
+
       use Maru.Router
 
       defp unwarn(_), do: nil
@@ -25,26 +27,26 @@ defmodule Maru.Builder.ExceptionsTest do
 
       rescue_from MatchError do
         conn
-     |> put_status(500)
-     |> text("match error")
+        |> put_status(500)
+        |> text("match error")
       end
 
       rescue_from [UndefinedFunctionError, FunctionClauseError] do
         conn
-     |> put_status(500)
-     |> text("function error")
+        |> put_status(500)
+        |> text("function error")
       end
 
       rescue_from Maru.Exceptions.MethodNotAllow do
         conn
-     |> put_status(405)
-     |> text("MethodNotAllow")
+        |> put_status(405)
+        |> text("MethodNotAllow")
       end
 
       rescue_from :all, as: e do
         conn
-     |> put_status(500)
-     |> text(e.message)
+        |> put_status(500)
+        |> text(e.message)
       end
     end
 

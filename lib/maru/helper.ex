@@ -68,7 +68,7 @@ defmodule Maru.Helper do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Maru.Helpers.Params
+      import Maru.Helpers.Params, only: [params: 2]
       import unquote(__MODULE__)
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
       @before_compile unquote(__MODULE__)
@@ -86,4 +86,5 @@ defmodule Maru.Helper do
       end
     end
   end
+
 end

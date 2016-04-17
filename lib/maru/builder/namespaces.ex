@@ -3,10 +3,10 @@ defmodule Maru.Builder.Namespaces do
   Namespace DSLs for parsing router.
   """
 
+  alias Maru.Struct.Parameter
+  alias Maru.Struct.Resource
   alias Maru.Builder.Params
-  alias Maru.Router.Param
-  alias Maru.Router.Resource
-  alias Maru.Router.Path, as: MaruPath
+  alias Maru.Builder.Path, as: MaruPath
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
 
@@ -29,7 +29,7 @@ defmodule Maru.Builder.Namespaces do
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))
-      Resource.push_param(Param.pop)
+      Resource.push_param(Parameter.pop)
       unquote(block)
       Resource.restore(r)
     end
@@ -39,19 +39,19 @@ defmodule Maru.Builder.Namespaces do
   defmacro route_param(param, options, [do: block]) do
     options = options |> Params.escape_options
     quote do
-      p = Param.snapshot
+      p = Parameter.snapshot
       r = Resource.snapshot
       Resource.push_path(unquote(param))
-      Param.push(%{
+      Parameter.push(%{
         Params.parse_options(unquote options) |
         attr_name: unquote(param),
         required: true,
         children: []
       })
-      Resource.push_param(Param.pop)
+      Resource.push_param(Parameter.pop)
       unquote(block)
       Resource.restore(r)
-      Param.restore(p)
+      Parameter.restore(p)
     end
   end
 

@@ -10,19 +10,20 @@ defmodule Maru do
   use Application
 
   @doc """
-  Current maru version
+  Maru version.
   """
   @version Mix.Project.config[:version]
   def version do
     @version
   end
 
-  @doc false
   @default_http_port 4000
   @default_https_port 4040
+
+  @doc false
   def start(_type, _args) do
     Application.ensure_all_started :plug
-    for {module, options} <- Maru.Config.servers do
+    for {module, options} <- servers do
       if Keyword.has_key? options, :http do
         opts = options[:http] |> Keyword.merge([port: to_port(options[:http][:port]) || @default_http_port])
         Plug.Adapters.Cowboy.http module, [], opts
@@ -36,6 +37,13 @@ defmodule Maru do
       end
     end
     {:ok, self}
+  end
+
+  defp servers do
+    for {k, v} <- Application.get_all_env(:maru),
+    not k in [:included_applications] do
+      {k, v}
+    end
   end
 
   defp to_port(nil),                        do: nil

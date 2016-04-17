@@ -3,8 +3,8 @@ defmodule Maru.Builder.Params do
   Parse and build param_content block.
   """
 
-  alias Maru.Router.Param
-  alias Maru.Router.Validator
+  alias Maru.Struct.Parameter
+  alias Maru.Struct.Validator
 
   @doc false
   defmacro use(param) when is_atom(param) do
@@ -28,7 +28,7 @@ defmodule Maru.Builder.Params do
   """
   defmacro requires(attr_name) do
     quote do
-      Param.push(%{
+      Parameter.push(%{
         parse_options |
         attr_name: unquote(attr_name),
         required: true,
@@ -40,12 +40,12 @@ defmodule Maru.Builder.Params do
   defmacro requires(attr_name, options, [do: block]) do
     options = Keyword.merge([type: :list], options) |> escape_options
     quote do
-      s = Param.snapshot
-      Param.pop
+      s = Parameter.snapshot
+      Parameter.pop
       unquote(block)
-      children = Param.pop
-      Param.restore(s)
-      Param.push(%{
+      children = Parameter.pop
+      Parameter.restore(s)
+      Parameter.push(%{
         parse_options(unquote options) |
         attr_name: unquote(attr_name),
         required: true,
@@ -63,7 +63,7 @@ defmodule Maru.Builder.Params do
   defmacro requires(attr_name, options) do
     options = options |> escape_options
     quote do
-      Param.push(%{
+      Parameter.push(%{
         parse_options(unquote options) |
         attr_name: unquote(attr_name),
         required: true,
@@ -88,7 +88,7 @@ defmodule Maru.Builder.Params do
   """
   defmacro optional(attr_name) do
     quote do
-      Param.push(%{
+      Parameter.push(%{
         parse_options |
         attr_name: unquote(attr_name),
         required: false,
@@ -100,12 +100,12 @@ defmodule Maru.Builder.Params do
   defmacro optional(attr_name, options, [do: block]) do
     options = Keyword.merge([type: :list], options) |> escape_options
     quote do
-      s = Param.snapshot
-      Param.pop
+      s = Parameter.snapshot
+      Parameter.pop
       unquote(block)
-      children = Param.pop
-      Param.restore(s)
-      Param.push(%{
+      children = Parameter.pop
+      Parameter.restore(s)
+      Parameter.push(%{
         parse_options(unquote options) |
         attr_name: unquote(attr_name),
         required: false,
@@ -124,7 +124,7 @@ defmodule Maru.Builder.Params do
   defmacro optional(attr_name, options) do
     options = options |> escape_options
     quote do
-      Param.push(%{
+      Parameter.push(%{
         parse_options(unquote options) |
         attr_name: unquote(attr_name),
         required: false,
@@ -134,8 +134,8 @@ defmodule Maru.Builder.Params do
   end
 
 
-  def parse_options, do: %Param{}
-  def parse_options(options), do: parse_options(options, %Param{})
+  def parse_options, do: %Parameter{}
+  def parse_options(options), do: parse_options(options, %Parameter{})
   def parse_options([], result), do: result
 
   def parse_options([{:type, v} | t], result) do
@@ -165,7 +165,7 @@ defmodule Maru.Builder.Params do
     parse_options(t, result)
   end
 
-  def parse_options([h | t], %Param{validators: validators}=result) do
+  def parse_options([h | t], %Parameter{validators: validators}=result) do
     parse_options(t, %{result | validators: validators ++ [h]})
   end
 
@@ -185,7 +185,7 @@ defmodule Maru.Builder.Params do
       action = unquote(action)
       quote do
         attr_names =
-          for %Param{attr_name: attr_name} <- @param_context do
+          for %Parameter{attr_name: attr_name} <- Parameter.snapshot do
             attr_name
           end
         unquote(action)(attr_names)
@@ -195,9 +195,10 @@ defmodule Maru.Builder.Params do
     defmacro unquote(action)(attr_names) do
       action = unquote(action)
       quote do
-        @param_context @param_context ++ [
-          %Validator{action: unquote(action), attr_names: unquote(attr_names)}
-        ]
+        Parameter.push(%Validator{
+          action: unquote(action),
+          attr_names: unquote(attr_names),
+        })
       end
     end
   end

@@ -16,11 +16,13 @@ defmodule Maru.MiddlewareTest do
 
       get do
         params
-        text conn, "ok"
+        text(conn, "ok")
       end
     end
 
     defmodule API do
+      Application.put_env(:maru, API, [])
+
       use Maru.Router
 
       plug Maru.MiddlewareTest.Before

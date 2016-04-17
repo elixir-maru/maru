@@ -3,8 +3,10 @@ defmodule Maru.Builder.Methods do
   Method DSLs for parsing router.
   """
 
-  alias Maru.Router.Endpoint
-  alias Maru.Router.Path, as: MaruPath
+  alias Maru.Struct.Resource
+  alias Maru.Struct.Parameter
+  alias Maru.Struct.Endpoint
+  alias Maru.Builder.Path, as: MaruPath
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
 
@@ -28,16 +30,24 @@ defmodule Maru.Builder.Methods do
 
   defp endpoint(ep) do
     quote do
+      resource = Resource.snapshot
+      version =
+        if is_nil(resource.version) do
+          [] else [{:version}]
+        end
       @endpoints %Endpoint{
-        desc: @desc,
-        method: unquote(ep.method),
-        version: @version,
-        path: @resource.path ++ unquote(ep.path),
-        param_context: @resource.param_context ++ @param_context,
-        block: unquote(ep.block),
+        desc:       @desc,
+        method:     unquote(ep.method),
+        version:    resource.version,
+        path:       version ++ resource.path ++ unquote(ep.path),
+        parameters: resource.parameters ++ Parameter.pop,
+        helpers:    resource.helpers,
+        block:      unquote(ep.block),
+        __file__:   __ENV__.file,
       }
-      @param_context []
       @desc nil
     end
   end
+
+
 end

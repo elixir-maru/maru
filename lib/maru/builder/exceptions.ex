@@ -59,4 +59,5 @@ defmodule Maru.Builder.Exceptions do
         unquote(block)
     end
   end
+
 end

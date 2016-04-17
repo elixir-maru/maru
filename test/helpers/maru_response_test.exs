@@ -8,11 +8,14 @@ defmodule Maru.Helpers.ResponseTest do
 
     assert {"location", "/foo"} in conn.resp_headers
     assert 302 == conn.status
+    assert conn.halted
   end
 
   test "redirect 301" do
     conn = conn(:get, "/") |> redirect("/bar", permanent: true)
     assert {"location", "/bar"} in conn.resp_headers
     assert 301 == conn.status
+    assert conn.halted
   end
+
 end

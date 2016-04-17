@@ -1,4 +1,11 @@
 defmodule Mix.Tasks.Maru.Routes do
+  @mdouledoc """
+  Print routes for a `Maru.Router` module.
+
+      $ mix maru.routes
+      $ mix maru.routes MyApp.API
+  """
+
   use Mix.Task
 
   def run(args) do
@@ -6,11 +13,12 @@ defmodule Mix.Tasks.Maru.Routes do
       Mix.env(:dev)
     end
     Mix.Task.run "compile", args
+
     cond do
       module = List.first(args) ->
         Module.concat("Elixir", module) |> generate_module([])
 
-      [] != (servers = Maru.Config.servers) ->
+      (servers = Application.get_all_env(:maru)) != [] ->
         for {module, _} <- servers do
           generate_module(module, [])
         end
@@ -36,18 +44,21 @@ defmodule Mix.Tasks.Maru.Routes do
   end
 
   defp generate_module(module, prefix) do
-    module
-    |> Maru.Builder.Routers.generate
-    |> Map.values
-    |> List.flatten
-    |> Enum.map(&generate_endpoint(&1, prefix))
+    config = (Application.get_env(:maru, module) || [])[:versioning] || []
+
+    adapter = Maru.Builder.Versioning.get_adapter(config[:using])
+
+    module.__endpoints__
+    |> Enum.sort_by(fn ep -> ep.version end)
+    |> Enum.map(&generate_endpoint(&1, adapter, prefix))
     |> Enum.map(&IO.puts/1)
   end
 
-  defp generate_endpoint(ep, prefix) do
+  defp generate_endpoint(ep, adapter, prefix) do
+    path = adapter.path_for_params(ep.path, ep.version)
     format_version(ep.version) <>
     format_method(ep.method) <>
-    format_path(prefix ++ ep.path) <>
+    format_path(prefix ++ path) <>
     "  " <> (ep.desc || "")
   end
 

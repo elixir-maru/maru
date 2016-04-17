@@ -8,4 +8,5 @@ defmodule Maru.Plugs.NotFoundTest do
       conn |> Maru.Plugs.NotFound.call([])
     end
   end
+
 end
