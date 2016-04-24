@@ -80,9 +80,3 @@ config :maru, MyAPP.API,
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/falood/maru_examples)
-
-## TODO
-
-- [ ] rails like url params parser [plug#111](https://github.com/elixir-lang/plug/issues/111)
-- [ ] jsonp support
-- [ ] validation, before, before\_validation, after, after\_validation
