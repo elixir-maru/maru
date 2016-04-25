@@ -1,6 +1,8 @@
 defmodule Maru.Builder.DSLsTest do
   use ExUnit.Case, async: true
+
   alias Maru.Struct.Resource
+  alias Maru.Struct.Plug, as: MaruPlug
 
   test "prefix" do
     defmodule PrefixTest1 do
@@ -170,17 +172,50 @@ defmodule Maru.Builder.DSLsTest do
       plug P when 1 > 0
       plug P, "options" when 1 > 0
 
-      def p, do: @plugs
+      def p, do: @resource.plugs
     end
 
     assert [
-      %Maru.Struct.Plug{guards: true, name: nil, options: [], plug: :a},
-      %Maru.Struct.Plug{guards: {:>, [line: 167], [1, 0]}, name: nil, options: [], plug: :a},
-      %Maru.Struct.Plug{guards: {:>, [line: 168], [1, 0]}, name: nil, options: [opts: true], plug: :a},
-      %Maru.Struct.Plug{guards: true, name: nil, options: [], plug: P},
-      %Maru.Struct.Plug{guards: {:>, [line: 170], [1, 0]}, name: nil, options: [], plug: P},
-      %Maru.Struct.Plug{guards: {:>, [line: 171], [1, 0]}, name: nil, options: "options", plug: P}
+      %MaruPlug{guards: true, name: nil, options: [], plug: :a},
+      %MaruPlug{guards: {:>, _, [1, 0]}, name: nil, options: [], plug: :a},
+      %MaruPlug{guards: {:>, _, [1, 0]}, name: nil, options: [opts: true], plug: :a},
+      %MaruPlug{guards: true, name: nil, options: [], plug: P},
+      %MaruPlug{guards: {:>, _, [1, 0]}, name: nil, options: [], plug: P},
+      %MaruPlug{guards: {:>, _, [1, 0]}, name: nil, options: "options", plug: P}
     ] = PlugTest.p
+  end
+
+  test "plug_overridable" do
+    defmodule PlugOverridableTest do
+      use Maru.Router
+
+      plug :a
+      plug_overridable :name, :b
+      plug P
+      plug_overridable :name, :c
+
+      pipeline do
+        plug P
+        plug_overridable :name, :d
+        plug_overridable :x, :a
+      end
+      def p1, do: @resource.plugs
+      def p2, do: MaruPlug.merge(@resource.plugs, @plugs)
+    end
+
+    assert [
+      %MaruPlug{name: nil, plug: :a},
+      %MaruPlug{name: :name, plug: :c},
+      %MaruPlug{name: nil, plug: P},
+    ] = PlugOverridableTest.p1
+
+    assert [
+      %MaruPlug{name: nil, plug: :a},
+      %MaruPlug{name: :name, plug: :d},
+      %MaruPlug{name: nil, plug: P},
+      %MaruPlug{name: nil, plug: P},
+      %MaruPlug{name: :x, plug: :a},
+    ] = PlugOverridableTest.p2
   end
 
 end

@@ -2,6 +2,7 @@ defmodule Maru.Struct.Resource do
   @moduledoc false
 
   alias Maru.Struct.Resource
+  alias Maru.Struct.Plug, as: MaruPlug
 
   defstruct path:       [],
             parameters: [],
@@ -63,7 +64,7 @@ defmodule Maru.Struct.Resource do
       %Resource{plugs: plugs} = resource = @resource
       @resource %{
         resource |
-        plugs: plugs ++ [unquote(value)],
+        plugs: MaruPlug.merge(plugs, [unquote(value)]),
       }
     end
   end

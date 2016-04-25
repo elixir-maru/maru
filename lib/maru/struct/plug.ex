@@ -23,13 +23,13 @@ defmodule Maru.Struct.Plug do
   @doc "push plugs to current scope."
   defmacro push(value) when is_list(value) do
     quote do
-      @plugs @plugs ++ unquote(value)
+      @plugs unquote(__MODULE__).merge(@plugs, unquote(value))
     end
   end
 
   defmacro push(value) do
     quote do
-      @plugs @plugs ++ [unquote(value)]
+      @plugs unquote(__MODULE__).merge(@plugs, [unquote(value)])
     end
   end
 
@@ -44,7 +44,24 @@ defmodule Maru.Struct.Plug do
     end
   end
 
-  def merge(resource_plugs, pipelines) do
-    resource_plugs ++ pipelines
+  @doc "merge and override plugs."
+  def merge(plugs, pipelines) do
+    Enum.reduce(pipelines, plugs, fn x, acc ->
+      do_merge(acc, x, [])
+    end)
   end
+
+  defp do_merge([], plug, result) do
+    result ++ [plug]
+  end
+  defp do_merge([%__MODULE__{name: nil}=h | t], plug, result) do
+    do_merge(t, plug, result ++ [h])
+  end
+  defp do_merge([%__MODULE__{name: n} | t], %__MODULE__{name: n}=plug, result) do
+    result ++ [plug] ++ t
+  end
+  defp do_merge([h | t], plug, result) do
+    do_merge(t, plug, result ++ [h])
+  end
+
 end
