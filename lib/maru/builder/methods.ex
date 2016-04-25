@@ -6,6 +6,7 @@ defmodule Maru.Builder.Methods do
   alias Maru.Struct.Resource
   alias Maru.Struct.Parameter
   alias Maru.Struct.Endpoint
+  alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Path, as: MaruPath
 
   @methods [:get, :post, :put, :patch, :delete, :head, :options]
@@ -43,7 +44,7 @@ defmodule Maru.Builder.Methods do
         parameters: resource.parameters ++ Parameter.pop,
         helpers:    resource.helpers,
         block:      unquote(ep.block),
-        plugs:      resource.plugs,
+        plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
         __file__:   __ENV__.file,
       }
       @desc nil

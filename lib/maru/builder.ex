@@ -25,6 +25,7 @@ defmodule Maru.Builder do
 
       require Maru.Struct.Parameter
       require Maru.Struct.Resource
+      require Maru.Struct.Plug
 
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
@@ -41,6 +42,7 @@ defmodule Maru.Builder do
       @resource      %Maru.Struct.Resource{}
       @desc          nil
       @parameters    []
+      @plugs         []
 
       @make_plug unquote(make_plug)
       @before_compile unquote(__MODULE__)

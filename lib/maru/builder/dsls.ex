@@ -127,7 +127,7 @@ defmodule Maru.Builder.DSLs do
     quote do
       for ep <- unquote(module).__endpoints__ do
         @mounted Maru.Struct.Endpoint.merge(
-          @resource, ep
+          @resource, @plugs, ep
         )
       end
     end
@@ -161,7 +161,7 @@ defmodule Maru.Builder.DSLs do
 
   defp do_plug(plug, opts, guards) do
     quote do
-      Resource.push_plug(%MaruPlug{
+      MaruPlug.push(%MaruPlug{
         name:    nil,
         plug:    unquote(plug),
         options: unquote(opts),

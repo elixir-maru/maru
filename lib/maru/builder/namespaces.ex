@@ -5,6 +5,7 @@ defmodule Maru.Builder.Namespaces do
 
   alias Maru.Struct.Parameter
   alias Maru.Struct.Resource
+  alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Params
   alias Maru.Builder.Path, as: MaruPath
 
@@ -18,6 +19,8 @@ defmodule Maru.Builder.Namespaces do
       quote do
         r = Resource.snapshot
         Resource.push_path(unquote(path))
+        Resource.push_plug(MaruPlug.pop)
+        Resource.push_param(Parameter.pop)
         unquote(block)
         Resource.restore(r)
       end
@@ -29,6 +32,7 @@ defmodule Maru.Builder.Namespaces do
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))
+      Resource.push_plug(MaruPlug.pop)
       Resource.push_param(Parameter.pop)
       unquote(block)
       Resource.restore(r)
@@ -39,19 +43,18 @@ defmodule Maru.Builder.Namespaces do
   defmacro route_param(param, options, [do: block]) do
     options = options |> Params.escape_options
     quote do
-      p = Parameter.snapshot
       r = Resource.snapshot
       Resource.push_path(unquote(param))
-      Parameter.push(%{
+      Resource.push_plug(MaruPlug.pop)
+      Resource.push_param(Parameter.pop)
+      Resource.push_param(%{
         Params.parse_options(unquote options) |
         attr_name: unquote(param),
         required: true,
         children: []
       })
-      Resource.push_param(Parameter.pop)
       unquote(block)
       Resource.restore(r)
-      Parameter.restore(p)
     end
   end
 

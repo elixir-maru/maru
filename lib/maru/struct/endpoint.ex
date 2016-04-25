@@ -19,7 +19,7 @@ defmodule Maru.Struct.Endpoint do
   end
 
   @doc "merge mounted endpoints to current scope."
-  def merge(resource, %__MODULE__{}=ep) do
+  def merge(resource, plugs, %__MODULE__{}=ep) do
     if not is_nil(resource.version) and not is_nil(ep.version) do
       raise "can't mount a versional router to another versional router"
     end
@@ -28,7 +28,7 @@ defmodule Maru.Struct.Endpoint do
        version:    ep.version          || resource.version,
        path:       p ++ resource.path  ++ ep.path,
        parameters: resource.parameters ++ ep.parameters,
-       plugs:      resource.plugs      ++ ep.plugs,
+       plugs:      resource.plugs      ++ plugs ++ ep.plugs,
      }
   end
 

@@ -170,7 +170,7 @@ defmodule Maru.Builder.DSLsTest do
       plug P when 1 > 0
       plug P, "options" when 1 > 0
 
-      def p, do: @resource.plugs
+      def p, do: @plugs
     end
 
     assert [
