@@ -43,6 +43,7 @@ defmodule Maru.Builder.Methods do
         parameters: resource.parameters ++ Parameter.pop,
         helpers:    resource.helpers,
         block:      unquote(ep.block),
+        plugs:      resource.plugs,
         __file__:   __ENV__.file,
       }
       @desc nil
