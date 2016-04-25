@@ -5,9 +5,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "rescue_from" do
     defmodule RescueTest do
-      Application.put_env(:maru, RescueTest, [])
-
-      use Maru.Router
+      use Maru.Router, make_plug: true
 
       defp unwarn(_), do: nil
 

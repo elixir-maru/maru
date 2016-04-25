@@ -21,9 +21,7 @@ defmodule Maru.MiddlewareTest do
     end
 
     defmodule API do
-      Application.put_env(:maru, API, [])
-
-      use Maru.Router
+      use Maru.Router, make_plug: true
 
       plug Maru.MiddlewareTest.Before
       mount Maru.MiddlewareTest.Router

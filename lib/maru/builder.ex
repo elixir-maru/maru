@@ -10,14 +10,16 @@ defmodule Maru.Builder do
       Two functions `__version__/0` and `call_test/2` will be generated for testing.
 
   For plug modules:
-      You can define a plug module by `config :maru, MyPlugModule` within config.exs.
+      You can define a plug module by `use Maru.Router, make_plug: true` or
+      `config :maru, MyPlugModule` within config.exs.
       Two functions `init/1` and `call/2` will be generated for making this module
       a `Plug`. And a private function `endpoint/2` which is called by this `Plug`
       will be generated.
   """
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(opts) do
+    make_plug = opts |> Keyword.get(:make_plug, false)
     quote do
       use Maru.Helpers.Response
 
@@ -40,17 +42,19 @@ defmodule Maru.Builder do
       @desc          nil
       @parameters    []
 
+      @make_plug unquote(make_plug)
       @before_compile unquote(__MODULE__)
     end
   end
 
   @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
+    make_plug = Module.get_attribute(module, :make_plug)
     [ Maru.Builder.Plugs.Router.compile(env),
       unless Mix.env == :prod do
         Maru.Builder.Plugs.Test.compile(env)
       end,
-      unless is_nil(Application.get_env(:maru, module)) do
+      if make_plug or not is_nil(Application.get_env(:maru, module)) do
         Maru.Builder.Plugs.Server.compile(env)
       end,
     ]

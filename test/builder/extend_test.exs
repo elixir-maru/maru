@@ -21,9 +21,8 @@ defmodule Maru.Plugs.ExtendTest do
 
   test "version extend" do
     defmodule Test2 do
-      Application.put_env(:maru, Test2, [])
+      use Maru.Router, make_plug: true
 
-      use Maru.Router
       version "v2", extend: "v1", at: Test1
     end
 
@@ -33,9 +32,8 @@ defmodule Maru.Plugs.ExtendTest do
 
   test "version extend only" do
     defmodule Test3 do
-      Application.put_env(:maru, Test3, [])
+      use Maru.Router, make_plug: true
 
-      use Maru.Router
       version "v3", extend: "v1", at: Test1, only: [
         get: "/test1"
       ]
@@ -49,9 +47,8 @@ defmodule Maru.Plugs.ExtendTest do
 
   test "version extend except" do
     defmodule Test4 do
-      Application.put_env(:maru, Test4, [])
+      use Maru.Router, make_plug: true
 
-      use Maru.Router
       version "v4", extend: "v1", at: Test1, except: [
         match: "/test1"
       ]
@@ -65,9 +62,8 @@ defmodule Maru.Plugs.ExtendTest do
 
   test "override" do
     defmodule Test5 do
-      Application.put_env(:maru, Test5, [])
+      use Maru.Router, make_plug: true
 
-      use Maru.Router
       version "v5", extend: "v1", at: Test1
 
       get :test1 do
