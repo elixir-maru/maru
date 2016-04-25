@@ -23,10 +23,10 @@ defmodule Maru.Struct.Endpoint do
     if not is_nil(resource.version) and not is_nil(ep.version) do
       raise "can't mount a versional router to another versional router"
     end
-    p = is_nil(resource.version) && [] || [{:version}]
+    versioning_path = is_nil(resource.version) && [] || [{:version}]
     %{ ep |
        version:    ep.version          || resource.version,
-       path:       p ++ resource.path  ++ ep.path,
+       path:       versioning_path     ++ resource.path ++ ep.path,
        parameters: resource.parameters ++ ep.parameters,
        plugs:      resource.plugs      ++ plugs ++ ep.plugs,
      }

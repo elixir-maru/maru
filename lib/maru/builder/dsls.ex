@@ -170,4 +170,17 @@ defmodule Maru.Builder.DSLs do
     end
   end
 
+  @doc """
+  Define pipeline block of current endpoint.
+  """
+  defmacro pipeline(block) do
+    quote do
+      import Kernel, only: []
+      import Maru.Builder.DSLs, only: [plug: 1, plug: 2]
+      unquote(block)
+      import Maru.Builder.DSLs
+      import Kernel
+    end
+  end
+
 end
