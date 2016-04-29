@@ -38,7 +38,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro requires(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> escape_options
+    options = Keyword.merge([type: :list], options) |> Macro.escape
     quote do
       s = Parameter.snapshot
       Parameter.pop
@@ -61,7 +61,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro requires(attr_name, options) do
-    options = options |> escape_options
+    options = options |> Macro.escape
     quote do
       Parameter.push(%{
         parse_options(unquote options) |
@@ -98,7 +98,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro optional(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> escape_options
+    options = Keyword.merge([type: :list], options) |> Macro.escape
     quote do
       s = Parameter.snapshot
       Parameter.pop
@@ -122,7 +122,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro optional(attr_name, options) do
-    options = options |> escape_options
+    options = options |> Macro.escape
     quote do
       Parameter.push(%{
         parse_options(unquote options) |
@@ -134,47 +134,75 @@ defmodule Maru.Builder.Params do
   end
 
 
-  def parse_options, do: %Parameter{}
-  def parse_options(options), do: parse_options(options, %Parameter{})
-  def parse_options([], result), do: result
-
-  def parse_options([{:type, v} | t], result) do
-    value =
-      case v do
-        {:__aliases__, _, [t]} -> t |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
-        t when is_atom(t) -> t
+  def parse_options(options \\ []) do
+    {rest, parameter} = [
+      :type, :coercer, :default, :desc, :source
+    ] |> Enum.reduce({options, %Parameter{}}, &do_parse_option/2)
+    validators =
+      for {validator, option} <- rest do
+        { try do
+            [ Maru.Validations,
+              validator |> Atom.to_string |> Maru.Utils.upper_camel_case
+            ] |> Module.safe_concat
+          rescue
+            ArgumentError ->
+              Maru.Exceptions.UndefinedValidator |> raise([param: "attr_name", validator: validator])
+          end,
+          option
+        }
       end
-    parse_options(t, %{result | parser: value})
+    %{ parameter | validators: validators }
   end
 
-  def parse_options([{:coerce_with, v} | t], result) do
-    value =
-      case v do
-        nil -> nil
-        {:__aliases__, _, [module]} -> module |> to_string |> Maru.Utils.lower_underscore |> String.to_atom
-        c when is_atom(c) -> c
-        {:fn, _, _}=c -> c
-        {:&, _, _}=c  -> c |> Code.eval_quoted |> elem(0)
+  defp do_parse_option(:type, {options, result}) do
+    { options |> Keyword.drop([:type]),
+      %{ result | type: [
+           Maru.Coercions |
+           options
+           |> Keyword.get(:type, :string)
+           |> case do
+              {:__aliases__, _, t} -> t
+              t when is_atom(t)    ->
+                [ t |> Atom.to_string |> Maru.Utils.upper_camel_case ]
+           end,
+         ] |> Module.safe_concat,
+      }
+    }
+  end
+
+  defp do_parse_option(:coercer, {options, result}) do
+    coercer =
+      case options[:coerce_with] do
+        nil                  -> {:module, result.type}
+        {:__aliases__, _, m} -> {:module, Module.safe_concat([Maru.Coercions | m])}
+        {:fn, _, _}=c        -> {:func, c}
+        {:&, _, _}=c         -> {:func, c}
+        _                    -> raise "unknown coercer format"
       end
-    parse_options(t, %{result | coerce_with: value})
+
+    { options, coercer_argument } =
+      case coercer do
+        {:module, module} ->
+          Enum.reduce(module.arguments, {options, %{}}, fn key, {options, args} ->
+            { Keyword.drop(options, key),
+              put_in(args, [key], options[key]),
+            }
+          end)
+        {:func, _} ->
+          {options, nil}
+      end
+    { options |> Keyword.drop([:coerce_with]),
+      %{ result |
+         coercer: coercer,
+         coercer_argument: Macro.escape(coercer_argument),
+      }
+    }
   end
 
-  def parse_options([{k, _}=h | t], result) when k in [:default, :desc, :source] do
-    m = [h] |> Enum.into(%{})
-    result = result |> Map.merge(m)
-    parse_options(t, result)
-  end
-
-  def parse_options([h | t], %Parameter{validators: validators}=result) do
-    parse_options(t, %{result | validators: validators ++ [h]})
-  end
-
-
-  def escape_options(options) do
-    options |> Enum.map(fn
-      {key, value} when key in [:coerce_with, :type] -> {key, value |> Macro.escape}
-      kv -> kv
-    end)
+  defp do_parse_option(key, {options, result}) when key in [:default, :desc, :source] do
+    { Keyword.drop(options, [key]),
+      %{ result | key => options[key] },
+    }
   end
 
 
@@ -193,10 +221,18 @@ defmodule Maru.Builder.Params do
     end
 
     defmacro unquote(action)(attr_names) do
-      action = unquote(action)
+      validator =
+        try do
+          [ Maru.Validations,
+            unquote(action) |> Atom.to_string |> Maru.Utils.upper_camel_case
+          ] |> Module.safe_concat
+        rescue
+          ArgumentError ->
+            Maru.Exceptions.UndefinedValidator |> raise([param: attr_names, validator: unquote(action)])
+        end
       quote do
         Parameter.push(%Validator{
-          action: unquote(action),
+          validator: unquote(validator),
           attr_names: unquote(attr_names),
         })
       end

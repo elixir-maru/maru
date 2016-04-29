@@ -3,6 +3,7 @@
 ## v0.10.0-dev
 * Enhancements
   * totally rewrite route logic
+  * totally rewrite params parsing logic
   * add overridable plug
 
 ## v0.9.5 (2016-3-15)

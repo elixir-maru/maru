@@ -4,8 +4,12 @@ defmodule Maru.Builder.ParamsTest do
   alias Maru.Struct.Parameter
   alias Maru.Struct.Validator
   alias Maru.Struct.Resource
+  alias Maru.Coercions, as: C
 
   test "optional requires group" do
+    defmodule Elixir.Maru.Validations.Range do
+    end
+
     defmodule OptionalTest do
       use Maru.Router
 
@@ -23,11 +27,11 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Parameter{attr_name: :attr, parser: :term, required: false},
-      %Parameter{attr_name: :foo, parser: :string, required: true, validators: [regexp: ~r/^[a-z]+$/], desc: "hehe"},
-      %Parameter{attr_name: :group, parser: :list, required: true, children: [
-        %Parameter{attr_name: :group, parser: :map, required: true, children: [
-          %Parameter{attr_name: :bar, parser: :integer, required: false, validators: [range: 1..100]}
+      %Parameter{attr_name: :attr, type: C.String, required: false},
+      %Parameter{attr_name: :foo, type: C.String, required: true, validators: [{Maru.Validations.Regexp, {:sigil_r, _, _}}]},
+      %Parameter{attr_name: :group, type: C.List, required: true, children: [
+        %Parameter{attr_name: :group, type: C.Map, required: true, children: [
+          %Parameter{attr_name: :bar, type: C.Integer, required: false, validators: [{Maru.Validations.Range, {:.., _, [1, 100]}}]}
         ]}
       ]}
     ] = OptionalTest.parameters
@@ -55,15 +59,15 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Validator{action: :mutually_exclusive, attr_names: [:a, :b, :c]},
+      %Validator{validator: Maru.Validations.MutuallyExclusive, attr_names: [:a, :b, :c]},
       %Parameter{attr_name: :group, required: true, children: [
-        %Validator{action: :exactly_one_of, attr_names: [:a, :b, :c]},
-        %Validator{action: :at_least_one_of, attr_names: [:a, :b, :c]}
+        %Validator{validator: Maru.Validations.ExactlyOneOf, attr_names: [:a, :b, :c]},
+        %Validator{validator: Maru.Validations.AtLeastOneOf, attr_names: [:a, :b, :c]}
       ]},
       %Parameter{attr_name: :group2, required: true, children: [
         %Parameter{attr_name: :id, required: false, children: []},
         %Parameter{attr_name: :name, required: false, children: []},
-        %Validator{action: :at_least_one_of, attr_names: [:id, :name]}
+        %Validator{validator: Maru.Validations.AtLeastOneOf, attr_names: [:id, :name]}
       ]}
     ] = ValidatorsTest.parameters
   end
@@ -87,7 +91,7 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert %Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
-    assert [%Parameter{attr_name: :param_with_options, parser: :integer, required: true}] = ResourcesTest.parameters
+    assert [%Parameter{attr_name: :param_with_options, type: C.Integer, required: true}] = ResourcesTest.parameters
   end
 
 
@@ -122,12 +126,10 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Parameter{attr_name: :foo, coerce_with: :base64},
-      %Parameter{attr_name: :bar, coerce_with: {:fn, _, _}},
-      %Parameter{attr_name: :baz, coerce_with: f}
+      %Parameter{attr_name: :foo, type: C.String, coercer: {:module, C.Base64}},
+      %Parameter{attr_name: :bar, type: C.String, coercer: {:func, {:fn, _, _}}},
+      %Parameter{attr_name: :baz, type: C.String, coercer: {:func, {:&, _, _}}}
     ] = Coercion.parameters
-
-    assert is_function(f)
   end
 
 

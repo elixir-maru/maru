@@ -41,7 +41,7 @@ defmodule Maru.Builder.Namespaces do
 
   @doc "Special namespace which save path to param list with options."
   defmacro route_param(param, options, [do: block]) do
-    options = options |> Params.escape_options
+    options = options |> Macro.escape
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))

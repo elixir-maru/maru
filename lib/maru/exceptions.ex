@@ -6,10 +6,10 @@ defmodule Maru.Exceptions do
     options of reason:
 
         * `:required` raised when a required param not given
-        * `:illegal` raised when parse ram crashed by &parser.from/1
+        * `:illegal` raised when parse param error
     """
 
-    defexception [:reason, :param, :value, :option]
+    defexception [:reason, :param, :value]
     def message(e) do
       "Parsing Param Error: #{e.param}"
     end
@@ -43,8 +43,9 @@ defmodule Maru.Exceptions do
     Catch this exception and return 404 like this:
 
         rescue_from Maru.Exceptions.NotFound do
-          status 404
-          "Not Found"
+          conn
+          |> put_status(404)
+          |> text("Not Found")
         end
     """
 

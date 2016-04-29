@@ -17,24 +17,32 @@ defmodule Maru.Builder.Endpoint do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    params_block = quote do
-      var!(conn) = var!(conn) |> Plug.Conn.put_private(:maru_params,
-        Maru.Builder.Endpoint.validate_params(
-          unquote(ep.parameters |> Macro.escape),
-          var!(conn).params,
-          Maru.Builder.Path.parse_params(
-            var!(conn).path_info,
-            unquote(adapter.path_for_params(ep.path, ep.version))
-          )
-        )
-      )
-    end
-
     helpers =
       Enum.filter(ep.helpers, fn
         {:import, _, [module]} -> module != env.module
         _                      -> true
       end)
+
+    result = quote do: %{}
+    params = quote do
+      Map.merge(
+        var!(conn).params,
+        Maru.Builder.Path.parse_params(
+          var!(conn).path_info,
+          unquote(adapter.path_for_params(ep.path, ep.version))
+        )
+      )
+    end
+    quoted_param = Enum.reduce(ep.parameters, result, &quote_param(&1, &2, params))
+    params_block = quote do
+      var!(conn) =
+        Plug.Conn.put_private(
+          var!(conn),
+          :maru_params,
+          unquote(quoted_param)
+        )
+    end
+
 
     quote do
       @file unquote(ep.__file__)
@@ -72,102 +80,165 @@ defmodule Maru.Builder.Endpoint do
 
 
   @doc """
-  Parse and validate params.
+  This is a private function, DO NOT use it with your code. I just define it as a public
+  function for unittest.
   """
-  def validate_params([], _params, result), do: result
+  def quote_param(%Validator{validator: validator, attr_names: attr_names}, result, _params) do
+    quote do
+      unquote(validator).validate!(unquote(attr_names), unquote(result))
+      unquote(result)
+    end
+  end
 
-  def validate_params([%Validator{action: action, attr_names: attr_names}|t], params, result) do
-    validator =
-      try do
-        [ Maru.Validations,
-          action |> Atom.to_string |> Maru.Utils.upper_camel_case
-        ] |> Module.safe_concat
-      rescue
-        ArgumentError ->
-          Maru.Exceptions.UndefinedValidator |> raise([param: attr_names, validator: action])
+  def quote_param(%Parameter{attr_name: attr_name, source: source, children: []}=p, result, params) do
+    param_key = source || (attr_name |> to_string)
+    validate_block = validate_block(attr_name, p.validators)
+    coerce_block = coerce_block(p)
+
+    quote do
+      unquote(params)
+      |> Map.get(unquote(param_key))
+      |> case do
+        nil   -> unquote(nil_block(p, result))
+        value ->
+          value = value |> unquote(coerce_block)
+          if unquote(p.type).value_coerced?(value) do
+            value |> unquote(validate_block)
+            put_in(unquote(result), [unquote(attr_name)], value)
+          else
+            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
+          end
       end
-    validator.validate!(attr_names, result)
-    validate_params(t, params, result)
-  end
-
-  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: []}=p|t], params, result) do
-    attr_value =
-      pickup([
-        result |> Map.get(attr_name),
-        params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer),
-        p.default
-      ])
-    case {attr_value, p.required} do
-      {nil, false} -> validate_params(t, params, result)
-      {nil, true}  -> Maru.Exceptions.InvalidFormatter
-                   |> raise([reason: :required, param: attr_name, option: p])
-      {value, _}   ->
-        value = check_param(attr_name, value, p)
-        validate_params(t, params, put_in(result, [attr_name], value))
     end
+
   end
 
-  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :map}=p|t], params, result) do
-    nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
-    case {is_nil(nested_params), p.required} do
-      {true, true} ->
-        Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
-      {true, false} ->
-        validate_params(t, params, result)
-      {false, _} ->
-        value = validate_params(children, nested_params, %{})
-        validate_params(t, params, put_in(result, [attr_name], value))
+  def quote_param(%Parameter{attr_name: attr_name, source: source, children: children, type: Maru.Coercions.Map}=p, result, params) do
+    param_key = source || (attr_name |> to_string)
+    validate_block = validate_block(attr_name, p.validators)
+    coerce_block = coerce_block(p)
+    nested_block = nested_block(children)
+
+    quote do
+      unquote(params)
+      |> Map.get(unquote(param_key))
+      |> case do
+        nil ->
+          unquote(nil_block(p, result))
+        value ->
+          value = value |> unquote(coerce_block)
+          if Maru.Coercions.Map.value_coerced?(value) do
+            value |> unquote(validate_block)
+            put_in(unquote(result), [unquote(attr_name)], value |> unquote(nested_block))
+          else
+            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
+          end
+      end
     end
+
   end
 
-  def validate_params([%Parameter{attr_name: attr_name, source: source, coerce_with: coercer, children: children, parser: :list}=p|t], params, result) do
-    nested_params = params |> Map.get(source || attr_name |> to_string) |> Maru.Coercer.parse(coercer)
-    case {is_nil(nested_params), p.required} do
-      {true, true} ->
-        Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: attr_name, option: p])
-      {true, false} ->
-        validate_params(t, params, result)
-      {false, _} ->
-        value = nested_params |> Enum.map(&validate_params(children, &1, %{}))
-        validate_params(t, params, put_in(result, [attr_name], value))
+  def quote_param(%Parameter{attr_name: attr_name, source: source, children: children, type: Maru.Coercions.List}=p, result, params) do
+    param_key = source || (attr_name |> to_string)
+    validate_block = validate_block(attr_name, p.validators)
+    coerce_block = coerce_block(p)
+    nested_block = nested_block(children)
+
+    quote do
+      unquote(params)
+      |> Map.get(unquote(param_key))
+      |> case do
+        nil ->
+          unquote(nil_block(p, result))
+        value ->
+          value = value |> unquote(coerce_block)
+          if Maru.Coercions.List.value_coerced?(value) do
+            value |> unquote(validate_block)
+            nested_value =
+              for v <- value do
+                v |> unquote(nested_block)
+              end
+            put_in(unquote(result), [unquote(attr_name)], nested_value)
+          else
+            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
+          end
+      end
     end
+
   end
 
 
-  defp pickup([e]), do: e
-  defp pickup([h | t]) do
-    if is_nil(h) do
-      pickup(t)
+  defp nil_block(%Parameter{attr_name: attr_name, default: default, required: required}, result) do
+    if is_nil(default) do
+      if required do
+        quote do
+          Maru.Exceptions.InvalidFormatter |> raise([reason: :required, param: unquote(attr_name), value: nil])
+        end
+      else
+        result
+      end
     else
-      h
+      quote do
+        put_in(unquote(result), [unquote(attr_name)], unquote(default))
+      end
     end
   end
 
 
-  defp check_param(attr_name, value, parameters) do
-    validators = parameters.validators
-    value =
-      try do
-        Maru.ParamType.parse(value, parameters.parser)
-      rescue
-        ArgumentError ->
-          Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: attr_name, value: value, option: validators])
+  defp coerce_block(parameter) do
+    func =
+      case parameter.coercer do
+        {:func, func} ->
+          quote do
+            unquote(func).()
+          end
+        {:module, module} ->
+          quote do
+            unquote(module).coerce(unquote(parameter.coercer_argument))
+          end
       end
-    do_check_param(validators, attr_name, value)
+    quote do
+      fn value ->
+        try do
+          value |> unquote(func)
+        rescue
+          _ ->
+            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(parameter.attr_name), value: value])
+        end
+      end.()
+    end
   end
 
-  defp do_check_param([], _attr_name, value), do: value
-  defp do_check_param([{validator, option}|t], attr_name, value) do
-    validator = try do
-        [ Maru.Validations,
-          validator |> Atom.to_string |> Maru.Utils.upper_camel_case
-        ] |> Module.safe_concat
-      rescue
-        ArgumentError ->
-          Maru.Exceptions.UndefinedValidator |> raise([param: attr_name, validator: validator])
+
+  defp validate_block(attr_name, validators) do
+    value = quote do: validate_value
+    block =
+      for {validator, option} <- validators do
+        quote do
+          unquote(validator).validate_param!(
+            unquote(attr_name),
+            unquote(value),
+            unquote(option)
+          )
+        end
       end
-    validator.validate_param!(attr_name, value, option)
-    do_check_param(t, attr_name, value)
+    quote do
+      fn unquote(value) ->
+        unquote(block)
+      end.()
+    end
+  end
+
+
+  defp nested_block(parameters) do
+    result = quote do: %{}
+    params = quote do: nested_params
+    block = Enum.reduce(parameters, result, &quote_param(&1, &2, params))
+    quote do
+      fn unquote(params) ->
+        unquote(block)
+      end.()
+    end
   end
 
 end

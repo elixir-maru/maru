@@ -24,7 +24,7 @@ defmodule Maru.Builder.Path do
     do_parse_params(t1, t2, result)
   end
   defp do_parse_params([h1|t1], [h2|t2], result) when is_atom(h2) do
-    do_parse_params(t1, t2, put_in(result, [h2], h1))
+    do_parse_params(t1, t2, put_in(result, [to_string(h2)], h1))
   end
 
 end
