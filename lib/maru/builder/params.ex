@@ -201,7 +201,7 @@ defmodule Maru.Builder.Params do
 
   defp do_parse_option(key, {options, result}) when key in [:default, :desc, :source] do
     { Keyword.drop(options, [key]),
-      %{ result | key => options[key] },
+      Map.put(result, key, options[key]),
     }
   end
 
