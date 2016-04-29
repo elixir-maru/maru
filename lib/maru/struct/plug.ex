@@ -45,6 +45,9 @@ defmodule Maru.Struct.Plug do
   end
 
   @doc "merge and override plugs."
+  def merge(plugs, %__MODULE__{}=pipeline) do
+    merge(plugs, [pipeline])
+  end
   def merge(plugs, pipelines) do
     Enum.reduce(pipelines, plugs, fn x, acc ->
       do_merge(acc, x, [])

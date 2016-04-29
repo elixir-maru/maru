@@ -64,7 +64,7 @@ defmodule Maru.Struct.Resource do
       %Resource{plugs: plugs} = resource = @resource
       @resource %{
         resource |
-        plugs: MaruPlug.merge(plugs, [unquote(value)]),
+        plugs: MaruPlug.merge(plugs, unquote(value)),
       }
     end
   end

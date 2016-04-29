@@ -1,6 +1,8 @@
 defmodule Maru.Struct.Endpoint do
   @moduledoc false
 
+  alias Maru.Struct.Plug, as: MaruPlug
+
   defstruct method:     nil,
             path:       [],
             version:    nil,
@@ -28,7 +30,7 @@ defmodule Maru.Struct.Endpoint do
        version:    ep.version          || resource.version,
        path:       versioning_path     ++ resource.path ++ ep.path,
        parameters: resource.parameters ++ ep.parameters,
-       plugs:      resource.plugs      ++ plugs ++ ep.plugs,
+       plugs:      resource.plugs      |> MaruPlug.merge(plugs) |> MaruPlug.merge(ep.plugs),
      }
   end
 
