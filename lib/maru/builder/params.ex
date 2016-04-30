@@ -184,7 +184,7 @@ defmodule Maru.Builder.Params do
       case coercer do
         {:module, module} ->
           Enum.reduce(module.arguments, {options, %{}}, fn key, {options, args} ->
-            { Keyword.drop(options, key),
+            { Keyword.drop(options, [key]),
               put_in(args, [key], options[key]),
             }
           end)

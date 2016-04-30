@@ -133,6 +133,36 @@ defmodule Maru.Builder.ParamsTest do
   end
 
 
+  test "custom coercion" do
+    defmodule Elixir.Maru.Coercions.MyCoercion do
+      use Maru.Coercion
+
+      def arguments do
+        [:my_coercion]
+      end
+    end
+
+    defmodule CustomCoercion do
+      use Maru.Router
+
+      params do
+        optional :foo, type: Integer, coerce_with: MyCoercion, my_coercion: "arg"
+      end
+
+      def parameters, do: @parameters
+    end
+
+    assert [
+      %Maru.Struct.Parameter{
+        attr_name: :foo,
+        type: Maru.Coercions.Integer,
+        coercer: {:module, Maru.Coercions.MyCoercion},
+        coercer_argument: {:%{}, [], [my_coercion: "arg"]},
+        validators: []
+      }
+    ] = CustomCoercion.parameters
+  end
+
   test "shared params" do
     defmodule Helper do
       use Maru.Helper
