@@ -213,4 +213,24 @@ defmodule Maru.Builder.DSLs do
     end
   end
 
+
+  @doc """
+  Define plugs which execute before endpoints match.
+  """
+  defmacro before([do: block]) do
+    quote do
+      if @make_plug do
+        import Maru.Builder.DSLs, except: [
+          plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
+        ]
+        import Maru.Builder.Before
+        unquote(block)
+        import Maru.Builder.Before, only: []
+        import Maru.Builder.DSLs
+      else
+        IO.write :stderr, "Warning: #{inspect __MODULE__}: `before` only works for plug router, Ignore.\n"
+      end
+    end
+  end
+
 end

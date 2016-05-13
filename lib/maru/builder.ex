@@ -32,6 +32,7 @@ defmodule Maru.Builder do
       import Maru.Builder.Exceptions
       import Maru.Builder.DSLs
 
+      Module.register_attribute __MODULE__, :plugs_before,  accumulate: true
       Module.register_attribute __MODULE__, :endpoints,     accumulate: true
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
@@ -44,19 +45,18 @@ defmodule Maru.Builder do
       @parameters    []
       @plugs         []
 
-      @make_plug unquote(make_plug)
+      @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
       @before_compile unquote(__MODULE__)
     end
   end
 
   @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
-    make_plug = Module.get_attribute(module, :make_plug)
     [ Maru.Builder.Plugs.Router.compile(env),
       unless Mix.env == :prod do
         Maru.Builder.Plugs.Test.compile(env)
       end,
-      if make_plug or not is_nil(Application.get_env(:maru, module)) do
+      if Module.get_attribute(module, :make_plug) do
         Maru.Builder.Plugs.Server.compile(env)
       end,
     ]

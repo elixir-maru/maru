@@ -15,9 +15,10 @@ defmodule Maru.Builder.Plugs.Server do
     adapter = Maru.Builder.Versioning.get_adapter(config[:using])
 
     pipeline = [
+      Module.get_attribute(module, :plugs_before) |> Enum.reverse,
       adapter.plug(config),
       [ {:endpoint, [], true},
-        {Maru.Plugs.NotFound, [], true}
+        {Maru.Plugs.NotFound, [], true},
       ],
     ] |> Enum.concat |> Enum.reverse
 

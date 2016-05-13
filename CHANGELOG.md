@@ -5,6 +5,7 @@
   * totally rewrite route logic
   * totally rewrite params parsing logic
   * add overridable plug
+  * support top-level plug
 
 ## v0.9.5 (2016-3-15)
 * Enhancements

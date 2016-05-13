@@ -43,7 +43,6 @@ defmodule Maru.Builder.Endpoint do
         )
     end
 
-
     quote do
       @file unquote(ep.__file__)
 
