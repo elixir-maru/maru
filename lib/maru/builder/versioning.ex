@@ -7,7 +7,7 @@ defmodule Maru.Builder.Versioning do
     quote do
       @doc false
       def func_name do
-        :endpoint
+        :route
       end
 
       @doc false

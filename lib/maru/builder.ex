@@ -3,8 +3,8 @@ defmodule Maru.Builder do
   Generate functions.
 
   For all modules:
-      A function named `__endpoints__/0` will be generated for returning endpoints.
-      Mounted and extended endpoints are included.
+      A function named `__routes__/0` will be generated for returning routes.
+      Mounted and extended routes are included.
 
   For all environments except `:prod`:
       Two functions `__version__/0` and `call_test/2` will be generated for testing.
@@ -33,6 +33,7 @@ defmodule Maru.Builder do
       import Maru.Builder.DSLs
 
       Module.register_attribute __MODULE__, :plugs_before,  accumulate: true
+      Module.register_attribute __MODULE__, :routes,        accumulate: true
       Module.register_attribute __MODULE__, :endpoints,     accumulate: true
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
@@ -44,6 +45,7 @@ defmodule Maru.Builder do
       @desc          nil
       @parameters    []
       @plugs         []
+      @func_id       0
 
       @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
       @before_compile unquote(__MODULE__)

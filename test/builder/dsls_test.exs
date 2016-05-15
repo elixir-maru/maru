@@ -144,8 +144,8 @@ defmodule Maru.Builder.DSLsTest do
 
   test "mount" do
     defmodule Mounted do
-      def __endpoints__ do
-        [%Maru.Struct.Endpoint{}]
+      def __routes__ do
+        [%Maru.Struct.Route{}]
       end
     end
 
@@ -157,7 +157,7 @@ defmodule Maru.Builder.DSLsTest do
       def m, do: @mounted
     end
 
-    assert [%Maru.Struct.Endpoint{}] = MountTest.m
+    assert [%Maru.Struct.Route{}] = MountTest.m
   end
 
 

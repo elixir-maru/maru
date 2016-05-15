@@ -7,7 +7,7 @@ defmodule Maru.Builder.Versioning.Test do
 
   @doc false
   def func_name do
-    :endpoint_test
+    :route_test
   end
 
   @doc false

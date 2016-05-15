@@ -1,8 +1,8 @@
-defmodule Maru.Router.EndpointTest do
+defmodule Maru.Builder.RouteTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
-  alias Maru.Builder.Endpoint
+  alias Maru.Builder.Route
   alias Maru.Struct.Parameter
   alias Maru.Struct.Validator
   alias Maru.Coercions, as: C
@@ -11,7 +11,7 @@ defmodule Maru.Router.EndpointTest do
   defp do_parse(parameters, data, result \\ %{}) do
     result = result |> Macro.escape
     data   = data |> Macro.escape
-    body   = Enum.reduce(parameters, result, &Endpoint.quote_param(&1, &2, data))
+    body   = Enum.reduce(parameters, result, &Route.quote_param(&1, &2, data))
     Code.eval_quoted(body) |> elem(0)
   end
 
@@ -154,24 +154,32 @@ defmodule Maru.Router.EndpointTest do
     defmodule DispatchTest do
       use Maru.Helpers.Response
 
+      def endpoint(conn, 0) do
+        conn |> Plug.Conn.send_resp(200, "get") |> Plug.Conn.halt
+      end
+
+      def endpoint(conn, 1) do
+        conn |> Plug.Conn.send_resp(200, "match") |> Plug.Conn.halt
+      end
+
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Endpoint.dispatch(%Maru.Struct.Endpoint{
-          method: "GET", path: [], block: {:text, [], [{:conn, [], nil}, "get"]}
+        Route.dispatch(%Maru.Struct.Route{
+          method: "GET", path: [], module: __MODULE__, func_id: 0,
         }, __ENV__, adapter)
       ), [], __ENV__
 
       Module.eval_quoted __MODULE__, (
-        Endpoint.dispatch(%Maru.Struct.Endpoint{
-          method: {:_, [], nil}, path: [], block: {:text, [], [{:conn, [], nil}, "match"]}
+        Route.dispatch(%Maru.Struct.Route{
+          method: {:_, [], nil}, path: [], module: __MODULE__, func_id: 1,
         }, __ENV__, adapter)
       ), [], __ENV__
 
-      def e(conn), do: endpoint(conn, [])
+      def r(conn), do: route(conn, [])
     end
 
-    assert %Plug.Conn{resp_body: "get"} = conn(:get, "/") |> DispatchTest.e
-    assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> DispatchTest.e
+    assert %Plug.Conn{resp_body: "get"} = conn(:get, "/") |> DispatchTest.r
+    assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> DispatchTest.r
   end
 
   test "method not allow" do
@@ -180,14 +188,14 @@ defmodule Maru.Router.EndpointTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Endpoint.dispatch_405("v1", [], adapter)
+        Route.dispatch_405("v1", [], adapter)
       ), [], __ENV__
 
-      def e(conn), do: endpoint(conn, [])
+      def r(conn), do: route(conn, [])
     end
 
     assert_raise Maru.Exceptions.MethodNotAllow, fn ->
-      conn(:get, "/") |> MethodNotAllowTest.e
+      conn(:get, "/") |> MethodNotAllowTest.r
     end
   end
 

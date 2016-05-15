@@ -2,10 +2,10 @@ defmodule Maru.Builder.Extend do
   @moduledoc false
 
   @doc """
-  Take endpoints by an extended module.
+  Take routes by an extended module.
   """
   def take_extended(_, nil), do: []
-  def take_extended(eps_new, {v_new, opts}) do
+  def take_extended(routes_new, {v_new, opts}) do
     module  = opts |> Keyword.fetch!(:at)
     v_old   = opts |> Keyword.fetch!(:extend)
     only    = opts |> Keyword.get(:only, nil)
@@ -15,24 +15,24 @@ defmodule Maru.Builder.Extend do
       raise ":only and :except are in conflict!"
     end
 
-    module.__endpoints__
-    |> Enum.filter(fn ep ->
-      (ep.version == v_old) and getable?(eps_new, ep)
+    module.__routes__
+    |> Enum.filter(fn route ->
+      (route.version == v_old) and getable?(routes_new, route)
     end)
     |> Enum.filter(func(only, except))
-    |> Enum.map(fn ep ->
-      %{ep | version: v_new}
+    |> Enum.map(fn route ->
+      %{route | version: v_new}
     end)
   end
 
   defp func(nil, nil),    do: fn _  -> true end
-  defp func(only, nil),   do: fn ep -> ep_match?(only, ep) end
-  defp func(nil, except), do: fn ep -> not ep_match?(except, ep) end
+  defp func(only, nil),   do: fn route -> route_match?(only, route) end
+  defp func(nil, except), do: fn route -> not route_match?(except, route) end
 
 
-  defp getable?(eps_new, ep) do
-    Enum.all?(eps_new, fn ep_new ->
-      ep_new.method != ep.method or do_getable?(ep_new.path, ep.path)
+  defp getable?(routes, route_extended) do
+    Enum.all?(routes, fn route ->
+      route.method != route_extended.method or do_getable?(route.path, route_extended.path)
     end)
   end
 
@@ -43,10 +43,10 @@ defmodule Maru.Builder.Extend do
   defp do_getable?(_, _),             do: true
 
 
-  defp ep_match?(conds, ep) do
+  defp route_match?(conds, route) do
     Enum.any?(conds, fn {method, path} ->
       path = Maru.Builder.Path.split(path)
-      method_match?(ep.method, method) and path_match?(ep.path, path)
+      method_match?(route.method, method) and path_match?(route.path, path)
     end)
   end
 

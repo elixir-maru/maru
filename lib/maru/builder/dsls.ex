@@ -46,7 +46,7 @@ defmodule Maru.Builder.DSLs do
 
   @doc """
   version: "v1", do ... end:
-    Version of endpoints within block.
+    Version of routes within block.
 
   version: "v2", extend: "v1", at: V1
     Define version and extended router of current router.
@@ -125,9 +125,9 @@ defmodule Maru.Builder.DSLs do
   defmacro mount({_, _, mod}) do
     module = Module.concat(mod)
     quote do
-      for ep <- unquote(module).__endpoints__ do
-        @mounted Maru.Struct.Endpoint.merge(
-          @resource, @plugs, ep
+      for route <- unquote(module).__routes__ do
+        @mounted Maru.Struct.Route.merge(
+          @resource, @plugs, route
         )
       end
     end
@@ -215,7 +215,7 @@ defmodule Maru.Builder.DSLs do
 
 
   @doc """
-  Define plugs which execute before endpoints match.
+  Define plugs which execute before routes match.
   """
   defmacro before([do: block]) do
     quote do

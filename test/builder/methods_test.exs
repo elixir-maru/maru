@@ -13,13 +13,13 @@ defmodule Maru.Builder.MethodsTest do
         text(conn, "match")
       end
 
-      def e, do: @endpoints
+      def route, do: @routes
     end
 
     assert [
       %{method: {:_, [], nil}, path: []},
       %{method: "GET", path: []},
-    ] = MethodsTest.e
+    ] = MethodsTest.route
   end
 
 end
