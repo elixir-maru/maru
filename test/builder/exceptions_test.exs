@@ -5,7 +5,9 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "rescue_from" do
     defmodule RescueTest do
-      use Maru.Router, make_plug: true
+      use Maru.Router
+      @test      false
+      @make_plug true
 
       defp unwarn(_), do: nil
 

@@ -83,50 +83,9 @@ defmodule Maru.Builder.DSLsTest do
       helpers Maru.Builder.DSLsTest.H
 
       def s, do: @shared_params
-      def h, do: @resource.helpers
-    end
-
-    defmodule HelpersTest2 do
-      use Maru.Builder
-
-      helpers do
-        import A1
-        import A2, only: [x: 0]
-        alias B1
-        alias B2, as: BB2
-        require C1
-        require C2, as: CC2
-      end
-
-      def h, do: @resource.helpers
-    end
-
-    defmodule HelpersTest3 do
-      use Maru.Builder
-
-      helpers do
-        def f,  do: fp
-        defp fp, do: :func
-
-        params :x do
-        end
-      end
-
-      def s, do: @shared_params
     end
 
     assert [:x] = HelpersTest1.s
-    assert [{:import, _, [Maru.Builder.DSLsTest.H]}] = HelpersTest1.h
-    assert [
-      {:import,  _, [{:__aliases__, _, [:A1]}]},
-      {:import,  _, [{:__aliases__, _, [:A2]}, [only: [x: 0]]]},
-      {:alias,   _, [{:__aliases__, _, [:B1]}]},
-      {:alias,   _, [{:__aliases__, _, [:B2]}, [as: {:__aliases__, _, [:BB2]}]]},
-      {:require, _, [{:__aliases__, _, [:C1]}]},
-      {:require, _, [{:__aliases__, _, [:C2]}, [as: {:__aliases__, _, [:CC2]}]]},
-    ] = HelpersTest2.h
-    assert :func = HelpersTest3.f
-    assert [x: nil] = HelpersTest3.s
   end
 
   test "desc" do
@@ -216,6 +175,20 @@ defmodule Maru.Builder.DSLsTest do
       %MaruPlug{name: nil, plug: P},
       %MaruPlug{name: :x, plug: :a},
     ] = PlugOverridableTest.p2
+  end
+
+  test "named params" do
+    defmodule Test do
+      use Maru.Builder
+
+      params :foo do
+        requests :bar, type: String
+      end
+
+      def sp, do: @shared_params
+    end
+
+    assert [foo: {:requests, _, _}] = Test.sp
   end
 
 end

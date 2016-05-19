@@ -36,6 +36,16 @@ defmodule Maru.Builder.DSLs do
 
 
   @doc """
+  Save shared param to module attribute.
+  """
+  defmacro params(name, [do: block]) do
+    quote do
+      @shared_params unquote({name, block |> Macro.escape})
+    end
+  end
+
+
+  @doc """
   Define version of current router.
   """
   defmacro version(v) do
@@ -67,45 +77,9 @@ defmodule Maru.Builder.DSLs do
     end
   end
 
-  @doc """
-  Import helpers used by current router.
-  """
-  defmacro helpers([do: block]) do
-    block =
-      case block do
-        nil -> []
-        {:__block__, _, list} -> list
-        any -> [any]
-      end
-      |> Maru.Utils.group_by(fn block ->
-        case block do
-          {method, _, _} when method in [:import, :alias, :require] -> :helpers
-          {method, _, _} when method in [:def]                      -> :def
-          {method, _, _} when method in [:defp]                     -> :defp
-          {method, _, _} when method in [:params]                   -> :params
-          {_, _, _}                                                 -> :ignore
-        end
-      end)
-      |> Enum.into([])
-    import? = not is_nil(block[:def])
-    quote do
-      Resource.push_helper(unquote(block[:helpers] |> Macro.escape))
-      if unquote(import?) do
-        Resource.push_helper(quote do import unquote(__MODULE__) end)
-      end
-      import Maru.Helpers.Params
-      unquote(block[:def])
-      unquote(block[:defp])
-      unquote(block[:params])
-      import Maru.Helpers.Params, only: []
-    end
-  end
-
   defmacro helpers({_, _, module}) do
     module = Module.concat(module)
-    block = quote do import unquote(module) end |> Macro.escape
     quote do
-      Resource.push_helper(unquote(block))
       unquote(module).__shared_params__ |> Enum.each(&(@shared_params &1))
     end
   end

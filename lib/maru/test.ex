@@ -17,7 +17,7 @@ defmodule Maru.Test do
         conn
         |> put_private(:maru_test, true)
         |> put_private(:maru_version, version)
-        |> router.call_test([])
+        |> router.call([])
       end
     end
 

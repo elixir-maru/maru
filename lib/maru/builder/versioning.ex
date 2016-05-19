@@ -6,11 +6,6 @@ defmodule Maru.Builder.Versioning do
   defmacro __using__(_) do
     quote do
       @doc false
-      def func_name do
-        :route
-      end
-
-      @doc false
       def path_for_params(path, _version) do
         Enum.filter(path, fn
           {:version} -> false
@@ -45,7 +40,6 @@ defmodule Maru.Builder.Versioning do
       end
 
       defoverridable [
-        func_name:       0,
         path_for_params: 2,
         conn_for_match:  3,
         path_for_match:  1,

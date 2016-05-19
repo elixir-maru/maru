@@ -39,11 +39,10 @@ defmodule Maru do
     {:ok, self}
   end
 
-  defp servers do
-    for {k, v} <- Application.get_all_env(:maru),
-    not k in [:included_applications] do
-      {k, v}
-    end
+  def servers do
+    Enum.filter(Application.get_all_env(:maru), fn {k, _} ->
+      match?("Elixir." <> _, to_string(k))
+    end)
   end
 
   defp to_port(nil),                        do: nil

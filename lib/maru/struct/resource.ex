@@ -69,27 +69,6 @@ defmodule Maru.Struct.Resource do
     end
   end
 
-  @doc "push helper to current scope."
-  defmacro push_helper(value) when is_list(value) do
-    quote do
-      %Resource{helpers: helpers} = resource = @resource
-      @resource %{
-        resource |
-        helpers: helpers ++ unquote(value),
-      }
-    end
-  end
-
-  defmacro push_helper(value) do
-    quote do
-      %Resource{helpers: helpers} = resource = @resource
-      @resource %{
-        resource |
-        helpers: helpers ++ [unquote(value)],
-      }
-    end
-  end
-
   @doc "get endpoint version of current scope ."
   defmacro get_version do
     quote do

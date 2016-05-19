@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Maru.Routes do
       module = List.first(args) ->
         Module.concat("Elixir", module) |> generate_module([])
 
-      (servers = Application.get_all_env(:maru)) != [] ->
+      (servers = Maru.servers) != [] ->
         for {module, _} <- servers do
           generate_module(module, [])
         end

@@ -44,8 +44,7 @@ defmodule Maru.Builder.Route do
     end
 
     quote do
-
-      defp unquote(adapter.func_name)(unquote(
+      defp route(unquote(
         adapter.conn_for_match(route.method, route.version, route.path)
       )=unquote(conn), []) do
         case unquote(body) do
@@ -68,7 +67,7 @@ defmodule Maru.Builder.Route do
     method = Macro.var(:_, nil)
 
     quote do
-      defp unquote(adapter.func_name)(unquote(
+      defp route(unquote(
         adapter.conn_for_match(method, version, path)
       )=var!(conn), []) do
         Maru.Exceptions.MethodNotAllow |> raise([method: var!(conn).method, request_path: var!(conn).request_path])

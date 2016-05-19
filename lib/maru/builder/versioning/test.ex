@@ -2,13 +2,10 @@ defmodule Maru.Builder.Versioning.Test do
   @moduledoc """
   Adapter for generating test functions.
   """
-
   use Maru.Builder.Versioning
 
   @doc false
-  def func_name do
-    :route_test
-  end
+  def plug(_opts), do: []
 
   @doc false
   def conn_for_match(method, version, path) do

@@ -112,9 +112,7 @@ defmodule Maru.Builder.ParamsTest do
     defmodule Coercion do
       use Maru.Router
 
-      helpers do
-        def baz(s), do: s
-      end
+      def baz(s), do: s
 
       params do
         optional :foo, coerce_with: Base64
@@ -180,10 +178,9 @@ defmodule Maru.Builder.ParamsTest do
       use Maru.Router
 
       helpers Maru.Builder.ParamsTest.Helper
-      helpers do
-        params :foo2 do
-          optional :qux
-        end
+
+      params :foo2 do
+        optional :qux
       end
 
       params do
