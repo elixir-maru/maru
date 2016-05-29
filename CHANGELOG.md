@@ -3,10 +3,13 @@
 ## v0.10.0-dev
 * Enhancements
   * totally rewrite route logic
-  * totally rewrite params parsing logic
+  * totally rewrite params parsing logic and DSLs
   * add overridable plug
   * support top-level plug
   * split Route and Endpoint
+
+* Deprecations
+  * `coercion` is deprecated in favor of `type`
 
 ## v0.9.5 (2016-3-15)
 * Enhancements

@@ -4,7 +4,7 @@ defmodule Maru.Builder.ParamsTest do
   alias Maru.Struct.Parameter
   alias Maru.Struct.Validator
   alias Maru.Struct.Resource
-  alias Maru.Coercions, as: C
+  alias Maru.Types, as: T
 
   test "optional requires group" do
     defmodule Elixir.Maru.Validations.Range do
@@ -27,11 +27,11 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Parameter{attr_name: :attr, type: C.String, required: false},
-      %Parameter{attr_name: :foo, type: C.String, required: true, validators: [{Maru.Validations.Regexp, {:sigil_r, _, _}}]},
-      %Parameter{attr_name: :group, type: C.List, required: true, children: [
-        %Parameter{attr_name: :group, type: C.Map, required: true, children: [
-          %Parameter{attr_name: :bar, type: C.Integer, required: false, validators: [{Maru.Validations.Range, {:.., _, [1, 100]}}]}
+      %Parameter{attr_name: :attr, parsers: [{:module, T.String, _}], required: false},
+      %Parameter{attr_name: :foo, parsers: [{:module, T.String, _}], required: true, validators: [{Maru.Validations.Regexp, {:sigil_r, _, _}}]},
+      %Parameter{attr_name: :group, parsers: [{:module, T.List, _}], required: true, children: [
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, _}], required: true, children: [
+          %Parameter{attr_name: :bar, parsers: [{:module, T.Integer, _}], required: false, validators: [{Maru.Validations.Range, {:.., _, [1, 100]}}]}
         ]}
       ]}
     ] = OptionalTest.parameters
@@ -91,7 +91,7 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert %Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
-    assert [%Parameter{attr_name: :param_with_options, type: C.Integer, required: true}] = ResourcesTest.parameters
+    assert [%Parameter{attr_name: :param_with_options, parsers: [{:module, T.Integer, _}], required: true}] = ResourcesTest.parameters
   end
 
 
@@ -108,35 +108,12 @@ defmodule Maru.Builder.ParamsTest do
   end
 
 
-  test "test coercion" do
-    defmodule Coercion do
-      use Maru.Router
-
-      def baz(s), do: s
-
-      params do
-        optional :foo, coerce_with: Base64
-        optional :bar, coerce_with: fn s -> s end
-        optional :baz, coerce_with: &Coercion.baz/1
-      end
-
-      def parameters, do: @parameters
-    end
-
-    assert [
-      %Parameter{attr_name: :foo, type: C.String, coercer: {:module, C.Base64}},
-      %Parameter{attr_name: :bar, type: C.String, coercer: {:func, {:fn, _, _}}},
-      %Parameter{attr_name: :baz, type: C.String, coercer: {:func, {:&, _, _}}}
-    ] = Coercion.parameters
-  end
-
-
-  test "custom coercion" do
-    defmodule Elixir.Maru.Coercions.MyCoercion do
-      use Maru.Coercion
+  test "custom Type" do
+    defmodule Elixir.Maru.Types.MyType do
+      use Maru.Type
 
       def arguments do
-        [:my_coercion]
+        [:my_arg]
       end
     end
 
@@ -144,7 +121,7 @@ defmodule Maru.Builder.ParamsTest do
       use Maru.Router
 
       params do
-        optional :foo, type: Integer, coerce_with: MyCoercion, my_coercion: "arg"
+        optional :foo, type: MyType, my_arg: "arg"
       end
 
       def parameters, do: @parameters
@@ -153,9 +130,7 @@ defmodule Maru.Builder.ParamsTest do
     assert [
       %Maru.Struct.Parameter{
         attr_name: :foo,
-        type: Maru.Coercions.Integer,
-        coercer: {:module, Maru.Coercions.MyCoercion},
-        coercer_argument: {:%{}, [], [my_coercion: "arg"]},
+        parsers: [{:module, Maru.Types.MyType, {:%{}, [], [my_arg: "arg"]}}],
         validators: []
       }
     ] = CustomCoercion.parameters

@@ -5,7 +5,7 @@ defmodule Maru.Builder.RouteTest do
   alias Maru.Builder.Route
   alias Maru.Struct.Parameter
   alias Maru.Struct.Validator
-  alias Maru.Coercions, as: C
+  alias Maru.Types, as: T
   alias Maru.Validations, as: V
 
   defp do_parse(parameters, data, result \\ %{}) do
@@ -16,22 +16,22 @@ defmodule Maru.Builder.RouteTest do
   end
 
   test "validate param" do
-    assert %{id: 1} == do_parse([%Parameter{attr_name: :id, type: C.Integer, coercer: {:module, C.Integer}}], %{"id" => 1})
-    assert %{} == do_parse([%Parameter{attr_name: :id, type: C.Integer, coercer: {:module, C.Integer}, required: false}], %{})
-    assert %{bool: false} == do_parse([%Parameter{attr_name: :bool, type: C.Boolean, coercer: {:module, C.Boolean}, required: false}], %{"bool" => "false"})
+    assert %{id: 1} == do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}]}], %{"id" => 1})
+    assert %{} == do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}], required: false}], %{})
+    assert %{bool: false} == do_parse([%Parameter{attr_name: :bool, parsers: [{:module, T.Boolean, nil}], required: false}], %{"bool" => "false"})
     assert_raise Maru.Exceptions.InvalidFormatter, fn ->
-      do_parse([%Parameter{attr_name: :id, type: C.Integer, coercer: {:module, C.Integer}}], %{"id" => "id"})
+      do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}]}], %{"id" => "id"})
     end
     assert_raise Maru.Exceptions.Validation, fn ->
-      do_parse([%Parameter{attr_name: :id, type: C.Integer, coercer: {:module, C.Integer}, validators: [{V.Values, quote do 1..10 end}]}], %{"id" => "100"})
+      do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}], validators: [{V.Values, quote do 1..10 end}]}], %{"id" => "100"})
     end
   end
 
   test "identical param keys in groups" do
     assert %{group: %{name: "name1"}, name: "name2"} =
-      [ %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}},
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Map}, children: [
-          %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}}
+      [ %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
         ]},
       ] |> do_parse(%{"group" => %{"name" => "name1"}, "name" => "name2"})
   end
@@ -39,17 +39,17 @@ defmodule Maru.Builder.RouteTest do
   test "validate Map nested param" do
     assert %{group: %{name: "name"}} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Map}, children: [
-          %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}}
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
         ]}
       ], %{"group" => %{"name" => "name"}})
 
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Map}, children: [
-          %Parameter{attr_name: :group2, type: C.Map, coercer: {:module, C.Map}, children: [
-            %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}},
-            %Parameter{attr_name: :name2, type: C.String, coercer: {:module, C.String}},
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :group2, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+            %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
+            %Parameter{attr_name: :name2, parsers: [{:module, T.String, nil}]},
           ]}
         ]}
       ], %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}})
@@ -58,19 +58,19 @@ defmodule Maru.Builder.RouteTest do
   test "validate List nested param" do
     assert %{group: [%{foo: "foo1", bar: "default"}, %{foo: "foo2", bar: "bar"}]} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.List, coercer: {:module, C.List}, children: [
-          %Parameter{attr_name: :foo, type: C.String, coercer: {:module, C.String}},
-          %Parameter{attr_name: :bar, type: C.String, coercer: {:module, C.String}, default: "default"},
+        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
+          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}]},
+          %Parameter{attr_name: :bar, parsers: [{:module, T.String, nil}], default: "default"},
           %Validator{validator: V.AtLeastOneOf, attr_names: [:foo, :bar]},
         ]}
       ], %{"group" => [%{"foo" => "foo1"}, %{"foo" => "foo2", "bar" => "bar"}]})
 
     assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.List, coercer: {:module, C.List}, children: [
-          %Parameter{attr_name: :foo, type: C.List, coercer: {:module, C.List}, children: [
-            %Parameter{attr_name: :bar, type: C.Map, coercer: {:module, C.Map}, children: [
-              %Parameter{attr_name: :baz, type: C.String, coercer: {:module, C.String}}
+        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
+          %Parameter{attr_name: :foo, parsers: [{:module, T.List, nil}], nested: :list, children: [
+            %Parameter{attr_name: :bar, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+              %Parameter{attr_name: :baz, parsers: [{:module, T.String, nil}]}
             ]}
           ]}
         ]}
@@ -78,10 +78,10 @@ defmodule Maru.Builder.RouteTest do
 
     assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.List, coercer: {:module, C.List}, children: [
-          %Parameter{attr_name: :foo, type: C.List, coercer: {:module, C.List}, children: [
-            %Parameter{attr_name: :bar, type: C.Map, coercer: {:module, C.Map}, children: [
-              %Parameter{attr_name: :baz, type: C.String, coercer: {:module, C.String}}
+        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
+          %Parameter{attr_name: :foo, parsers: [{:module, T.List, nil}], nested: :list, children: [
+            %Parameter{attr_name: :bar, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+              %Parameter{attr_name: :baz, parsers: [{:module, T.String, nil}]}
             ]}
           ]}
         ]}
@@ -91,17 +91,17 @@ defmodule Maru.Builder.RouteTest do
   test "validate Json nested param" do
     assert %{group: %{name: "name"}} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Json}, children: [
-          %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}}
+        %Parameter{attr_name: :group, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
         ]}
       ], %{"group" => ~s({"name":"name"})})
 
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Map}, children: [
-          %Parameter{attr_name: :group2, type: C.Map, coercer: {:module, C.Json}, children: [
-            %Parameter{attr_name: :name, type: C.String, coercer: {:module, C.String}},
-            %Parameter{attr_name: :name2, type: C.String, coercer: {:module, C.String}},
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :group2, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
+            %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
+            %Parameter{attr_name: :name2, parsers: [{:module, T.String, nil}]},
           ]}
         ]}
       ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}})
@@ -110,8 +110,8 @@ defmodule Maru.Builder.RouteTest do
   test "param rename" do
     assert %{group: %{name: "name"}} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Json}, children: [
-          %Parameter{attr_name: :name, source: "name-test", type: C.String, coercer: {:module, C.String}}
+        %Parameter{attr_name: :group, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
+          %Parameter{attr_name: :name, source: "name-test", parsers: [{:module, T.String, nil}]}
         ]}
       ], %{"group" => ~s({"name-test":"name"})})
   end
@@ -119,15 +119,15 @@ defmodule Maru.Builder.RouteTest do
   test "validate optional nested param" do
     assert %{} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.List, coercer: {:module, C.List}, required: false, children: [
-          %Parameter{attr_name: :foo, type: C.String, coercer: {:module, C.String}, required: true},
+        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], required: false, nested: :list, children: [
+          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}], required: true},
         ]}
       ], %{})
 
     assert %{} ==
       do_parse([
-        %Parameter{attr_name: :group, type: C.Map, coercer: {:module, C.Map}, required: false, children: [
-          %Parameter{attr_name: :foo, type: C.String, coercer: {:module, C.String}, required: true}
+        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], required: false, nested: :map, children: [
+          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}], required: true}
         ]}
       ], %{})
   end

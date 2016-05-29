@@ -87,81 +87,25 @@ defmodule Maru.Builder.Route do
     end
   end
 
-  def quote_param(%Parameter{attr_name: attr_name, source: source, children: []}=p, result, params) do
-    param_key = source || (attr_name |> to_string)
+  def quote_param(%Parameter{attr_name: attr_name, source: source, nested: nested}=p, result, params) do
+    param_key      = source || (attr_name |> to_string)
+    nil_block      = nil_block(p, result)
     validate_block = validate_block(attr_name, p.validators)
-    coerce_block = coerce_block(p)
+    parser_block   = parser_block(attr_name, p.parsers)
+    nested_block   = nested_block(nested, p.children)
 
     quote do
       unquote(params)
       |> Map.get(unquote(param_key))
       |> case do
-        nil   -> unquote(nil_block(p, result))
+        nil   -> unquote(nil_block)
         value ->
-          value = value |> unquote(coerce_block)
-          if unquote(p.type).value_coerced?(value) do
-            value |> unquote(validate_block)
-            put_in(unquote(result), [unquote(attr_name)], value)
-          else
-            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
-          end
+          value = value |> unquote(parser_block)
+          value |> unquote(validate_block)
+          value = value |> unquote(nested_block)
+          put_in(unquote(result), [unquote(attr_name)], value)
       end
     end
-
-  end
-
-  def quote_param(%Parameter{attr_name: attr_name, source: source, children: children, type: Maru.Coercions.Map}=p, result, params) do
-    param_key = source || (attr_name |> to_string)
-    validate_block = validate_block(attr_name, p.validators)
-    coerce_block = coerce_block(p)
-    nested_block = nested_block(children)
-
-    quote do
-      unquote(params)
-      |> Map.get(unquote(param_key))
-      |> case do
-        nil ->
-          unquote(nil_block(p, result))
-        value ->
-          value = value |> unquote(coerce_block)
-          if Maru.Coercions.Map.value_coerced?(value) do
-            value |> unquote(validate_block)
-            put_in(unquote(result), [unquote(attr_name)], value |> unquote(nested_block))
-          else
-            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
-          end
-      end
-    end
-
-  end
-
-  def quote_param(%Parameter{attr_name: attr_name, source: source, children: children, type: Maru.Coercions.List}=p, result, params) do
-    param_key = source || (attr_name |> to_string)
-    validate_block = validate_block(attr_name, p.validators)
-    coerce_block = coerce_block(p)
-    nested_block = nested_block(children)
-
-    quote do
-      unquote(params)
-      |> Map.get(unquote(param_key))
-      |> case do
-        nil ->
-          unquote(nil_block(p, result))
-        value ->
-          value = value |> unquote(coerce_block)
-          if Maru.Coercions.List.value_coerced?(value) do
-            value |> unquote(validate_block)
-            nested_value =
-              for v <- value do
-                v |> unquote(nested_block)
-              end
-            put_in(unquote(result), [unquote(attr_name)], nested_value)
-          else
-            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: value])
-          end
-      end
-    end
-
   end
 
 
@@ -182,25 +126,32 @@ defmodule Maru.Builder.Route do
   end
 
 
-  defp coerce_block(parameter) do
-    func =
-      case parameter.coercer do
+  defp parser_block(attr_name, parsers) do
+    value = quote do: value
+    block =
+      parsers
+      |> Enum.map(fn
         {:func, func} ->
           quote do
             unquote(func).()
           end
-        {:module, module} ->
+        {:module, module, arguments} ->
           quote do
-            unquote(module).coerce(unquote(parameter.coercer_argument))
+            unquote(module).parse(unquote(arguments))
           end
-      end
+      end)
+      |> Enum.reduce(value, fn parser, ast ->
+        quote do
+          unquote(ast) |> unquote(parser)
+        end
+      end)
     quote do
-      fn value ->
+      fn unquote(value) ->
         try do
-          value |> unquote(func)
+          unquote(block)
         rescue
           _ ->
-            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(parameter.attr_name), value: value])
+            Maru.Exceptions.InvalidFormatter |> raise([reason: :illegal, param: unquote(attr_name), value: unquote(value)])
         end
       end.()
     end
@@ -222,19 +173,35 @@ defmodule Maru.Builder.Route do
     quote do
       fn unquote(value) ->
         unquote(block)
+        :ok
       end.()
     end
   end
 
-
-  defp nested_block(parameters) do
+  defp nested_block(nested, parameters) do
     result = quote do: %{}
     params = quote do: nested_params
     block = Enum.reduce(parameters, result, &quote_param(&1, &2, params))
-    quote do
-      fn unquote(params) ->
-        unquote(block)
-      end.()
+
+    case nested do
+      nil ->
+        quote do
+          fn x -> x end.()
+        end
+      :map ->
+        quote do
+          fn unquote(params) ->
+            unquote(block)
+          end.()
+        end
+      :list ->
+        quote do
+          fn x ->
+            for unquote(params) <- x do
+              unquote(block)
+            end
+          end.()
+        end
     end
   end
 

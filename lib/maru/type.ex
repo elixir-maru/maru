@@ -1,4 +1,4 @@
-defmodule Maru.Coercion do
+defmodule Maru.Type do
 
   defmacro __using__(_) do
     quote do
@@ -6,11 +6,11 @@ defmodule Maru.Coercion do
         []
       end
 
-      def coerce(input, _) do
+      def parse(input, _) do
         input
       end
 
-      defoverridable [arguments: 0, coerce: 2]
+      defoverridable [arguments: 0, parse: 2]
     end
   end
 

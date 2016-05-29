@@ -136,7 +136,7 @@ defmodule Maru.Builder.Params do
 
   def parse_options(options \\ []) do
     {rest, parameter} = [
-      :type, :coercer, :default, :desc, :source
+      :type, :default, :desc, :source
     ] |> Enum.reduce({options, %Parameter{}}, &do_parse_option/2)
     validators =
       for {validator, option} <- rest do
@@ -155,47 +155,31 @@ defmodule Maru.Builder.Params do
   end
 
   defp do_parse_option(:type, {options, result}) do
-    { options |> Keyword.drop([:type]),
-      %{ result | type: [
-           Maru.Coercions |
-           options
-           |> Keyword.get(:type, :string)
-           |> case do
-              {:__aliases__, _, t} -> t
-              t when is_atom(t)    ->
-                [ t |> Atom.to_string |> Maru.Utils.upper_camel_case ]
-           end,
-         ] |> Module.safe_concat,
-      }
-    }
-  end
-
-  defp do_parse_option(:coercer, {options, result}) do
-    coercer =
-      case options[:coerce_with] do
-        nil                  -> {:module, result.type}
-        {:__aliases__, _, m} -> {:module, Module.safe_concat([Maru.Coercions | m])}
-        {:fn, _, _}=c        -> {:func, c}
-        {:&, _, _}=c         -> {:func, c}
-        _                    -> raise "unknown coercer format"
+    parsers = Keyword.get(options, :type) |> parse_type
+    dropped =
+      for {:module, _, arguments} <- parsers do
+        arguments
+      end |> Enum.concat
+    nested =
+      parsers
+      |> List.last
+      |> case do
+        {:module, Maru.Types.Map, _}  -> :map
+        {:module, Maru.Types.List, _} -> :list
+        _                             -> nil
       end
-
-    { options, coercer_argument } =
-      case coercer do
-        {:module, module} ->
-          Enum.reduce(module.arguments, {options, %{}}, fn key, {options, args} ->
-            { Keyword.drop(options, [key]),
-              put_in(args, [key], options[key]),
-            }
-          end)
-        {:func, _} ->
-          {options, nil}
-      end
-    { options |> Keyword.drop([:coerce_with]),
-      %{ result |
-         coercer: coercer,
-         coercer_argument: Macro.escape(coercer_argument),
-      }
+    parsers =
+      Enum.map(parsers, fn
+        {:module, module, arguments} ->
+          arguments =
+            Keyword.take(options, arguments)
+            |> Enum.into(%{})
+            |> Macro.escape
+        {:module, module, arguments}
+        any -> any
+      end)
+    { options |> Keyword.drop([:type | dropped]),
+      %{ result | parsers: parsers, nested: nested },
     }
   end
 
@@ -203,6 +187,26 @@ defmodule Maru.Builder.Params do
     { Keyword.drop(options, [key]),
       Map.put(result, key, options[key]),
     }
+  end
+
+
+  defp parse_type(type) when is_atom(type) do
+    name = (type || :string) |> Atom.to_string |> Maru.Utils.upper_camel_case
+    module = [Maru.Types, name] |> Module.safe_concat
+    [{:module, module, module.arguments}]
+  end
+  defp parse_type({:__aliases__, _, module_list}) do
+    module = [Maru.Types | module_list] |> Module.safe_concat
+    [{:module, module, module.arguments}]
+  end
+  defp parse_type({:fn, _, _}=func) do
+    [{:func, func}]
+  end
+  defp parse_type({:&, _, _}=func) do
+    [{:func, func}]
+  end
+  defp parse_type({:|>, _, [left, right]}) do
+    parse_type(left) ++ parse_type(right)
   end
 
 

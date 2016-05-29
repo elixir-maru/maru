@@ -7,9 +7,8 @@ defmodule Maru.Struct.Parameter do
             desc:        nil,
             required:    true,
             children:    [],
-            type:        nil,
-            coercer:     nil,
-            coercer_argument: nil,
+            nested:      nil,
+            parsers:     nil,
             validators:  []
 
   @doc "make snapshot for current scope."
