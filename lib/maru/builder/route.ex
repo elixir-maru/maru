@@ -17,12 +17,6 @@ defmodule Maru.Builder.Route do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    helpers =
-      Enum.filter(route.helpers, fn
-        {:import, _, [module]} -> module != env.module
-        _                      -> true
-      end)
-
     result = quote do: %{}
     params = quote do
       Map.merge(
@@ -51,7 +45,6 @@ defmodule Maru.Builder.Route do
           %Plug.Conn{halted: true} = conn ->
             conn
           %Plug.Conn{} = var!(conn) ->
-            unquote(helpers)
             unquote(params_block)
             unquote(route.module).endpoint(var!(conn), unquote(route.func_id))
         end
