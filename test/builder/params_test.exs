@@ -117,7 +117,7 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    defmodule CustomCoercion do
+    defmodule CustomType do
       use Maru.Router
 
       params do
@@ -133,7 +133,7 @@ defmodule Maru.Builder.ParamsTest do
         parsers: [{:module, Maru.Types.MyType, {:%{}, [], [my_arg: "arg"]}}],
         validators: []
       }
-    ] = CustomCoercion.parameters
+    ] = CustomType.parameters
   end
 
   test "shared params" do
