@@ -21,7 +21,7 @@ defmodule Maru.Builder.DSLs do
   @doc """
   Define params block of current endpoint.
   """
-  defmacro params(block) do
+  defmacro params([do: block]) do
     quote do
       import Maru.Builder.Namespaces, only: []
       import Kernel, except: [use: 1]
@@ -81,6 +81,17 @@ defmodule Maru.Builder.DSLs do
     module = Module.concat(module)
     quote do
       unquote(module).__shared_params__ |> Enum.each(&(@shared_params &1))
+    end
+  end
+
+  defmacro helpers([do: block]) do
+    quote do
+      import Kernel, only: []
+      import Maru.Builder.DSLs, only: [params: 2]
+      unquote(block)
+      import Maru.Builder.DSLs
+      import Maru.Builder.DSLs, except: [params: 2]
+      import Kernel
     end
   end
 

@@ -30,7 +30,7 @@ defmodule Maru.Builder do
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
       import Maru.Builder.Exceptions
-      import Maru.Builder.DSLs
+      import Maru.Builder.DSLs, except: [params: 2]
 
       Module.register_attribute __MODULE__, :plugs_before,  accumulate: true
       Module.register_attribute __MODULE__, :routes,        accumulate: true

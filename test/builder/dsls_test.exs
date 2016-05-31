@@ -181,8 +181,10 @@ defmodule Maru.Builder.DSLsTest do
     defmodule Test do
       use Maru.Builder
 
-      params :foo do
-        requests :bar, type: String
+      helpers do
+        params :foo do
+          requests :bar, type: String
+        end
       end
 
       def sp, do: @shared_params
