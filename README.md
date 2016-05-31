@@ -43,7 +43,7 @@ defmodule Router.Homepage do
 
   resources do
     get do
-      json conn, %{ hello: :world }
+      json(conn, %{ hello: :world })
     end
 
     mount Router.User
@@ -54,7 +54,10 @@ end
 defmodule MyAPP.API do
   use Maru.Router
 
-  plug Plug.Static, at: "/static", from: "/my/static/path/"
+  before do
+    plug Plug.Static, at: "/static", from: "/my/static/path/"
+  end
+
   mount Router.Homepage
 
   rescue_from Unauthorized, as: e do
