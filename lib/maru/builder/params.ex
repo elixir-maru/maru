@@ -282,14 +282,26 @@ defmodule Maru.Builder.Params do
     @doc "Validator: #{action}"
     defmacro unquote(action)(:above_all) do
       action = unquote(action)
+      module = Utils.make_validator(action)
       quote do
+        module = unquote(module)
         attr_names =
           Parameter.snapshot
           |> Enum.filter_map(
             fn %Parameter{} -> true; _ -> false end,
             fn %Parameter{information: %Information{attr_name: attr_name}} -> attr_name end
           )
-        unquote(action)(attr_names)
+        runtime = quote do
+          %Validator.Runtime{
+            validate_func: fn result ->
+              unquote(module).validate!(unquote(attr_names), result)
+            end
+          }
+        end
+        %Validator{
+          information: %Validator.Information{action: unquote(action)},
+          runtime:     runtime,
+        } |> Parameter.push
       end
     end
 

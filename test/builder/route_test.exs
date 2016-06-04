@@ -122,6 +122,7 @@ defmodule Maru.Builder.RouteTest do
           group :foo, type: List do
             optional :bar, type: Map do
               optional :baz
+              at_least_one_of :above_all
             end
           end
         end
