@@ -1,8 +1,12 @@
 defmodule Maru.Runtime do
+  @moduledoc false
 
   alias Maru.Struct.Parameter.Runtime, as: PR
   alias Maru.Struct.Validator.Runtime, as: VR
 
+  @doc """
+  parse params from `conn.params`.
+  """
   def parse_params([], result, _), do: result
   def parse_params([%VR{validate_func: func} | t], result, conn_params) do
     func.(result)

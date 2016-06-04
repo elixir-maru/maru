@@ -2,6 +2,7 @@ defmodule Maru.Builder.Versioning.Parameter do
   @moduledoc """
   Adapter for parameter versioning module.
   """
+
   use Maru.Builder.Versioning
 
   @doc false

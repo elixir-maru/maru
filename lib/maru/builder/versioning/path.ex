@@ -2,6 +2,7 @@ defmodule Maru.Builder.Versioning.Path do
   @moduledoc """
   Adapter for path versioning module.
   """
+
   use Maru.Builder.Versioning
 
   @doc false

@@ -2,6 +2,7 @@ defmodule Maru.Builder.Versioning.None do
   @moduledoc """
   Adapter for no versioning module.
   """
+
   use Maru.Builder.Versioning
 
   @doc false

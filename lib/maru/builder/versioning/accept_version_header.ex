@@ -2,6 +2,7 @@ defmodule Maru.Builder.Versioning.AcceptVersionHeader do
   @moduledoc """
   Adapter for accept-header versioning module.
   """
+
   use Maru.Builder.Versioning
 
   @doc false

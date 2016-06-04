@@ -2,6 +2,7 @@ defmodule Maru.Builder.Versioning.Test do
   @moduledoc """
   Adapter for generating test functions.
   """
+
   use Maru.Builder.Versioning
 
   @doc false
