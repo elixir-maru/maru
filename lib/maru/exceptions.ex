@@ -22,7 +22,7 @@ defmodule Maru.Exceptions do
 
     defexception [:param, :validator, :value, :option]
     def message(e) do
-      "Validate Param Error: #{e.param}"
+      "Validate Param Error: #{inspect e.param}"
     end
   end
 
@@ -31,9 +31,20 @@ defmodule Maru.Exceptions do
     Raised when validater not found.
     """
 
-    defexception  [:param, :validator]
+    defexception  [:validator]
     def message(e) do
       "Undefined Validator: #{e.validator}"
+    end
+  end
+
+  defmodule UndefinedType do
+    @moduledoc """
+    Raised when type not found.
+    """
+
+    defexception  [:type]
+    def message(e) do
+      "Undefined Type: #{e.type}"
     end
   end
 

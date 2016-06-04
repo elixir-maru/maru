@@ -2,152 +2,223 @@ defmodule Maru.Builder.RouteTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
-  alias Maru.Builder.Route
-  alias Maru.Struct.Parameter
-  alias Maru.Struct.Validator
-  alias Maru.Types, as: T
-  alias Maru.Validations, as: V
+  alias Maru.Builder.Route, warn: false
 
   defp do_parse(parameters, data, result \\ %{}) do
+    runtime = Enum.map(parameters, fn p -> p.runtime end)
+    data = data |> Macro.escape
     result = result |> Macro.escape
-    data   = data |> Macro.escape
-    body   = Enum.reduce(parameters, result, &Route.quote_param(&1, &2, data))
-    Code.eval_quoted(body) |> elem(0)
+    quote do
+      Maru.Runtime.parse_params(
+        unquote(runtime),
+        unquote(result),
+        unquote(data)
+      )
+    end |> Code.eval_quoted([], __ENV__) |> elem(0)
   end
 
   test "validate param" do
-    assert %{id: 1} == do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}]}], %{"id" => 1})
-    assert %{} == do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}], required: false}], %{})
-    assert %{bool: false} == do_parse([%Parameter{attr_name: :bool, parsers: [{:module, T.Boolean, nil}], required: false}], %{"bool" => "false"})
+    defmodule ValidateParam do
+      use Maru.Builder
+
+      params do
+        requires :id, type: Integer
+      end
+      def p1, do: @parameters
+      @parameters []
+
+      params do
+        optional :id, type: Integer
+      end
+      def p2, do: @parameters
+      @parameters []
+
+      params do
+        optional :bool, type: Boolean
+      end
+      def p3, do: @parameters
+      @parameters []
+
+      params do
+        optional :id, type: Integer
+      end
+      def p4, do: @parameters
+      @parameters []
+
+      params do
+        optional :id, type: Integer, values: 1..10
+      end
+      def p5, do: @parameters
+    end
+
+    assert %{id: 1} = do_parse(ValidateParam.p1, %{"id" => 1})
+    assert %{} == do_parse(ValidateParam.p2, %{})
+    assert %{bool: false} == do_parse(ValidateParam.p3, %{"bool" => "false"})
     assert_raise Maru.Exceptions.InvalidFormatter, fn ->
-      do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}]}], %{"id" => "id"})
+      do_parse(ValidateParam.p4, %{"id" => "id"})
     end
     assert_raise Maru.Exceptions.Validation, fn ->
-      do_parse([%Parameter{attr_name: :id, parsers: [{:module, T.Integer, nil}], validators: [{V.Values, quote do 1..10 end}]}], %{"id" => "100"})
+      do_parse(ValidateParam.p5, %{"id" => "100"})
     end
   end
 
   test "identical param keys in groups" do
-    assert %{group: %{name: "name1"}, name: "name2"} =
-      [ %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
-        ]},
-      ] |> do_parse(%{"group" => %{"name" => "name1"}, "name" => "name2"})
+    defmodule IdenticalParamKeys do
+      use Maru.Builder
+
+      params do
+        optional :name
+        group :group, type: Map do
+          optional :name
+        end
+      end
+      def p, do: @parameters
+    end
+
+    assert %{group: %{name: "name1"}, name: "name2"} = do_parse(
+      IdenticalParamKeys.p,
+      %{"group" => %{"name" => "name1"}, "name" => "name2"}
+    )
   end
 
   test "validate Map nested param" do
-    assert %{group: %{name: "name"}} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
-        ]}
-      ], %{"group" => %{"name" => "name"}})
+    defmodule MapNestedParam do
+      use Maru.Builder
+
+      params do
+        group :group, type: Map do
+          group :group2, type: Map do
+            optional :name
+            optional :name2
+          end
+        end
+      end
+      def p, do: @parameters
+    end
 
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :group2, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-            %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
-            %Parameter{attr_name: :name2, parsers: [{:module, T.String, nil}]},
-          ]}
-        ]}
-      ], %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}})
+      do_parse(
+        MapNestedParam.p,
+        %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}}
+      )
   end
 
   test "validate List nested param" do
+    defmodule ListNestedParam do
+      use Maru.Builder
+
+      params do
+        group :group, type: List do
+          requires :foo
+          optional :bar, default: "default"
+          at_least_one_of [:foo, :bar]
+        end
+      end
+      def p1, do: @parameters
+      @parameters []
+
+      params do
+        group :group, type: List do
+          group :foo, type: List do
+            optional :bar, type: Map do
+              optional :baz
+            end
+          end
+        end
+      end
+      def p2, do: @parameters
+    end
+
     assert %{group: [%{foo: "foo1", bar: "default"}, %{foo: "foo2", bar: "bar"}]} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
-          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}]},
-          %Parameter{attr_name: :bar, parsers: [{:module, T.String, nil}], default: "default"},
-          %Validator{validator: V.AtLeastOneOf, attr_names: [:foo, :bar]},
-        ]}
-      ], %{"group" => [%{"foo" => "foo1"}, %{"foo" => "foo2", "bar" => "bar"}]})
+      do_parse(
+        ListNestedParam.p1,
+        %{"group" => [%{"foo" => "foo1"}, %{"foo" => "foo2", "bar" => "bar"}]}
+      )
 
     assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
-          %Parameter{attr_name: :foo, parsers: [{:module, T.List, nil}], nested: :list, children: [
-            %Parameter{attr_name: :bar, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-              %Parameter{attr_name: :baz, parsers: [{:module, T.String, nil}]}
-            ]}
-          ]}
-        ]}
-      ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]})
-
-    assert %{group: [%{foo: [%{bar: %{baz: "baz"}}]}]} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], nested: :list, children: [
-          %Parameter{attr_name: :foo, parsers: [{:module, T.List, nil}], nested: :list, children: [
-            %Parameter{attr_name: :bar, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-              %Parameter{attr_name: :baz, parsers: [{:module, T.String, nil}]}
-            ]}
-          ]}
-        ]}
-      ], %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]})
+      do_parse(
+        ListNestedParam.p2,
+        %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}
+      )
   end
 
-  test "validate Json nested param" do
+  test "validate nested types" do
+    defmodule NestedTypes do
+      use Maru.Builder
+
+      params do
+        group :group, type: Json |> Map do
+          requires :name
+        end
+      end
+      def p1, do: @parameters
+      @parameters []
+
+      params do
+        group :group, type: Map do
+          group :group2, type: Json |> Map do
+            requires :name
+            requires :name2
+          end
+        end
+      end
+      def p2, do: @parameters
+      @parameters []
+    end
+
     assert %{group: %{name: "name"}} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]}
-        ]}
-      ], %{"group" => ~s({"name":"name"})})
+      do_parse(
+        NestedTypes.p1,
+        %{"group" => ~s({"name":"name"})}
+      )
 
     assert %{group: %{group2: %{name: "name", name2: "name2"}}} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :group2, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
-            %Parameter{attr_name: :name, parsers: [{:module, T.String, nil}]},
-            %Parameter{attr_name: :name2, parsers: [{:module, T.String, nil}]},
-          ]}
-        ]}
-      ], %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}})
+      do_parse(
+        NestedTypes.p2,
+        %{"group" => %{"group2" => ~s({"name2":"name2","name":"name"})}}
+      )
   end
 
-  test "param rename" do
+  test "rename param" do
+    defmodule RenameParam do
+      use Maru.Builder
+
+      params do
+        group :group, type: Json |> Map do
+          requires :name, source: "name-test"
+        end
+      end
+      def p, do: @parameters
+    end
+
     assert %{group: %{name: "name"}} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Json, nil}, {:module, T.Map, nil}], nested: :map, children: [
-          %Parameter{attr_name: :name, source: "name-test", parsers: [{:module, T.String, nil}]}
-        ]}
-      ], %{"group" => ~s({"name-test":"name"})})
+      do_parse(
+        RenameParam.p,
+        %{"group" => ~s({"name-test":"name"})}
+      )
   end
 
   test "validate optional nested param" do
-    assert %{} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.List, nil}], required: false, nested: :list, children: [
-          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}], required: true},
-        ]}
-      ], %{})
+    defmodule OptionalNestedParam do
+      use Maru.Builder
 
-    assert %{} ==
-      do_parse([
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, nil}], required: false, nested: :map, children: [
-          %Parameter{attr_name: :foo, parsers: [{:module, T.String, nil}], required: true}
-        ]}
-      ], %{})
-  end
+      params do
+        optional :group do
+          optional :foo
+        end
+      end
+      def p1, do: @parameters
 
-  test "validate Action Validator" do
-    assert %{foo: "foo"} ==
-      do_parse([
-        %Validator{validator: V.ExactlyOneOf, attr_names: [:foo, :bar, :baz]}
-      ], %{}, %{foo: "foo"})
-
-    assert %{foo: "foo", bar: "bar"} ==
-      do_parse([
-        %Validator{validator: V.AtLeastOneOf, attr_names: [:foo, :bar, :baz]}
-      ], %{}, %{foo: "foo", bar: "bar"})
-
-    assert_raise Maru.Exceptions.Validation, fn ->
-      do_parse([
-        %Validator{validator: V.MutuallyExclusive, attr_names: [:foo, :bar, :baz]}
-      ], %{}, %{foo: "foo", bar: "bar"})
+      params do
+        optional :group, type: Map do
+          optional :foo
+        end
+      end
+      def p2, do: @parameters
     end
+
+    assert %{} == do_parse(OptionalNestedParam.p1, %{})
+    assert %{} == do_parse(OptionalNestedParam.p2, %{})
   end
 
   test "dispatch method" do

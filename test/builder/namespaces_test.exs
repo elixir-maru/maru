@@ -3,7 +3,7 @@ defmodule Maru.Builder.NamespacesTest do
 
   alias Maru.Struct.Resource
   alias Maru.Struct.Parameter
-  alias Maru.Types, as: T
+  alias Maru.Struct.Parameter.Information
 
   test "namespaces" do
     defmodule Test do
@@ -34,13 +34,25 @@ defmodule Maru.Builder.NamespacesTest do
     assert %Resource{path: ["p1"]} = Test.r1
     assert %Resource{path: ["p1", "p2"]} = Test.r2
     assert %Resource{
-      path: ["p1", :p3],
-      parameters: [%Parameter{attr_name: :p3, parsers: [{:module, T.Integer, _}]}],
+      path: ["p1", :p3], parameters: [
+        %Parameter{
+          information: %Information{
+            attr_name: :p3,
+          }
+        }
+      ]
     } = Test.r3
+
     assert %Resource{
-      path: ["p1", :p3, "p4"],
-      parameters: [%Parameter{attr_name: :p3, parsers: [{:module, T.Integer, _}]}],
+      path: ["p1", :p3, "p4"], parameters: [
+        %Parameter{
+          information: %Information{
+            attr_name: :p3,
+          }
+        }
+      ]
     } = Test.r4
+
     assert %Resource{path: ["p1", "p5"], parameters: []} = Test.r5
   end
 

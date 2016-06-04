@@ -1,15 +1,8 @@
 defmodule Maru.Struct.Parameter do
   @moduledoc false
 
-  defstruct attr_name:   nil,
-            source:      nil,
-            default:     nil,
-            desc:        nil,
-            required:    true,
-            children:    [],
-            nested:      nil,
-            parsers:     nil,
-            validators:  []
+  defstruct information: nil,
+            runtime: nil
 
   @doc "make snapshot for current scope."
   defmacro snapshot do
@@ -48,5 +41,30 @@ defmodule Maru.Struct.Parameter do
       end
     end
   end
+
+end
+
+defmodule Maru.Struct.Parameter.Information do
+  @moduledoc false
+
+  defstruct attr_name: nil,
+            param_key: nil,
+            desc:      nil,
+            default:   nil,
+            required:  true,
+            children:  []
+
+end
+
+defmodule Maru.Struct.Parameter.Runtime do
+  @moduledoc false
+
+  defstruct attr_name:     nil,
+            param_key:     nil,
+            children:      [],
+            nested:        nil,
+            nil_func:      nil,
+            parser_func:   nil,
+            validate_func: nil
 
 end

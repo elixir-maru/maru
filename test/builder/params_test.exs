@@ -1,10 +1,11 @@
 defmodule Maru.Builder.ParamsTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Parameter
-  alias Maru.Struct.Validator
+  alias Maru.Struct.Parameter, as: P
+  alias Maru.Struct.Parameter.Information, as: PI
+  alias Maru.Struct.Validator, as: V
+  alias Maru.Struct.Validator.Information, as: VI
   alias Maru.Struct.Resource
-  alias Maru.Types, as: T
 
   test "optional requires group" do
     defmodule Elixir.Maru.Validations.Range do
@@ -18,7 +19,7 @@ defmodule Maru.Builder.ParamsTest do
         requires :foo, type: :string, regexp: ~r/^[a-z]+$/, desc: "hehe"
         group :group do
           group :group, type: Map do
-            optional :bar, type: Integer, range: 1..100
+            optional :bar, type: Integer, values: 1..100
           end
         end
       end
@@ -27,13 +28,13 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Parameter{attr_name: :attr, parsers: [{:module, T.String, _}], required: false},
-      %Parameter{attr_name: :foo, parsers: [{:module, T.String, _}], required: true, validators: [{Maru.Validations.Regexp, {:sigil_r, _, _}}]},
-      %Parameter{attr_name: :group, parsers: [{:module, T.List, _}], required: true, children: [
-        %Parameter{attr_name: :group, parsers: [{:module, T.Map, _}], required: true, children: [
-          %Parameter{attr_name: :bar, parsers: [{:module, T.Integer, _}], required: false, validators: [{Maru.Validations.Range, {:.., _, [1, 100]}}]}
+      %P{information: %PI{attr_name: :attr, required: false}},
+      %P{information: %PI{attr_name: :foo, required: true}},
+      %P{information: %PI{attr_name: :group, required: true, children: [
+        %PI{attr_name: :group, required: true, children: [
+          %PI{attr_name: :bar, required: false}
         ]}
-      ]}
+      ]}}
     ] = OptionalTest.parameters
   end
 
@@ -59,16 +60,16 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Validator{validator: Maru.Validations.MutuallyExclusive, attr_names: [:a, :b, :c]},
-      %Parameter{attr_name: :group, required: true, children: [
-        %Validator{validator: Maru.Validations.ExactlyOneOf, attr_names: [:a, :b, :c]},
-        %Validator{validator: Maru.Validations.AtLeastOneOf, attr_names: [:a, :b, :c]}
-      ]},
-      %Parameter{attr_name: :group2, required: true, children: [
-        %Parameter{attr_name: :id, required: false, children: []},
-        %Parameter{attr_name: :name, required: false, children: []},
-        %Validator{validator: Maru.Validations.AtLeastOneOf, attr_names: [:id, :name]}
-      ]}
+      %V{information: %VI{action: :mutually_exclusive}},
+      %P{information: %PI{attr_name: :group, children: [
+        %VI{action: :exactly_one_of},
+        %VI{action: :at_least_one_of},
+      ]}},
+      %P{information: %PI{attr_name: :group2, children: [
+        %PI{attr_name: :id, children: []},
+        %PI{attr_name: :name, children: []},
+        %VI{action: :at_least_one_of},
+      ]}}
     ] = ValidatorsTest.parameters
   end
 
@@ -91,7 +92,7 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert %Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
-    assert [%Parameter{attr_name: :param_with_options, parsers: [{:module, T.Integer, _}], required: true}] = ResourcesTest.parameters
+    assert [%P{information: %PI{attr_name: :param_with_options, required: true}}] = ResourcesTest.parameters
   end
 
 
@@ -128,11 +129,7 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Maru.Struct.Parameter{
-        attr_name: :foo,
-        parsers: [{:module, Maru.Types.MyType, {:%{}, [], [my_arg: "arg"]}}],
-        validators: []
-      }
+      %P{information: %PI{attr_name: :foo}}
     ] = CustomType.parameters
   end
 
@@ -169,10 +166,10 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %Parameter{attr_name: :foo},
-      %Parameter{attr_name: :bar},
-      %Parameter{attr_name: :baz},
-      %Parameter{attr_name: :qux},
+      %P{information: %PI{attr_name: :foo}},
+      %P{information: %PI{attr_name: :bar}},
+      %P{information: %PI{attr_name: :baz}},
+      %P{information: %PI{attr_name: :qux}},
     ] = SharedParamsTest.parameters
   end
 

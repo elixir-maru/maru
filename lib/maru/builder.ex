@@ -44,6 +44,7 @@ defmodule Maru.Builder do
       @resource      %Maru.Struct.Resource{}
       @desc          nil
       @parameters    []
+      @param_scope   []
       @plugs         []
       @func_id       0
 

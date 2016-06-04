@@ -4,7 +4,10 @@ defmodule Maru.Builder.Params do
   """
 
   alias Maru.Struct.Parameter
+  alias Maru.Struct.Parameter.Information
+  alias Maru.Struct.Parameter.Runtime
   alias Maru.Struct.Validator
+  alias Maru.Utils
 
   @doc false
   defmacro use(param) when is_atom(param) do
@@ -28,12 +31,9 @@ defmodule Maru.Builder.Params do
   """
   defmacro requires(attr_name) do
     quote do
-      Parameter.push(%{
-        parse_options |
-        attr_name: unquote(attr_name),
-        required: true,
-        children: [],
-      })
+      [ attr_name: unquote(attr_name),
+        required:  true,
+      ] |> parse |> Parameter.push
     end
   end
 
@@ -45,12 +45,10 @@ defmodule Maru.Builder.Params do
       unquote(block)
       children = Parameter.pop
       Parameter.restore(s)
-      Parameter.push(%{
-        parse_options(unquote options) |
-        attr_name: unquote(attr_name),
-        required: true,
-        children: children,
-      })
+      [ attr_name: unquote(attr_name),
+        required:  true,
+        children:  children,
+      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
     end
   end
 
@@ -63,12 +61,9 @@ defmodule Maru.Builder.Params do
   defmacro requires(attr_name, options) do
     options = options |> Macro.escape
     quote do
-      Parameter.push(%{
-        parse_options(unquote options) |
-        attr_name: unquote(attr_name),
-        required: true,
-        children: [],
-      })
+      [ attr_name: unquote(attr_name),
+        required:  true,
+      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
     end
   end
 
@@ -88,12 +83,9 @@ defmodule Maru.Builder.Params do
   """
   defmacro optional(attr_name) do
     quote do
-      Parameter.push(%{
-        parse_options |
-        attr_name: unquote(attr_name),
+      [ attr_name: unquote(attr_name),
         required: false,
-        children: [],
-      })
+      ] |> parse |> Parameter.push
     end
   end
 
@@ -105,12 +97,10 @@ defmodule Maru.Builder.Params do
       unquote(block)
       children = Parameter.pop
       Parameter.restore(s)
-      Parameter.push(%{
-        parse_options(unquote options) |
-        attr_name: unquote(attr_name),
+      [ attr_name: unquote(attr_name),
         required: false,
         children: children,
-      })
+      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
     end
   end
 
@@ -124,38 +114,105 @@ defmodule Maru.Builder.Params do
   defmacro optional(attr_name, options) do
     options = options |> Macro.escape
     quote do
-      Parameter.push(%{
-        parse_options(unquote options) |
-        attr_name: unquote(attr_name),
+      [ attr_name: unquote(attr_name),
         required: false,
-        children: [],
-      })
+      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
     end
   end
 
 
-  def parse_options(options \\ []) do
-    {rest, parameter} = [
-      :type, :default, :desc, :source
-    ] |> Enum.reduce({options, %Parameter{}}, &do_parse_option/2)
-    validators =
-      for {validator, option} <- rest do
-        { try do
-            [ Maru.Validations,
-              validator |> Atom.to_string |> Maru.Utils.upper_camel_case
-            ] |> Module.safe_concat
-          rescue
-            ArgumentError ->
-              Maru.Exceptions.UndefinedValidator |> raise([param: "attr_name", validator: validator])
-          end,
-          option
-        }
-      end
-    %{ parameter | validators: validators }
+  @doc """
+  Parse params and generate Parameter struct.
+  """
+  def parse(options \\ []) do
+    pipeline = [
+      :nil_func, :attr_name, :required, :children, :type, :default, :desc, :validators
+    ]
+    accumulator = %{
+      options:     options,
+      information: %Information{},
+      runtime:     quote do %Runtime{} end,
+    }
+    Enum.reduce(pipeline, accumulator, &do_parse/2)
   end
 
-  defp do_parse_option(:type, {options, result}) do
-    parsers = Keyword.get(options, :type) |> parse_type
+  defp do_parse(:nil_func, %{options: options, information: info, runtime: runtime}) do
+    default   = options |> Keyword.get(:default)
+    required  = options |> Keyword.fetch!(:required)
+    attr_name = options |> Keyword.fetch!(:attr_name)
+    func =
+      case {is_nil(default), required} do
+        {true, true} ->
+          quote do
+            fn _ ->
+              Maru.Exceptions.InvalidFormatter
+              |> raise([reason: :required, param: unquote(attr_name), value: nil])
+            end
+          end
+        {true, false} ->
+          quote do
+            fn x -> x end
+          end
+        {false, _} ->
+          quote do
+            fn x -> put_in(x, [unquote(attr_name)], unquote(default)) end
+          end
+      end
+    %{ options:     options,
+       information: info,
+       runtime:     quote do
+         %{ unquote(runtime) | nil_func: unquote(func) }
+       end
+     }
+  end
+
+  defp do_parse(:children, %{options: options, information: info, runtime: runtime}) do
+    {children, options}  = Keyword.pop(options, :children, [])
+    children_information =
+      Enum.map(children, fn
+        %Parameter{information: information} -> information
+        %Validator{information: information} -> information
+      end)
+    children_runtime =
+      Enum.map(children, fn
+        %Parameter{runtime: runtime} -> runtime
+        %Validator{runtime: runtime} -> runtime
+      end)
+    %{ options:     options,
+       information: %{ info | children: children_information },
+       runtime:     quote do
+         Map.put(unquote(runtime), :children, unquote(children_runtime))
+       end
+     }
+  end
+
+  defp do_parse(key, %{options: options, information: info, runtime: runtime})
+  when key in [:required, :default, :desc] do
+    {value, options} = Keyword.pop(options, key)
+    %{ options:     options,
+       information: Map.put(info, key, value),
+       runtime:     runtime,
+     }
+  end
+
+  defp do_parse(:attr_name, %{options: options, information: info, runtime: runtime}) do
+    attr_name = options |> Keyword.fetch!(:attr_name)
+    source    = options |> Keyword.get(:source)
+    options   = options |> Keyword.drop([:attr_name, :source])
+    param_key = source || (attr_name |> to_string)
+    %{ options:     options,
+       information: %{ info | attr_name: attr_name, param_key: param_key },
+       runtime:     quote do
+         %{ unquote(runtime) |
+            attr_name: unquote(attr_name),
+            param_key: unquote(param_key),
+          }
+       end
+    }
+  end
+
+  defp do_parse(:type, %{options: options, information: info, runtime: runtime}) do
+    parsers = options |> Keyword.get(:type, :string) |> do_parse_type
     dropped =
       for {:module, _, arguments} <- parsers do
         arguments
@@ -168,45 +225,55 @@ defmodule Maru.Builder.Params do
         {:module, Maru.Types.List, _} -> :list
         _                             -> nil
       end
-    parsers =
-      Enum.map(parsers, fn
-        {:module, module, arguments} ->
-          arguments =
-            Keyword.take(options, arguments)
-            |> Enum.into(%{})
-            |> Macro.escape
-        {:module, module, arguments}
-        any -> any
-      end)
-    { options |> Keyword.drop([:type | dropped]),
-      %{ result | parsers: parsers, nested: nested },
+    func = Utils.make_parser(parsers, options)
+    %{ options:     options |> Keyword.drop([:type | dropped]),
+       information: info,
+       runtime:     quote do
+         %{ unquote(runtime) |
+            parser_func: unquote(func),
+            nested: unquote(nested),
+          }
+       end
+     }
+  end
+
+  defp do_parse(:validators, %{options: validators, information: info, runtime: runtime}) do
+    %{attr_name: attr_name} = info
+    value = quote do: value
+    block =
+      for {validator, option} <- validators do
+        module = Utils.make_validator(validator)
+        quote do
+          unquote(module).validate_param!(
+            unquote(attr_name),
+            unquote(value),
+            unquote(option)
+          )
+        end
+      end
+    %Parameter{
+      information: info,
+      runtime:     quote do
+        %{ unquote(runtime) |
+           validate_func: fn unquote(value) -> unquote_splicing(block) end
+         }
+      end
     }
   end
 
-  defp do_parse_option(key, {options, result}) when key in [:default, :desc, :source] do
-    { Keyword.drop(options, [key]),
-      Map.put(result, key, options[key]),
-    }
-  end
 
-
-  defp parse_type(type) when is_atom(type) do
-    name = (type || :string) |> Atom.to_string |> Maru.Utils.upper_camel_case
-    module = [Maru.Types, name] |> Module.safe_concat
-    [{:module, module, module.arguments}]
-  end
-  defp parse_type({:__aliases__, _, module_list}) do
-    module = [Maru.Types | module_list] |> Module.safe_concat
-    [{:module, module, module.arguments}]
-  end
-  defp parse_type({:fn, _, _}=func) do
+  defp do_parse_type({:fn, _, _}=func) do
     [{:func, func}]
   end
-  defp parse_type({:&, _, _}=func) do
+  defp do_parse_type({:&, _, _}=func) do
     [{:func, func}]
   end
-  defp parse_type({:|>, _, [left, right]}) do
-    parse_type(left) ++ parse_type(right)
+  defp do_parse_type({:|>, _, [left, right]}) do
+    do_parse_type(left) ++ do_parse_type(right)
+  end
+  defp do_parse_type(type) do
+    module = Utils.make_type(type)
+    [{:module, module, module.arguments}]
   end
 
 
@@ -217,28 +284,31 @@ defmodule Maru.Builder.Params do
       action = unquote(action)
       quote do
         attr_names =
-          for %Parameter{attr_name: attr_name} <- Parameter.snapshot do
-            attr_name
-          end
+          Parameter.snapshot
+          |> Enum.filter_map(
+            fn %Parameter{} -> true; _ -> false end,
+            fn %Parameter{information: %Information{attr_name: attr_name}} -> attr_name end
+          )
         unquote(action)(attr_names)
       end
     end
 
     defmacro unquote(action)(attr_names) do
+      action = unquote(action)
+      module = Utils.make_validator(unquote(action))
       validator =
-        try do
-          [ Maru.Validations,
-            unquote(action) |> Atom.to_string |> Maru.Utils.upper_camel_case
-          ] |> Module.safe_concat
-        rescue
-          ArgumentError ->
-            Maru.Exceptions.UndefinedValidator |> raise([param: attr_names, validator: unquote(action)])
-        end
+        %Validator{
+          information: %Validator.Information{action: action},
+          runtime:     quote do
+            %Validator.Runtime{
+              validate_func: fn result ->
+                unquote(module).validate!(unquote(attr_names), result)
+              end
+            }
+          end
+        } |> Macro.escape
       quote do
-        Parameter.push(%Validator{
-          validator: unquote(validator),
-          attr_names: unquote(attr_names),
-        })
+        Parameter.push(unquote(validator))
       end
     end
   end
