@@ -225,9 +225,22 @@ defmodule Maru.Builder.Params do
         {:module, Maru.Types.List, _} -> :list
         _                             -> nil
       end
+    type =
+      parsers
+      |> Enum.reverse
+      |> Enum.filter_map(
+        fn {:module, _, _}    -> true; _ -> false end,
+        fn {:module, type, _} -> type end
+      )
+      |> List.first
+      |> case do
+         nil -> nil
+         module ->
+           module |> Module.split |> List.last
+      end
     func = Utils.make_parser(parsers, options)
     %{ options:     options |> Keyword.drop([:type | dropped]),
-       information: info,
+       information: %{ info | type: type },
        runtime:     quote do
          %{ unquote(runtime) |
             parser_func: unquote(func),

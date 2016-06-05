@@ -50,6 +50,7 @@ defmodule Maru.Struct.Parameter.Information do
   defstruct attr_name: nil,
             param_key: nil,
             desc:      nil,
+            type:      nil,
             default:   nil,
             required:  true,
             children:  []
