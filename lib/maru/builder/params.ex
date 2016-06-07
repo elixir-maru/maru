@@ -234,8 +234,8 @@ defmodule Maru.Builder.Params do
       )
       |> List.first
       |> case do
-         nil    -> "String"
-         module -> module |> Module.split |> List.last
+         nil    -> "string"
+         module -> module |> Module.split |> List.last |> String.downcase
       end
     func = Utils.make_parser(parsers, options)
     %{ options:     options |> Keyword.drop([:type | dropped]),

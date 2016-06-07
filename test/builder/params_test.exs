@@ -66,8 +66,8 @@ defmodule Maru.Builder.ParamsTest do
         %VI{action: :at_least_one_of},
       ]}},
       %P{information: %PI{attr_name: :group2, children: [
-        %PI{attr_name: :id, type: "Integer", children: []},
-        %PI{attr_name: :name, type: "String", children: []},
+        %PI{attr_name: :id, type: "integer", children: []},
+        %PI{attr_name: :name, type: "string", children: []},
         %VI{action: :at_least_one_of},
       ]}}
     ] = ValidatorsTest.parameters
