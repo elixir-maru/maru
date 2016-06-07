@@ -8,6 +8,7 @@ defmodule Maru.TypesTest do
   end
 
   test "integer" do
+    assert Types.Integer.parse(1, %{})   == 1
     assert Types.Integer.parse('1', %{}) == 1
     assert Types.Integer.parse("1", %{}) == 1
   end
