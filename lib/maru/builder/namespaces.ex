@@ -34,6 +34,9 @@ defmodule Maru.Builder.Namespaces do
       Resource.push_path(unquote(param))
       Resource.push_plug(MaruPlug.pop)
       Resource.push_param(Parameter.pop)
+      [ attr_name: unquote(param),
+        required:  true,
+      ] |> Params.parse |> Resource.push_param
       unquote(block)
       Resource.restore(r)
     end

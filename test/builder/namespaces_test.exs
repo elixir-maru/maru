@@ -29,6 +29,10 @@ defmodule Maru.Builder.NamespacesTest do
         end
 
       end
+
+      route_param :p6 do
+        def r6, do: @resource
+      end
     end
 
     assert %Resource{path: ["p1"]} = Test.r1
@@ -54,6 +58,17 @@ defmodule Maru.Builder.NamespacesTest do
     } = Test.r4
 
     assert %Resource{path: ["p1", "p5"], parameters: []} = Test.r5
+
+    assert %Resource{
+      path: [:p6], parameters: [
+        %Parameter{
+          information: %Information{
+            attr_name: :p6,
+          }
+        }
+      ]
+    } = Test.r6
+
   end
 
 end

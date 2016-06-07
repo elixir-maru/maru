@@ -14,7 +14,6 @@ defmodule Maru.Builder.Route do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-
     params = quote do
       Map.merge(
         var!(conn).params,
