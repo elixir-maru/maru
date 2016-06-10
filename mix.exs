@@ -15,7 +15,7 @@ defmodule Maru.Mixfile do
       package: package,
       docs: [
         extras: ["README.md"],
-        main: "extra-readme",
+        main: "readme",
       ]
     ]
   end
