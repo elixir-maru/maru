@@ -1,6 +1,6 @@
 ## Changelog
 
-## v0.10.0-dev
+## v0.10.0 (2016-6-11)
 * Enhancements
   * totally rewrite route logic
   * totally rewrite params parsing logic and DSLs
