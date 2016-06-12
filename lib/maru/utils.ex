@@ -22,11 +22,14 @@ defmodule Maru.Utils do
   @doc false
   def make_validator(validator) do
     try do
-      [ Maru.Validations,
+      module = [
+        Maru.Validations,
         validator |> Atom.to_string |> upper_camel_case
-      ] |> Module.safe_concat
+      ] |> Module.concat
+      module.__info__(:functions)
+      module
     rescue
-      ArgumentError ->
+      UndefinedFunctionError ->
         Maru.Exceptions.UndefinedValidator
         |> raise([validator: validator])
     end
@@ -44,9 +47,11 @@ defmodule Maru.Utils do
 
   defp do_make_type(type) do
     try do
-      [ Maru.Types | type ] |> Module.safe_concat
+      module = [ Maru.Types | type ] |> Module.concat
+      module.__info__(:functions)
+      module
     rescue
-      ArgumentError ->
+      UndefinedFunctionError ->
         type = type |> Module.concat |> inspect
         Maru.Exceptions.UndefinedType |> raise([type: type])
     end

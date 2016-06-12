@@ -4,6 +4,7 @@
 * Enhancements
 * Bugfix
   * jumbled routes order
+  * custom type and validation error
 
 ## v0.10.0 (2016-6-11)
 * Enhancements
