@@ -271,4 +271,62 @@ defmodule Maru.Builder.RouteTest do
     end
   end
 
+  test "routes order" do
+    defmodule RoutesOrderTest.A do
+      use Maru.Router
+
+      get :a do
+        conn |> text("a")
+      end
+    end
+
+    defmodule RoutesOrderTest.B do
+      use Maru.Router
+
+      get :b do
+        conn |> text("b")
+      end
+
+      get :bb do
+        conn |> text("bb")
+      end
+
+      mount Maru.Builder.RouteTest.RoutesOrderTest.A
+    end
+
+    defmodule RoutesOrderTest.C do
+      use Maru.Router
+
+      get :c do
+        conn |> text("c")
+      end
+
+      get :cc do
+        conn |> text("cc")
+      end
+    end
+
+    defmodule RoutesOrderTest.D do
+      use Maru.Router
+
+      route_param :d do
+        get do
+          conn |> text("d")
+        end
+      end
+
+      mount Maru.Builder.RouteTest.RoutesOrderTest.B
+      mount Maru.Builder.RouteTest.RoutesOrderTest.C
+    end
+
+    assert [
+      %Maru.Struct.Route{path: [:d]},
+      %Maru.Struct.Route{path: ["b"]},
+      %Maru.Struct.Route{path: ["bb"]},
+      %Maru.Struct.Route{path: ["a"]},
+      %Maru.Struct.Route{path: ["c"]},
+      %Maru.Struct.Route{path: ["cc"]},
+    ] = Maru.Builder.RouteTest.RoutesOrderTest.D.__routes__
+  end
+
 end

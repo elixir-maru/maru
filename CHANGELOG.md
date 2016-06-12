@@ -3,6 +3,7 @@
 ## v0.10.1-dev
 * Enhancements
 * Bugfix
+  * jumbled routes order
 
 ## v0.10.0 (2016-6-11)
 * Enhancements

@@ -56,8 +56,8 @@ defmodule Maru.Builder do
   @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     config = (Application.get_env(:maru, module) || [])[:versioning] || []
-    current_routes = Module.get_attribute(module, :routes)
-    mounted_routes = Module.get_attribute(module, :mounted)
+    current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
+    mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
     extend_opts    = Module.get_attribute(module, :extend)
     extended       = Maru.Builder.Extend.take_extended(
       current_routes ++ mounted_routes, extend_opts
@@ -112,6 +112,7 @@ defmodule Maru.Builder do
 
     endpoints_block =
       Module.get_attribute(module, :endpoints)
+      |> Enum.reverse
       |> Enum.map(&Maru.Builder.Endpoint.dispatch/1)
 
     [ if make_plug? do
