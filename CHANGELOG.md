@@ -1,7 +1,6 @@
 ## Changelog
 
-## v0.10.1-dev
-* Enhancements
+## v0.10.1 (2016-6-14)
 * Bugfix
   * jumbled routes order
   * custom type and validation error
