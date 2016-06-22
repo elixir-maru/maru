@@ -60,7 +60,7 @@ defmodule Maru.Exceptions do
         end
     """
 
-    defexception [:path_info]
+    defexception [:method, :path_info]
     def message(_e) do
       "NotFound"
     end
