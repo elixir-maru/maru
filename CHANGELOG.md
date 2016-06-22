@@ -1,5 +1,7 @@
 ## Changelog
 
+[Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
+
 ## v0.10.1 (2016-6-14)
 * Bugfix
   * jumbled routes order
@@ -15,6 +17,10 @@
 
 * Deprecations
   * `coercion` is deprecated in favor of `type`
+
+## v0.9.6 (2016-4-5)
+* Bugfix
+  * define helper functions for all environments except `:prod`
 
 ## v0.9.5 (2016-3-15)
 * Enhancements
