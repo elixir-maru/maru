@@ -2,6 +2,10 @@
 
 [Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
 
+## v0.10.2 (2016-6-28)
+* Bugfix
+  * fix v1.3.0 exception warning
+
 ## v0.10.1 (2016-6-14)
 * Bugfix
   * jumbled routes order
