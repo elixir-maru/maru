@@ -96,11 +96,23 @@ defmodule Maru.Builder.DSLs do
   end
 
   @doc """
-  Define description do current endpoint.
+  Define description for current endpoint.
   """
   defmacro desc(desc) do
     quote do
-      @desc unquote(desc)
+      @desc %{summary: unquote(desc)}
+    end
+  end
+
+  @doc """
+  Define description with a block for current endpoint.
+  """
+  defmacro desc(desc, [do: block]) do
+    quote do
+      @desc %{summary: unquote(desc)}
+      import Maru.Builder.Description
+      unquote(block)
+      import Maru.Builder.Description, only: []
     end
   end
 
