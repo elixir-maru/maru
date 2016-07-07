@@ -31,7 +31,9 @@ defmodule Maru.Helpers.Response do
     |> Plug.Conn.halt
   end
 
-
+  @doc """
+  Make json format response.
+  """
   def json(%Plug.Conn{}=conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
@@ -39,6 +41,9 @@ defmodule Maru.Helpers.Response do
     |> Plug.Conn.halt
   end
 
+  @doc """
+  Make html format response.
+  """
   def html(%Plug.Conn{}=conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
@@ -46,6 +51,9 @@ defmodule Maru.Helpers.Response do
     |> Plug.Conn.halt
   end
 
+  @doc """
+  Make text format response.
+  """
   def text(%Plug.Conn{}=conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("text/plain")
