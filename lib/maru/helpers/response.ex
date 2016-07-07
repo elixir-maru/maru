@@ -61,4 +61,18 @@ defmodule Maru.Helpers.Response do
     |> Plug.Conn.halt
   end
 
+  @doc """
+  Put conn to process dict.
+  """
+  def put_maru_conn(conn) do
+    Process.put(:maru_conn, conn)
+  end
+
+  @doc """
+  Get conn from process dict.
+  """
+  def get_maru_conn do
+    Process.get(:maru_conn)
+  end
+
 end

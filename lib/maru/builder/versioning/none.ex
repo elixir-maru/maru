@@ -6,9 +6,6 @@ defmodule Maru.Builder.Versioning.None do
   use Maru.Builder.Versioning
 
   @doc false
-  def plug(_opts), do: []
-
-  @doc false
   def conn_for_match(method, _, path) do
     quote do
       %Plug.Conn{

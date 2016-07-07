@@ -1,6 +1,6 @@
-defmodule Maru.Plugs.Version do
+defmodule Maru.Plugs.GetVersion do
   @moduledoc """
-  This module is a plug, fetch `version` from connect and wirte to private variable `maru_version`.
+  This module is a plug, fetch `version` from connection and wirte to private variable `maru_version`.
   """
 
   alias Plug.Conn
@@ -24,6 +24,24 @@ defmodule Maru.Plugs.Version do
     conn = conn |> Conn.fetch_query_params
     vsn  = conn.params |> Map.get(key)
     conn |> Conn.put_private(:maru_version, vsn)
+  end
+
+end
+
+
+defmodule Maru.Plugs.PutVersion do
+  @moduledoc """
+  This module is a plug, put version to private variable `maru_version`.
+  """
+
+  @doc false
+  def init(version) do
+    version
+  end
+
+  @doc false
+  def call(conn, version) do
+    Plug.Conn.put_private(conn, :maru_version, version)
   end
 
 end

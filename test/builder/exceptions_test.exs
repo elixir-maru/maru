@@ -62,4 +62,68 @@ defmodule Maru.Builder.ExceptionsTest do
     conn4 = conn(:post, "test3")
     assert %Plug.Conn{resp_body: "MethodNotAllow", status: 405} = RescueTest.call(conn4, [])
   end
+
+  test "conn in process dict" do
+    defmodule RescueWithConnTest do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      defp unwarn(_), do: nil
+
+      Application.put_env(:maru, Maru.Builder.ExceptionsTest.RescueWithConnTest,
+        versioning: [
+          using: :param,
+          parameter: "v",
+        ]
+      )
+
+      version "v1"
+
+      before do
+        plug Plug.Parsers,
+          pass: ["*/*"],
+          json_decoder: Poison,
+          parsers: [:urlencoded, :json, :multipart]
+      end
+
+      params do
+        requires :a
+      end
+      get "/a" do
+        text(conn, "a")
+      end
+
+      params do
+        requires :b
+      end
+      get "/b" do
+        unwarn(conn)
+        raise "b"
+      end
+
+      rescue_from :all do
+        conn
+        |> put_status(500)
+        |> text("c")
+      end
+
+    end
+
+    conn1 = conn(:get, "a?b=1&v=v1")
+    assert %Plug.Conn{
+      resp_body: "c",
+      private: %{maru_version: "v1"}
+    } = RescueWithConnTest.call(conn1, [])
+
+    conn2 = conn(:get, "b?b=1&v=v1")
+    assert %Plug.Conn{
+      resp_body: "c",
+      private: %{
+        maru_version: "v1",
+        maru_params:  %{b: "1"},
+      },
+    } = RescueWithConnTest.call(conn2, [])
+
+  end
 end

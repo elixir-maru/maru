@@ -7,10 +7,13 @@ defmodule Maru.Builder.Route do
   Generate general route defined by user within method block.
   """
   def dispatch(route, env, adapter) do
-    pipeline =
+    pipeline = [
+      adapter.put_version_plug(route.version),
+      [{Maru.Plugs.SaveConn, [], true}],
       Enum.map(route.plugs, fn p ->
         {p.plug, p.options, p.guards}
-      end) |> Enum.reverse
+      end)
+    ] |> Enum.concat |> Enum.reverse
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
@@ -38,6 +41,7 @@ defmodule Maru.Builder.Route do
           :maru_params,
           unquote(parser_block)
         )
+      Maru.Helpers.Response.put_maru_conn(var!(conn))
     end
 
     quote do

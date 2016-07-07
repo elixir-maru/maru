@@ -6,9 +6,9 @@ defmodule Maru.Builder.Versioning.Parameter do
   use Maru.Builder.Versioning
 
   @doc false
-  def plug(opts) do
+  def get_version_plug(opts) do
     key = opts |> Keyword.get(:parameter, :apiver) |> to_string
-    [{Maru.Plugs.Version, {:parameter, key}, true}]
+    [{Maru.Plugs.GetVersion, {:parameter, key}, true}]
   end
 
 end

@@ -6,7 +6,12 @@ defmodule Maru.Builder.Versioning.Path do
   use Maru.Builder.Versioning
 
   @doc false
-  def plug(_opts), do: []
+  def get_version_plug(_opts), do: []
+
+  @doc false
+  def put_version_plug(version) do
+    [{Maru.Plugs.PutVersion, version, true}]
+  end
 
   @doc false
   def path_for_params(path, version) do
@@ -33,6 +38,11 @@ defmodule Maru.Builder.Versioning.Path do
       x when is_atom(x) -> Macro.var(:_, nil)
       x                 -> x
     end)
+  end
+
+  @doc false
+  def put_version(conn, version) do
+    Plug.Conn.put_private(conn, :maru_version, version)
   end
 
 end

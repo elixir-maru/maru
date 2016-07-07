@@ -83,7 +83,7 @@ defmodule Maru.Builder do
 
     pipeline = [
       plugs_before,
-      adapter.plug(config),
+      adapter.get_version_plug(config),
       [ {:route, [], true},
         {Maru.Plugs.NotFound, [], true},
       ],
