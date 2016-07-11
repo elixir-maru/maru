@@ -6,7 +6,7 @@
 * Enhancements
   * add detail and responses for description
   * add response helper functions `put_maru_conn/1` and `get_maru_conn/0`
-  * parse modified conn to `rescue_from` block
+  * pass modified conn to `rescue_from` block
 
 ## v0.10.2 (2016-6-28)
 * Bugfix
