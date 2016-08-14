@@ -5,7 +5,7 @@ defmodule Maru.Mixfile do
     [ app: :maru,
       name: "Maru",
       version: "0.10.4-dev",
-      elixir: "~> 1.0",
+      elixir: "~> 1.2.3 or ~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps,
