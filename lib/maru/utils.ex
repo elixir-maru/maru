@@ -74,6 +74,11 @@ defmodule Maru.Utils do
           quote do
             unquote(module).parse(unquote(ast), unquote(arguments))
           end
+        {:list, nested}, ast ->
+          func = make_parser(nested, options)
+          quote do
+            Enum.map(unquote(ast), unquote(func))
+          end
       end)
     quote do
       fn unquote(value) -> unquote(block) end

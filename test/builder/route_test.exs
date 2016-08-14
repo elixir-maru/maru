@@ -143,6 +143,27 @@ defmodule Maru.Builder.RouteTest do
       )
   end
 
+  test "validate one-line List nested param" do
+    defmodule OneLineListNestedParam do
+      use Maru.Builder
+
+      params do
+        optional :foo, type: List[Integer]
+        optional :bar, type: List[Float |> String]
+      end
+      def p, do: @parameters
+      @parameters []
+    end
+
+    assert %{foo: [1, 2, 3], bar: ["1.0", "2.0", "3.0"]} =
+      do_parse(
+        OneLineListNestedParam.p,
+        %{ "foo" => ["1", "2", "3"],
+           "bar" => [1, 2, 3],
+        }
+      )
+  end
+
   test "validate nested types" do
     defmodule NestedTypes do
       use Maru.Builder

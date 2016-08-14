@@ -229,13 +229,19 @@ defmodule Maru.Builder.Params do
       parsers
       |> Enum.reverse
       |> Enum.filter_map(
-        fn {:module, _, _}    -> true; _ -> false end,
-        fn {:module, type, _} -> type end
+        fn {:module, _, _}    -> true;
+           {:list, _}         -> true;
+           _                  -> false;
+        end,
+        fn {:module, type, _} -> {:module, type};
+           {:list,_}          -> :list
+        end
       )
       |> List.first
       |> case do
-         nil    -> "string"
-         module -> module |> Module.split |> List.last |> String.downcase
+         nil               -> "string"
+         :list             -> "list"
+         {:module, module} -> module |> Module.split |> List.last |> String.downcase
       end
     func = Utils.make_parser(parsers, options)
     %{ options:     options |> Keyword.drop([:type | dropped]),
@@ -283,6 +289,10 @@ defmodule Maru.Builder.Params do
   defp do_parse_type({:|>, _, [left, right]}) do
     do_parse_type(left) ++ do_parse_type(right)
   end
+  defp do_parse_type({{:., _, [Access, :get]}, _, [{:__aliases__, _, [:List]}, nested]}) do
+    [{:list, do_parse_type(nested)}]
+  end
+
   defp do_parse_type(type) do
     module = Utils.make_type(type)
     [{:module, module, module.arguments}]
