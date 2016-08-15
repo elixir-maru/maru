@@ -5,6 +5,7 @@
 ## v0.10.4
 * Enhancements
   * support one-line nested list params
+  * new DSLs for unittest
 
 ## v0.10.3 (2016-7-11)
 * Enhancements

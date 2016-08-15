@@ -15,11 +15,11 @@ defmodule Maru.TestTest do
       use Maru.Test, for: Test1
 
       def test do
-        conn(:get, "/") |> make_response
+        get("/") |> text_response
       end
     end
 
-    assert %Plug.Conn{resp_body: "resp"} = TestTest1.test
+    assert "resp" = TestTest1.test
   end
 
   test "version test" do
@@ -43,16 +43,16 @@ defmodule Maru.TestTest do
       use Maru.Test, for: Test2
 
       def test1 do
-        conn(:get, "/") |> make_response("v1")
+        get("/", "v1") |> text_response
       end
 
       def test2 do
-        conn(:get, "/") |> make_response("v2")
+        get("/", "v2") |> text_response
       end
     end
 
-    assert %Plug.Conn{resp_body: "resp v1"} = TestTest2.test1
-    assert %Plug.Conn{resp_body: "resp v2"} = TestTest2.test2
+    assert "resp v1" = TestTest2.test1
+    assert "resp v2" = TestTest2.test2
   end
 
   test "parser test" do
@@ -71,20 +71,22 @@ defmodule Maru.TestTest do
       use Maru.Test, for: Test3
 
       def test do
-        opts = Plug.Parsers.init([
+        opts = [
           parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
           pass: ["*/*"],
-          json_decoder: Poison,
-        ])
+          json_decoder: Poison
+        ]
 
-        conn(:post, "/", ~s({"foo":"bar"}))
+        build_conn()
         |> Plug.Conn.put_req_header("content-type", "application/json")
-        |> Plug.Parsers.call(opts)
-        |> make_response
+        |> put_body_or_params(~s({"foo":"bar"}))
+        |> put_plug(Plug.Parsers, opts)
+        |> post("/")
+        |> json_response
       end
     end
 
-    assert %Plug.Conn{resp_body: ~s({"foo":"bar"})} = TestTest3.test
+    assert %{"foo" => "bar"} = TestTest3.test
   end
 
 end
