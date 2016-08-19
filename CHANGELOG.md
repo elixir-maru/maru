@@ -2,7 +2,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
 
-## v0.10.4
+## v0.10.4 (2016-8-19)
 * Enhancements
   * support one-line nested list params
   * new DSLs for unittest
