@@ -59,7 +59,7 @@ defmodule Mix.Tasks.Maru.Routes do
     format_version(route.version) <>
     format_method(route.method) <>
     format_path(prefix ++ path) <>
-    "  " <> (route.desc || "")
+    "  " <> (route.desc[:summary] || "")
   end
 
   defp format_version(nil), do: "nil" |> format_version
