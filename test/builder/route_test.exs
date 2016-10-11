@@ -237,10 +237,17 @@ defmodule Maru.Builder.RouteTest do
         end
       end
       def p2, do: @parameters
+
+      params do
+        optional :foo, default: nil
+        optional :bar, default: false
+      end
+      def p3, do: @parameters
     end
 
     assert %{} == do_parse(OptionalNestedParam.p1, %{})
     assert %{} == do_parse(OptionalNestedParam.p2, %{})
+    assert %{foo: nil, bar: false} == do_parse(OptionalNestedParam.p3, %{})
   end
 
   test "dispatch method" do

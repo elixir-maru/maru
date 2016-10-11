@@ -137,25 +137,25 @@ defmodule Maru.Builder.Params do
   end
 
   defp do_parse(:nil_func, %{options: options, information: info, runtime: runtime}) do
-    default   = options |> Keyword.get(:default)
-    required  = options |> Keyword.fetch!(:required)
-    attr_name = options |> Keyword.fetch!(:attr_name)
+    has_default? = options |> Keyword.has_key?(:default)
+    required     = options |> Keyword.fetch!(:required)
+    attr_name    = options |> Keyword.fetch!(:attr_name)
     func =
-      case {is_nil(default), required} do
-        {true, true} ->
+      case {has_default?, required} do
+        {false, true} ->
           quote do
             fn _ ->
               Maru.Exceptions.InvalidFormatter
               |> raise([reason: :required, param: unquote(attr_name), value: nil])
             end
           end
-        {true, false} ->
+        {false, false} ->
           quote do
             fn x -> x end
           end
-        {false, _} ->
+        {true, _} ->
           quote do
-            fn x -> put_in(x, [unquote(attr_name)], unquote(default)) end
+            fn x -> put_in(x, [unquote(attr_name)], unquote(options[:default])) end
           end
       end
     %{ options:     options,
