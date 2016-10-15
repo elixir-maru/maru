@@ -13,16 +13,16 @@ defmodule Maru.Runtime do
     parse_params(t, result, conn_params)
   end
   def parse_params([%PR{attr_name: attr_name}=h | t], result, conn_params) do
+    passed? = conn_params |> Map.has_key?(h.param_key)
+    value   = conn_params |> Map.get(h.param_key)
     result =
-      conn_params
-      |> Map.get(h.param_key)
-      |> case do
-        nil   -> h.nil_func.(result)
-        value ->
-          value = do_parse(h.parser_func, value, attr_name)
-          h.validate_func.(value)
-          value = do_nested(h.nested, h.children, value)
-          put_in(result, [h.attr_name], value)
+      if Maru.Utils.is_blank(value) do
+        h.blank_func.({value, passed?, result})
+      else
+        value = do_parse(h.parser_func, value, attr_name)
+        h.validate_func.(value)
+        value = do_nested(h.nested, h.children, value)
+        put_in(result, [h.attr_name], value)
       end
     parse_params(t, result, conn_params)
   end

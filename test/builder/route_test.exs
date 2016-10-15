@@ -250,6 +250,27 @@ defmodule Maru.Builder.RouteTest do
     assert %{foo: nil, bar: false} == do_parse(OptionalNestedParam.p3, %{})
   end
 
+  test "keep_blank" do
+    defmodule KeepBlank do
+      use Maru.Builder
+
+      params do
+        optional :foo, keep_blank: true
+        optional :bar, default: nil
+        optional :baz, keep_blank: true, default: nil
+      end
+      def p1, do: @parameters
+    end
+
+    assert %{bar: nil, baz: nil} == do_parse(KeepBlank.p1, %{})
+
+    assert %{foo: nil, bar: nil, baz: nil} == do_parse(KeepBlank.p1, %{"foo" => nil})
+    assert %{foo: nil, bar: nil, baz: ""} == do_parse(KeepBlank.p1, %{"foo" => nil, "bar" => "", "baz" => ""})
+
+    assert %{foo: "", bar: nil, baz: nil} == do_parse(KeepBlank.p1, %{"foo" => ""})
+    assert %{foo: "", bar: nil, baz: ""} == do_parse(KeepBlank.p1, %{"foo" => "", "bar" => "", "baz" => ""})
+  end
+
   test "dispatch method" do
     defmodule DispatchTest do
       use Maru.Helpers.Response

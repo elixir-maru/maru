@@ -64,7 +64,7 @@ defmodule Maru.Struct.Parameter.Runtime do
             param_key:     nil,
             children:      [],
             nested:        nil,
-            nil_func:      nil,
+            blank_func:    nil,
             parser_func:   nil,
             validate_func: nil
 

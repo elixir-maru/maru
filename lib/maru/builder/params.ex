@@ -126,7 +126,7 @@ defmodule Maru.Builder.Params do
   """
   def parse(options \\ []) do
     pipeline = [
-      :nil_func, :attr_name, :required, :children, :type, :default, :desc, :validators
+      :blank_func, :attr_name, :required, :children, :type, :default, :desc, :validators
     ]
     accumulator = %{
       options:     options,
@@ -136,11 +136,12 @@ defmodule Maru.Builder.Params do
     Enum.reduce(pipeline, accumulator, &do_parse/2)
   end
 
-  defp do_parse(:nil_func, %{options: options, information: info, runtime: runtime}) do
+  defp do_parse(:blank_func, %{options: options, information: info, runtime: runtime}) do
     has_default? = options |> Keyword.has_key?(:default)
     required     = options |> Keyword.fetch!(:required)
     attr_name    = options |> Keyword.fetch!(:attr_name)
-    func =
+    keep_blank?  = options |> Keyword.get(:keep_blank, false)
+    unpassed_func =
       case {has_default?, required} do
         {false, true} ->
           quote do
@@ -158,10 +159,29 @@ defmodule Maru.Builder.Params do
             fn x -> put_in(x, [unquote(attr_name)], unquote(options[:default])) end
           end
       end
-    %{ options:     options,
+
+    func =
+      if keep_blank? do
+        quote do
+          fn
+            {value, true, result} ->
+              put_in(result, [unquote(attr_name)], value)
+            {_, false, result} ->
+              unquote(unpassed_func).(result)
+          end
+        end
+      else
+        quote do
+          fn {_, _, result} ->
+            unquote(unpassed_func).(result)
+          end
+        end
+      end
+
+    %{ options:     Keyword.drop(options, [:keep_blank]),
        information: info,
        runtime:     quote do
-         %{ unquote(runtime) | nil_func: unquote(func) }
+         %{ unquote(runtime) | blank_func: unquote(func) }
        end
      }
   end

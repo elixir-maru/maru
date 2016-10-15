@@ -31,7 +31,7 @@ defmodule Maru.Validations do
     @doc false
     def validate_param!(_, _, true), do: true
     def validate_param!(attr_name, value, false) do
-      not value in [nil, "", ''] ||
+      not Maru.Utils.is_blank(value) ||
         Maru.Exceptions.Validation |> raise([param: attr_name, validator: :allow_blank, value: value, option: false])
     end
   end
