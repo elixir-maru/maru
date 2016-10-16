@@ -29,10 +29,10 @@ defmodule Maru.Mixfile do
   defp deps do
     [ { :cowboy,  "~> 1.0" },
       { :plug,    "~> 1.0" },
-      { :poison,  "~> 1.5 or ~> 2.0" },
+      { :poison,  "~> 1.5 or ~> 2.0 or ~> 3.0" },
       { :inch_ex, "~> 0.5",  only: :docs },
-      { :earmark, "~> 0.2",  only: :docs },
-      { :ex_doc,  "~> 0.11", only: :docs },
+      { :earmark, "~> 1.0",  only: :docs },
+      { :ex_doc,  "~> 0.14", only: :docs },
     ]
   end
 
