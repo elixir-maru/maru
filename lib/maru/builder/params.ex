@@ -6,6 +6,7 @@ defmodule Maru.Builder.Params do
   alias Maru.Struct.Parameter
   alias Maru.Struct.Parameter.Information
   alias Maru.Struct.Parameter.Runtime
+  alias Maru.Struct.Dependent
   alias Maru.Struct.Validator
   alias Maru.Utils
 
@@ -121,6 +122,65 @@ defmodule Maru.Builder.Params do
   end
 
 
+  defmacro given(attr, do_block) when is_atom(attr) do
+    quote do
+      given([unquote(attr)], unquote(do_block))
+    end
+  end
+
+  defmacro given(attrs, [do: block]) do
+    Enum.all?(attrs, fn
+      attr when is_atom(attr)              -> true
+      {_, {:&, _, _}}                      -> true
+      {_, {:fn, _, [{:->, _, [[_] | _]}]}} -> true # fun/1
+      _                                    -> false
+    end) || raise "error dependent format"
+
+    depends = Enum.map(attrs, fn {param, _} -> param; param -> param end)
+
+    validators = Enum.map(attrs, fn
+      {param, func} ->
+        quote do
+          fn result ->
+            Map.has_key?(result, unquote(param)) &&
+            Map.fetch!(result, unquote(param)) |> unquote(func).()
+          end
+        end
+      param ->
+        quote do
+          fn result ->
+            Map.has_key?(result, unquote(param))
+          end
+        end
+    end) |> Macro.escape
+
+    quote do
+      s = Parameter.snapshot
+      Parameter.pop
+      unquote(block)
+      children = Parameter.pop
+      Parameter.restore(s)
+
+      children_information = Maru.Utils.get_nested(children, :information)
+      children_runtime = Maru.Utils.get_nested(children, :runtime)
+      validators = unquote(validators)
+
+      %Maru.Struct.Dependent{
+        information: %Dependent.Information{
+          depends: unquote(depends),
+          children: children_information,
+        },
+        runtime: quote do
+          %Dependent.Runtime{
+             validators: unquote(validators),
+             children: unquote(children_runtime)
+          }
+        end
+      } |> Parameter.push
+    end
+  end
+
+
   @doc """
   Parse params and generate Parameter struct.
   """
@@ -188,16 +248,8 @@ defmodule Maru.Builder.Params do
 
   defp do_parse(:children, %{options: options, information: info, runtime: runtime}) do
     {children, options}  = Keyword.pop(options, :children, [])
-    children_information =
-      Enum.map(children, fn
-        %Parameter{information: information} -> information
-        %Validator{information: information} -> information
-      end)
-    children_runtime =
-      Enum.map(children, fn
-        %Parameter{runtime: runtime} -> runtime
-        %Validator{runtime: runtime} -> runtime
-      end)
+    children_information = Maru.Utils.get_nested(children, :information)
+    children_runtime = Maru.Utils.get_nested(children, :runtime)
     %{ options:     options,
        information: %{ info | children: children_information },
        runtime:     quote do

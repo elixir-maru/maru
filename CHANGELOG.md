@@ -5,6 +5,7 @@
 ## v0.10.5-dev
 * Enhancements
   * add :keep_blank option for params
+  * add :given DSL for dependent parameters
 * Bugfix
   * allow set optional params to false and blank value by default
 

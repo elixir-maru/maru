@@ -271,6 +271,33 @@ defmodule Maru.Builder.RouteTest do
     assert %{foo: "", bar: nil, baz: ""} == do_parse(KeepBlank.p1, %{"foo" => "", "bar" => "", "baz" => ""})
   end
 
+  test "parameter dependent" do
+    defmodule ParameterDependentTest do
+      use Maru.Builder
+
+      params do
+        optional :foo, type: Integer
+        given :foo do
+          optional :bar, type: Integer
+          given [bar: &(&1 > 10)] do
+            optional :baz, type: Integer
+          end
+        end
+        given [:foo, :baz, bar: fn bar -> bar > 100 end] do
+          requires :qux, type: Integer
+        end
+      end
+      def parameters, do: @parameters
+    end
+
+    p = ParameterDependentTest.parameters
+    assert %{} = do_parse(p, %{})
+    assert %{foo: 1} = do_parse(p, %{"foo" => 1})
+    assert %{foo: 1, bar: 2} = do_parse(p, %{"foo" => 1, "bar" => 2})
+    assert %{foo: 1, bar: 11, baz: 2} = do_parse(p, %{"foo" => 1, "bar" => 11, "baz" => 2, "qux" => 3})
+    assert %{foo: 1, bar: 111, baz: 2, qux: 3} = do_parse(p, %{"foo" => 1, "bar" => 111, "baz" => 2, "qux" => 3})
+  end
+
   test "dispatch method" do
     defmodule DispatchTest do
       use Maru.Helpers.Response

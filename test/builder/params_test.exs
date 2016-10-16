@@ -3,6 +3,8 @@ defmodule Maru.Builder.ParamsTest do
 
   alias Maru.Struct.Parameter, as: P
   alias Maru.Struct.Parameter.Information, as: PI
+  alias Maru.Struct.Dependent, as: D
+  alias Maru.Struct.Dependent.Information, as: DI
   alias Maru.Struct.Validator, as: V
   alias Maru.Struct.Validator.Information, as: VI
   alias Maru.Struct.Resource
@@ -36,6 +38,41 @@ defmodule Maru.Builder.ParamsTest do
         ]}
       ]}}
     ] = OptionalTest.parameters
+  end
+
+  test "parameter depend" do
+    defmodule ParameterDependentTest do
+      use Maru.Router
+
+      params do
+        optional :foo
+        optional :bar
+        given :foo do
+          optional :baz, type: Integer
+          given [baz: &(&1 > 10)] do
+            requires :qux
+          end
+        end
+        given [:foo, bar: fn bar -> bar > 10 end] do
+          requires :qux
+        end
+      end
+      def parameters, do: @parameters
+    end
+
+    assert [
+      %P{information: %PI{attr_name: :foo}},
+      %P{information: %PI{attr_name: :bar}},
+      %D{information: %DI{depends: [:foo], children: [
+        %PI{attr_name: :baz},
+        %DI{depends: [:baz], children: [
+          %PI{attr_name: :qux},
+        ]}
+      ]}},
+      %D{information: %DI{depends: [:foo, :bar], children: [
+        %PI{attr_name: :qux}
+      ]}},
+    ] = ParameterDependentTest.parameters
   end
 
 

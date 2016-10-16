@@ -90,4 +90,16 @@ defmodule Maru.Utils do
     end
   end
 
+  @doc false
+  def get_nested(params, attr) when attr in [:information, :runtime] do
+    Enum.map(params, fn
+      %{__struct__: type}=param when type in [
+        Maru.Struct.Parameter,
+        Maru.Struct.Dependent,
+        Maru.Struct.Validator
+      ] ->
+        param |> Map.fetch!(attr)
+    end)
+  end
+
 end

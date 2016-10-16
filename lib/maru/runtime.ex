@@ -2,6 +2,7 @@ defmodule Maru.Runtime do
   @moduledoc false
 
   alias Maru.Struct.Parameter.Runtime, as: PR
+  alias Maru.Struct.Dependent.Runtime, as: DR
   alias Maru.Struct.Validator.Runtime, as: VR
 
   @doc """
@@ -11,6 +12,10 @@ defmodule Maru.Runtime do
   def parse_params([%VR{validate_func: func} | t], result, conn_params) do
     func.(result)
     parse_params(t, result, conn_params)
+  end
+  def parse_params([%DR{validators: validators}=h | t], result, conn_params) do
+    addition = Enum.all?(validators, fn func -> func.(result) end) && h.children || []
+    parse_params(addition ++ t, result, conn_params)
   end
   def parse_params([%PR{attr_name: attr_name}=h | t], result, conn_params) do
     passed? = conn_params |> Map.has_key?(h.param_key)
