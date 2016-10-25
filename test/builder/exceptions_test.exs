@@ -124,6 +124,62 @@ defmodule Maru.Builder.ExceptionsTest do
         maru_params:  %{b: "1"},
       },
     } = RescueWithConnTest.call(conn2, [])
-
   end
+
+  test "mounted routes" do
+    defmodule MountedRoutesTest.Mounted do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      defp unwarn(_), do: nil
+
+      get :test1 do
+        [] = conn
+      end
+
+      get :test2 do
+        unwarn(conn)
+        raise "err"
+      end
+
+      rescue_from MatchError do
+        conn
+        |> put_status(500)
+        |> text("match error")
+      end
+    end
+
+    defmodule MountedRoutesTest do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+
+      rescue_from :all, as: e do
+        conn
+        |> put_status(501)
+        |> text(e.message)
+      end
+    end
+
+    defmodule MountedRoutes2Test do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+    end
+
+    conn1 = conn(:get, "test1")
+    assert %Plug.Conn{resp_body: "match error", status: 500} = MountedRoutesTest.call(conn1, [])
+
+    conn2 = conn(:get, "test2")
+    assert %Plug.Conn{resp_body: "err", status: 501} = MountedRoutesTest.call(conn2, [])
+
+    conn3 = conn(:get, "test1")
+    assert %Plug.Conn{resp_body: "match error", status: 500} = MountedRoutes2Test.call(conn3, [])
+  end
+
 end

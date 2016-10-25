@@ -11,7 +11,8 @@ defmodule Maru.Struct.Route do
             helpers:    [],
             plugs:      [],
             module:     nil,
-            func_id:    nil
+            func_id:    nil,
+            mount_link: []
 
   @doc "push an endpoint to current scope."
   defmacro push(%__MODULE__{}=value) do
@@ -21,7 +22,7 @@ defmodule Maru.Struct.Route do
   end
 
   @doc "merge mounted routes to current scope."
-  def merge(resource, plugs, %__MODULE__{}=route) do
+  def merge(resource, plugs, module, %__MODULE__{}=route) do
     if not is_nil(resource.version) and not is_nil(route.version) do
       raise "can't mount a versional router to another versional router"
     end
@@ -31,6 +32,7 @@ defmodule Maru.Struct.Route do
        path:       versioning_path     ++ resource.path ++ route.path,
        parameters: resource.parameters ++ route.parameters,
        plugs:      resource.plugs      |> MaruPlug.merge(plugs) |> MaruPlug.merge(route.plugs),
+       mount_link: route.mount_link ++ [module],
      }
   end
 

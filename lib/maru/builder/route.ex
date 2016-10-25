@@ -44,17 +44,21 @@ defmodule Maru.Builder.Route do
       Maru.Helpers.Response.put_maru_conn(var!(conn))
     end
 
+    func = exception_function(route.mount_link)
+
     quote do
       defp route(unquote(
         adapter.conn_for_match(route.method, route.version, route.path)
       )=unquote(conn), []) do
-        case unquote(body) do
-          %Plug.Conn{halted: true} = conn ->
-            conn
-          %Plug.Conn{} = var!(conn) ->
-            unquote(params_block)
-            unquote(route.module).endpoint(var!(conn), unquote(route.func_id))
-        end
+        fn ->
+          case unquote(body) do
+            %Plug.Conn{halted: true} = conn ->
+              conn
+            %Plug.Conn{} = var!(conn) ->
+              unquote(params_block)
+              unquote(route.module).endpoint(var!(conn), unquote(route.func_id))
+          end
+        end |> unquote(func) |> apply([])
       end
     end
 
@@ -63,16 +67,42 @@ defmodule Maru.Builder.Route do
   @doc """
   Generate MethodNotAllow route for all path without `match` method.
   """
-  def dispatch_405(version, path, adapter) do
+  def dispatch_405(version, path, mount_link, adapter) do
     method = Macro.var(:_, nil)
+    func = exception_function(mount_link)
 
     quote do
       defp route(unquote(
         adapter.conn_for_match(method, version, path)
       )=var!(conn), []) do
-        Maru.Exceptions.MethodNotAllow
-        |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
+        fn ->
+          Maru.Exceptions.MethodNotAllow
+          |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
+        end |> unquote(func) |> apply([])
       end
+    end
+  end
+
+  defp exception_function(mount_link) do
+    exception_modules =
+      Enum.filter(mount_link, fn module ->
+        if Module.open?(module) do
+          Module.get_attribute(module, :exceptions) != []
+        else
+          {:__error_handler__, 1} in module.__info__(:functions)
+        end
+      end)
+
+    quote do
+      fn func ->
+        Enum.reduce(
+          unquote(exception_modules),
+          func,
+          fn module, func ->
+            module.__error_handler__(func)
+          end
+        )
+      end.()
     end
   end
 

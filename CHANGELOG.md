@@ -6,6 +6,7 @@
 * Enhancements
   * add :keep_blank option for params
   * add :given DSL for dependent parameters
+  * make `rescue_from` works for all maru router
 * Bugfix
   * allow set optional params to false and blank value by default
 

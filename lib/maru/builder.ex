@@ -82,6 +82,7 @@ defmodule Maru.Builder do
       end
 
     pipeline = [
+      [{Maru.Plugs.SaveConn, [], true}],
       plugs_before,
       adapter.get_version_plug(config),
       [ {:route, [], true},
@@ -103,10 +104,10 @@ defmodule Maru.Builder do
       end)
 
     method_not_allow_block =
-      Enum.group_by(routes, fn route -> {route.version, route.path} end)
-      |> Enum.map(fn {{version, path}, routes} ->
+      Enum.group_by(routes, fn route -> {route.version, route.path, route.mount_link} end)
+      |> Enum.map(fn {{version, path, mount_link}, routes} ->
         unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
-          Maru.Builder.Route.dispatch_405(version, path, adapter)
+          Maru.Builder.Route.dispatch_405(version, path, mount_link, adapter)
         end
       end)
 
@@ -128,14 +129,15 @@ defmodule Maru.Builder do
         end
       end,
 
-      if make_plug? and not Enum.empty?(exceptions) do
+      unless Enum.empty?(exceptions) do
         quote do
-          defoverridable [call: 2]
-          def call(var!(conn), opts) do
-            try do
-              super(var!(conn), opts)
-            rescue
-              unquote(exceptions)
+          def __error_handler__(func) do
+            fn ->
+              try do
+                func.()
+              rescue
+                unquote(exceptions)
+              end
             end
           end
         end

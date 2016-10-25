@@ -336,7 +336,7 @@ defmodule Maru.Builder.RouteTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Route.dispatch_405("v1", [], adapter)
+        Route.dispatch_405("v1", [], [], adapter)
       ), [], __ENV__
 
       def r(conn), do: route(conn, [])

@@ -51,6 +51,7 @@ defmodule Maru.Builder.Methods do
         plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
         module:     __MODULE__,
         func_id:    @func_id,
+        mount_link: [__MODULE__],
       }
       @desc nil
       @func_id @func_id + 1

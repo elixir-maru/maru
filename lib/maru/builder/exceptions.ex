@@ -34,7 +34,7 @@ defmodule Maru.Builder.Exceptions do
   def make_rescue_block({:all, block}) do
     quote do
       _ ->
-        var!(conn) = Maru.Helpers.Response.get_maru_conn || var!(conn)
+        var!(conn) = Maru.Helpers.Response.get_maru_conn
         unquote(block)
     end
   end
@@ -42,7 +42,7 @@ defmodule Maru.Builder.Exceptions do
   def make_rescue_block({error, block}) do
     quote do
       unquote(error) ->
-        var!(conn) = Maru.Helpers.Response.get_maru_conn || var!(conn)
+        var!(conn) = Maru.Helpers.Response.get_maru_conn
         unquote(block)
     end
   end
@@ -51,7 +51,7 @@ defmodule Maru.Builder.Exceptions do
   def make_rescue_block({:all, error_var, block}) do
     quote do
       unquote(error_var) ->
-        var!(conn) = Maru.Helpers.Response.get_maru_conn || var!(conn)
+        var!(conn) = Maru.Helpers.Response.get_maru_conn
         unquote(block)
     end
   end
@@ -59,7 +59,7 @@ defmodule Maru.Builder.Exceptions do
   def make_rescue_block({error, error_var, block}) do
     quote do
       unquote(error_var) in unquote(error) ->
-        var!(conn) = Maru.Helpers.Response.get_maru_conn || var!(conn)
+        var!(conn) = Maru.Helpers.Response.get_maru_conn
         unquote(block)
     end
   end
