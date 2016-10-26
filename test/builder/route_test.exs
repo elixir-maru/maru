@@ -150,18 +150,23 @@ defmodule Maru.Builder.RouteTest do
       params do
         optional :foo, type: List[Integer]
         optional :bar, type: List[Float |> String]
+        optional :baz, type: List[List[Integer]]
       end
       def p, do: @parameters
       @parameters []
     end
 
-    assert %{foo: [1, 2, 3], bar: ["1.0", "2.0", "3.0"]} =
-      do_parse(
-        OneLineListNestedParam.p,
-        %{ "foo" => ["1", "2", "3"],
-           "bar" => [1, 2, 3],
-        }
-      )
+    assert %{
+      foo: [1, 2, 3],
+      bar: ["1.0", "2.0", "3.0"],
+      baz: [[1], [2], [3]],
+    } = do_parse(
+      OneLineListNestedParam.p,
+      %{ "foo" => ["1", "2", "3"],
+         "bar" => [1, 2, 3],
+         "baz" => [["1"], ["2"], ["3"]],
+      }
+    )
   end
 
   test "validate nested types" do
