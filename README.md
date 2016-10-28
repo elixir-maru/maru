@@ -75,10 +75,18 @@ defmodule MyAPP.API do
     |> text("Unauthorized")
   end
 
+  rescue_from [MatchError, RuntimeError], with: :custom_error
+
   rescue_from :all do
     conn
     |> put_status(500)
     |> text("Server Error")
+  end
+
+  defp custom_error(conn, exception) do
+    conn
+    |> put_status(500)
+    |> text(exception.message)
   end
 end
 ```
