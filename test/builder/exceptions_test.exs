@@ -37,17 +37,20 @@ defmodule Maru.Builder.ExceptionsTest do
         |> text("function error")
       end
 
-      rescue_from Maru.Exceptions.MethodNotAllow do
-        conn
-        |> put_status(405)
-        |> text("MethodNotAllow")
-      end
+      rescue_from Maru.Exceptions.MethodNotAllow, with: :err405
 
       rescue_from :all, as: e do
         conn
         |> put_status(500)
         |> text(e.message)
       end
+
+      defp err405(conn, _exception) do
+        conn
+        |> put_status(405)
+        |> text("MethodNotAllow")
+      end
+
     end
 
     conn1 = conn(:get, "test1")
@@ -143,7 +146,9 @@ defmodule Maru.Builder.ExceptionsTest do
         raise "err"
       end
 
-      rescue_from MatchError do
+      rescue_from [MatchError], with: :err500
+
+      defp err500(conn, _exception) do
         conn
         |> put_status(500)
         |> text("match error")
