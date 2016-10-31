@@ -4,8 +4,8 @@
 
 ## v0.10.5-dev
 * Enhancements
-  * add :keep_blank option for params
-  * add :given DSL for dependent parameters
+  * add `:keep_blank` option for params
+  * add `:given` DSL for dependent parameters
   * make `rescue_from` works for all maru router
   * support `with` option for `rescue_from` DSL
   * bring maru's params parser to phoenix
