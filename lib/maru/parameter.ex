@@ -20,7 +20,7 @@ defmodule Maru.Parameter.Phoenix do
   end
 
   @doc false
-  def __on_definition__(%Macro.Env{module: module}=env, :def, name, [_, _], guards, _body) do
+  def __on_definition__(%Macro.Env{module: module}, :def, name, [_, _], guards, _body) do
     Module.get_attribute(module, :parameters)
     |> Enum.map(fn p -> p.runtime end)
     |> case do
@@ -37,7 +37,7 @@ defmodule Maru.Parameter.Phoenix do
   end
 
   @doc false
-  defmacro __before_compile__(%Macro.Env{module: module}=env) do
+  defmacro __before_compile__(%Macro.Env{module: module}) do
     module
     |> Module.get_attribute(:parameter_functions)
     |> Enum.map(fn {name, guards, runtime} ->
