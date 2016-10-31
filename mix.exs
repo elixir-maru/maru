@@ -37,7 +37,8 @@ defmodule Maru.Mixfile do
   end
 
   defp package do
-    %{ licenses: ["BSD 3-Clause"],
+    %{ maintainers: ["Xiangrong Hao"],
+       licenses: ["BSD 3-Clause"],
        links: %{"Github" => "https://github.com/falood/maru"}
      }
   end
