@@ -210,4 +210,22 @@ defmodule Maru.Builder.ParamsTest do
     ] = SharedParamsTest.parameters
   end
 
+  test "one line list test" do
+    defmodule OneLineListTest do
+      use Maru.Router
+
+      params do
+        requires :foo, type: List[Integer]
+        requires :bar, type: List[List[:float]]
+      end
+
+      def parameters, do: @parameters
+    end
+
+    assert [
+      %P{information: %PI{attr_name: :foo, type: {:list, "integer"}}},
+      %P{information: %PI{attr_name: :bar, type: {:list, {:list, "float"}}}},
+    ] = OneLineListTest.parameters
+  end
+
 end

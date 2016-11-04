@@ -3,6 +3,8 @@
 [Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
 
 ## v0.10.6-dev
+* Enhancements
+  * new `Parameter.Information.type` for one line list parameter `{:list, "MARU.TYPE"}`
 
 ## v0.10.5 (2016-10-30)
 * Enhancements

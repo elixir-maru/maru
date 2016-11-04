@@ -1,4 +1,4 @@
-defmodule Maru.Struct.Parameter do
+ defmodule Maru.Struct.Parameter do
   @moduledoc false
 
   defstruct information: nil,
