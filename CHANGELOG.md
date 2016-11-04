@@ -2,6 +2,8 @@
 
 [Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
 
+## v0.10.6-dev
+
 ## v0.10.5 (2016-10-30)
 * Enhancements
   * add `:keep_blank` option for params
