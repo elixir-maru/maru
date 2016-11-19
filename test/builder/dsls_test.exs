@@ -136,6 +136,7 @@ defmodule Maru.Builder.DSLsTest do
 
     defmodule MountTest do
       use Maru.Router
+      @test false
 
       mount Maru.Builder.DSLsTest.Mounted
 

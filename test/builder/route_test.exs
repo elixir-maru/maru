@@ -355,6 +355,7 @@ defmodule Maru.Builder.RouteTest do
   test "routes order" do
     defmodule RoutesOrderTest.A do
       use Maru.Router
+      @test false
 
       get :a do
         conn |> text("a")
@@ -363,6 +364,7 @@ defmodule Maru.Builder.RouteTest do
 
     defmodule RoutesOrderTest.B do
       use Maru.Router
+      @test false
 
       get :b do
         conn |> text("b")
@@ -377,6 +379,7 @@ defmodule Maru.Builder.RouteTest do
 
     defmodule RoutesOrderTest.C do
       use Maru.Router
+      @test false
 
       get :c do
         conn |> text("c")
@@ -389,6 +392,7 @@ defmodule Maru.Builder.RouteTest do
 
     defmodule RoutesOrderTest.D do
       use Maru.Router
+      @test false
 
       route_param :d do
         get do
