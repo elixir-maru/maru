@@ -150,7 +150,7 @@ defmodule Maru.Builder do
       end,
 
       quote do
-        def __routes__, do: unquote(Macro.escape(all_routes))
+        def __routes__, do: unquote(Macro.escape(routes))
         unquote(endpoints_block)
       end,
     ]
