@@ -12,6 +12,9 @@ defmodule Maru.Test do
         import Maru.Test
         import Plug.Conn
 
+        @router unquote(router)
+        @before_compile Maru.Builder.TestRouter
+
         # Deprecated
         defp make_response(conn), do: make_response(conn, nil)
         defp make_response(conn, version) do
@@ -24,7 +27,7 @@ defmodule Maru.Test do
           conn
           |> put_private(:maru_test, true)
           |> put_private(:maru_version, version)
-          |> router.call([])
+          |> maru_test_call
         end
 
         defp make_response(conn, method, path) do
@@ -42,7 +45,7 @@ defmodule Maru.Test do
             |> Plug.Adapters.Test.Conn.conn(method, path, body_or_params)
           Enum.reduce(plugs, conn, fn {plug, opts}, conn ->
             plug.call(conn, plug.init(opts))
-          end) |> router.call([])
+          end) |> maru_test_call
         end
       end |
 

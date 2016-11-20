@@ -1,7 +1,9 @@
 defmodule Maru.Builder.TestRouter do
 
   @doc false
-  def __before_compile__(%Macro.Env{}=env, routes) do
+  defmacro __before_compile__(%Macro.Env{module: module}=env) do
+    router = Module.get_attribute(module, :router)
+    routes = router.__routes__
     version_adapter = Maru.Builder.Versioning.Test
     pipeline = [
       {Maru.Plugs.SaveConn, [], true},
@@ -19,12 +21,9 @@ defmodule Maru.Builder.TestRouter do
       unquote(method_not_allow_block)
       defp route(conn, _), do: conn
 
-      def init(_), do: []
-      def call(unquote(conn), _) do
+      def maru_test_call(unquote(conn)) do
         unquote(body)
       end
-
-      def __version__, do: Maru.Struct.Resource.get_version
     end
   end
 

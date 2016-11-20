@@ -94,6 +94,7 @@ defmodule Maru.Builder do
 
       if Module.get_attribute(module, :test) do
         quote do
+          def __version__, do: Maru.Struct.Resource.get_version
           def __routes__, do: unquote(Macro.escape(current_routes))
         end
       else
@@ -102,12 +103,8 @@ defmodule Maru.Builder do
         end
       end,
 
-      if Module.get_attribute(module, :test) do
-        Maru.Builder.TestRouter.__before_compile__(env, current_routes)
-      else
-        if Module.get_attribute(module, :make_plug) do
-          Maru.Builder.PlugRouter.__before_compile__(env, all_routes)
-        end
+      if Module.get_attribute(module, :make_plug) do
+        Maru.Builder.PlugRouter.__before_compile__(env, all_routes)
       end,
     ]
   end
