@@ -3,6 +3,8 @@
 [Upgrade Instructions](https://maru.readme.io/docs/upgrade-instructions-from-v09) From v0.9 to v0.10
 
 ## v0.11.0-dev
+* Enhancements
+  * make unittest easier
 
 ## v0.10.6 (2016-11-20)
 * Enhancements

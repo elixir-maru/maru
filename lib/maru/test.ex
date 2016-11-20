@@ -3,9 +3,31 @@ defmodule Maru.Test do
   Unittest wrapper for designated router.
   """
 
+  @doc """
+  Prepare for Maru Test
+  """
+  def start do
+    Maru.Builder.MountLink.start
+    Mix.Project.compile_path
+    |> to_char_list
+    |> :cover.compile_beam_directory
+    for module <- :cover.modules do
+      if {:__mounted_modules__, 0} in module.__info__(:functions) do
+        Enum.each(module.__mounted_modules__, fn mounted ->
+          Maru.Builder.MountLink.put_father(mounted, module)
+        end)
+      end
+    end
+  end
+
   @doc false
   defmacro __using__(opts) do
     router = Keyword.fetch! opts, :for
+
+    [router | fathers] =
+      router
+      |> Maru.Utils.split_router
+      |> Enum.reverse
 
     [ quote do
         import Plug.Test, except: [conn: 2, conn: 3]
@@ -13,6 +35,7 @@ defmodule Maru.Test do
         import Plug.Conn
 
         @router unquote(router)
+        @fathers unquote(fathers)
         @before_compile Maru.Builder.TestRouter
 
         # Deprecated

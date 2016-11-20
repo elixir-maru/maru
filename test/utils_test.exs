@@ -37,4 +37,12 @@ defmodule Maru.UtilsTest do
     type = quote do: B
     assert Elixir.Maru.Types.B = make_type(type)
   end
+
+  test "split router" do
+    router = quote do A |> B |> Maru.Type end
+    assert [A, B, Maru.Type] = split_router(router)
+
+    router = quote do: A
+    assert [A] = split_router(router)
+  end
 end

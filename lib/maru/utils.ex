@@ -102,4 +102,12 @@ defmodule Maru.Utils do
     end)
   end
 
+  @doc false
+  def split_router({:|>, _, [left, right]}) do
+    split_router(left) ++ split_router(right)
+  end
+
+  def split_router({:__aliases__, _, module}) do
+    [Module.safe_concat(module)]
+  end
 end

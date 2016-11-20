@@ -38,6 +38,7 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
       Module.register_attribute __MODULE__, :exceptions,    accumulate: true
+      Module.register_attribute __MODULE__, :mounted_modules, accumulate: true
 
 
       @extend        nil
@@ -62,6 +63,8 @@ defmodule Maru.Builder do
       current_routes ++ mounted_routes, extend_opts
     )
     all_routes     = current_routes ++ mounted_routes ++ extended
+
+    mounted_modules = Module.get_attribute(module, :mounted_modules)
 
     exceptions =
       Module.get_attribute(module, :exceptions)
@@ -96,6 +99,8 @@ defmodule Maru.Builder do
         quote do
           def __version__, do: Maru.Struct.Resource.get_version
           def __routes__, do: unquote(Macro.escape(current_routes))
+          def __mounted_modules__, do: unquote(mounted_modules)
+          def __plugs__, do: @resource.plugs
         end
       else
         quote do

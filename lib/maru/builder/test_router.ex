@@ -3,7 +3,21 @@ defmodule Maru.Builder.TestRouter do
   @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     router = Module.get_attribute(module, :router)
-    routes = router.__routes__
+    fathers = Module.get_attribute(module, :fathers)
+    mount_plugs =
+      Maru.Builder.MountLink.get_mount_link(router, fathers)
+      |> Enum.reduce([], fn(x, acc) ->
+        Maru.Struct.Plug.merge(acc, x.__plugs__)
+      end)
+    routes =
+      Enum.map(router.__routes__, fn(route) ->
+        plugs =
+          Enum.reduce(route.plugs, mount_plugs, fn(x, acc) ->
+            Maru.Struct.Plug.merge(acc, x)
+          end)
+        %{route | plugs: plugs}
+      end)
+
     version_adapter = Maru.Builder.Versioning.Test
     pipeline = [
       {Maru.Plugs.SaveConn, [], true},
@@ -26,5 +40,4 @@ defmodule Maru.Builder.TestRouter do
       end
     end
   end
-
 end

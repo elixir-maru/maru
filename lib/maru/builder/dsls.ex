@@ -122,10 +122,14 @@ defmodule Maru.Builder.DSLs do
   defmacro mount({_, _, mod}) do
     module = Module.concat(mod)
     quote do
-      for route <- unquote(module).__routes__ do
-        @mounted Maru.Struct.Route.merge(
-          @resource, @plugs, __MODULE__, route
-        )
+      if @test do
+        @mounted_modules unquote(module)
+      else
+        for route <- unquote(module).__routes__ do
+          @mounted Maru.Struct.Route.merge(
+            @resource, @plugs, __MODULE__, route
+          )
+        end
       end
     end
   end
