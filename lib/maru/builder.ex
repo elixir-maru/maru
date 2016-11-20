@@ -55,7 +55,6 @@ defmodule Maru.Builder do
 
   @doc false
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
-    config = (Application.get_env(:maru, module) || [])[:versioning] || []
     current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
     mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
     extend_opts    = Module.get_attribute(module, :extend)
@@ -64,72 +63,18 @@ defmodule Maru.Builder do
     )
     all_routes     = current_routes ++ mounted_routes ++ extended
 
-    {routes, adapter, plugs_before, make_plug?, test?} =
-      if Module.get_attribute(module, :test) do
-        { current_routes,
-          Maru.Builder.Versioning.Test,
-          [],
-          true,
-          true,
-        }
-      else
-        { all_routes,
-          Maru.Builder.Versioning.get_adapter(config[:using]),
-          Module.get_attribute(module, :plugs_before) |> Enum.reverse,
-          Module.get_attribute(module, :make_plug),
-          false,
-        }
-      end
-
-    pipeline = [
-      [{Maru.Plugs.SaveConn, [], true}],
-      plugs_before,
-      adapter.get_version_plug(config),
-      [ {:route, [], true},
-        {Maru.Plugs.NotFound, [], true},
-      ],
-    ] |> Enum.concat |> Enum.reverse
-
-    {conn, body} = Plug.Builder.compile(env, pipeline, [])
-
     exceptions =
       Module.get_attribute(module, :exceptions)
       |> Enum.reverse
       |> Enum.map(&Maru.Builder.Exceptions.make_rescue_block/1)
       |> List.flatten
 
-    routes_block =
-      Enum.map(routes, fn route ->
-        Maru.Builder.Route.dispatch(route, env, adapter)
-      end)
-
-    method_not_allow_block =
-      Enum.group_by(routes, fn route -> {route.version, route.path, route.mount_link} end)
-      |> Enum.map(fn {{version, path, mount_link}, routes} ->
-        unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
-          Maru.Builder.Route.dispatch_405(version, path, mount_link, adapter)
-        end
-      end)
-
     endpoints_block =
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse
       |> Enum.map(&Maru.Builder.Endpoint.dispatch/1)
 
-    [ if make_plug? do
-        quote do
-          unquote(routes_block)
-          unquote(method_not_allow_block)
-          defp route(conn, _), do: conn
-
-          def init(_), do: []
-          def call(unquote(conn), _) do
-            unquote(body)
-          end
-        end
-      end,
-
-      unless Enum.empty?(exceptions) do
+    [ unless Enum.empty?(exceptions) do
         quote do
           def __error_handler__(func) do
             fn ->
@@ -143,17 +88,46 @@ defmodule Maru.Builder do
         end
       end,
 
-      if test? do
+      quote do
+        unquote(endpoints_block)
+      end,
+
+      if Module.get_attribute(module, :test) do
         quote do
-          def __version__, do: Maru.Struct.Resource.get_version
+          def __routes__, do: unquote(Macro.escape(current_routes))
+        end
+      else
+        quote do
+          def __routes__, do: unquote(Macro.escape(all_routes))
         end
       end,
 
-      quote do
-        def __routes__, do: unquote(Macro.escape(routes))
-        unquote(endpoints_block)
+      if Module.get_attribute(module, :test) do
+        Maru.Builder.TestRouter.__before_compile__(env, current_routes)
+      else
+        if Module.get_attribute(module, :make_plug) do
+          Maru.Builder.PlugRouter.__before_compile__(env, all_routes)
+        end
       end,
     ]
   end
+
+  @doc false
+  def make_routes_block(routes, env, version_adapter) do
+    Enum.map(routes, fn route ->
+      Maru.Builder.Route.dispatch(route, env, version_adapter)
+    end)
+  end
+
+  @doc false
+  def make_method_not_allow_block(routes, version_adapter) do
+    Enum.group_by(routes, fn route -> {route.version, route.path, route.mount_link} end)
+    |> Enum.map(fn {{version, path, mount_link}, routes} ->
+      unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
+        Maru.Builder.Route.dispatch_405(version, path, mount_link, version_adapter)
+      end
+    end)
+  end
+
 
 end
