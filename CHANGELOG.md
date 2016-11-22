@@ -5,6 +5,7 @@
 ## v0.11.0-dev
 * Enhancements
   * make unittest easier
+  * add `with_exception_handlers` option to Maru.Test
 
 ## v0.10.6 (2016-11-20)
 * Enhancements

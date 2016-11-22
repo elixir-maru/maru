@@ -4,9 +4,10 @@ defmodule Maru.Builder.TestRouter do
   defmacro __before_compile__(%Macro.Env{module: module}=env) do
     router = Module.get_attribute(module, :router)
     fathers = Module.get_attribute(module, :fathers)
+    with_exception_handlers = Module.get_attribute(module, :with_exception_handlers)
+    mount_link = Maru.Builder.MountLink.get_mount_link(router, fathers)
     mount_plugs =
-      Maru.Builder.MountLink.get_mount_link(router, fathers)
-      |> Enum.reduce([], fn(x, acc) ->
+      Enum.reduce(mount_link, [], fn(x, acc) ->
         Maru.Struct.Plug.merge(acc, x.__plugs__)
       end)
     routes =
@@ -15,7 +16,13 @@ defmodule Maru.Builder.TestRouter do
           Enum.reduce(route.plugs, mount_plugs, fn(x, acc) ->
             Maru.Struct.Plug.merge(acc, x)
           end)
-        %{route | plugs: plugs}
+        route_mount_link =
+          if with_exception_handlers do
+            mount_link
+          else
+            route.mount_link
+          end
+        %{route | mount_link: route_mount_link, plugs: plugs}
       end)
 
     version_adapter = Maru.Builder.Versioning.Test

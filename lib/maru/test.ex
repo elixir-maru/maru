@@ -23,6 +23,7 @@ defmodule Maru.Test do
   @doc false
   defmacro __using__(opts) do
     router = Keyword.fetch! opts, :for
+    with_exception_handlers = Keyword.get(opts, :with_exception_handlers, false)
 
     [router | fathers] =
       router
@@ -36,6 +37,7 @@ defmodule Maru.Test do
 
         @router unquote(router)
         @fathers unquote(fathers)
+        @with_exception_handlers unquote(with_exception_handlers)
         @before_compile Maru.Builder.TestRouter
 
         # Deprecated
