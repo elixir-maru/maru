@@ -10,7 +10,7 @@ defmodule Maru.Mixfile do
       start_permanent: Mix.env == :prod,
       deps: deps,
       description: "REST-like API micro-framework for elixir inspired by grape.",
-      source_url: "https://github.com/falood/maru",
+      source_url: "https://github.com/elixir-maru/maru",
       homepage_url: "https://maru.readme.io",
       package: package,
       docs: [
@@ -39,7 +39,7 @@ defmodule Maru.Mixfile do
   defp package do
     %{ maintainers: ["Xiangrong Hao"],
        licenses: ["BSD 3-Clause"],
-       links: %{"Github" => "https://github.com/falood/maru"}
+       links: %{"Github" => "https://github.com/elixir-maru/maru"}
      }
   end
 end

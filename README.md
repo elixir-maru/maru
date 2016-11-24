@@ -2,10 +2,10 @@
 
 > REST-like API micro-framework for elixir inspired by [grape](https://github.com/ruby-grape/grape).
 
-[![Build Status](https://img.shields.io/travis/falood/maru.svg?style=flat-square)](https://travis-ci.org/falood/maru)
+[![Build Status](https://img.shields.io/travis/elixir-maru/maru.svg?style=flat-square)](https://travis-ci.org/elixir-maru/maru)
 [![Hex.pm Version](https://img.shields.io/hexpm/v/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
-[![Deps Status](https://beta.hexfaktor.org/badge/all/github/falood/maru.svg?branch=master&style=flat-square)](https://beta.hexfaktor.org/github/falood/maru)
-[![Docs](https://inch-ci.org/github/falood/maru.svg?branch=master&style=flat-square)](https://inch-ci.org/github/falood/maru)
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/elixir-maru/maru.svg?branch=master&style=flat-square)](https://beta.hexfaktor.org/github/elixir-maru/maru)
+[![Docs](https://inch-ci.org/github/elixir-maru/maru.svg?branch=master&style=flat-square)](https://inch-ci.org/github/elixir-maru/maru)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
 
 ## Usage
@@ -98,4 +98,4 @@ config :maru, MyAPP.API,
   http: [port: 8880]
 ```
 
-For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/falood/maru_examples)
+For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
