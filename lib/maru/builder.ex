@@ -49,7 +49,13 @@ defmodule Maru.Builder do
       @func_id       0
 
       @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
-      @test Application.get_env(:maru, :test) || (Mix.env == :test)
+      @test (
+        case Application.get_env(:maru, :test) do
+          true  -> true
+          false -> false
+          nil   -> Mix.env == :test
+        end
+      )
       @before_compile unquote(__MODULE__)
     end
   end
