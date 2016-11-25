@@ -110,4 +110,15 @@ defmodule Maru.Utils do
   def split_router({:__aliases__, _, module}) do
     [Module.safe_concat(module)]
   end
+
+  @doc false
+  def warning_unknown_opts(module, keys) do
+    keys
+    |> Enum.map(&inspect/1)
+    |> Enum.join(", ")
+    |> case do
+      "" -> nil
+      keys -> IO.warn "unknown `use` options #{keys} for module #{inspect module}\n"
+    end
+  end
 end

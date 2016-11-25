@@ -1,5 +1,6 @@
 defmodule Maru.UtilsTest do
   use ExUnit.Case, async: true
+  import ExUnit.CaptureIO
   import Maru.Utils
 
   test "upper_camel_case" do
@@ -44,5 +45,11 @@ defmodule Maru.UtilsTest do
 
     router = quote do: A
     assert [A] = split_router(router)
+  end
+
+  test "warning unknown opts" do
+    assert capture_io(:stderr, fn ->
+      Maru.Utils.warning_unknown_opts(A, [:a, :b, :c])
+    end) =~ "unknown `use` options :a, :b, :c for module A"
   end
 end

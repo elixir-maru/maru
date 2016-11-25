@@ -21,7 +21,11 @@ defmodule Maru.Builder do
   @doc false
   defmacro __using__(opts) do
     make_plug = opts |> Keyword.get(:make_plug, false)
+    warning_keys = Keyword.drop(opts, [:make_plug]) |> Keyword.keys
+
     quote do
+      Maru.Utils.warning_unknown_opts(__MODULE__, unquote(warning_keys))
+
       use Maru.Helpers.Response
 
       require Maru.Struct.Parameter

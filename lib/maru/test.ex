@@ -24,6 +24,7 @@ defmodule Maru.Test do
   defmacro __using__(opts) do
     router = Keyword.fetch! opts, :for
     with_exception_handlers = Keyword.get(opts, :with_exception_handlers, false)
+    warning_keys = Keyword.drop(opts, [:for, :with_exception_handlers]) |> Keyword.keys
 
     [router | fathers] =
       router
@@ -31,6 +32,8 @@ defmodule Maru.Test do
       |> Enum.reverse
 
     [ quote do
+        Maru.Utils.warning_unknown_opts(__MODULE__, unquote(warning_keys))
+
         import Plug.Test, except: [conn: 2, conn: 3]
         import Maru.Test
         import Plug.Conn
