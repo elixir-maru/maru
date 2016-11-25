@@ -72,8 +72,9 @@ defmodule Maru.Exceptions do
     Catch this exception and return 405 like this:
 
         rescue_from Maru.Exceptions.MethodNotAllow do
-          status 405
-          "Method Not Allow"
+          conn
+          |> put_status(405)
+          |> text("Method Not Allow")
         end
     """
 

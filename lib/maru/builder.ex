@@ -8,7 +8,8 @@ defmodule Maru.Builder do
       `endpoint/2` for execute endpoint block.
 
   For test environments:
-      A function named `__version__/0` generated.
+      these functions generated:
+      `__version__/0`, `__mounted_modules__/0`, `__plugs__/0`
 
   For plug modules:
       You can define a plug module by `use Maru.Router, make_plug: true` or
@@ -41,12 +42,12 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :mounted_modules, accumulate: true
 
 
-      @extend        nil
-      @resource      %Maru.Struct.Resource{}
-      @desc          nil
-      @parameters    []
-      @plugs         []
-      @func_id       0
+      @extend     nil
+      @resource   %Maru.Struct.Resource{}
+      @desc       nil
+      @parameters []
+      @plugs      []
+      @func_id    0
 
       @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
       @test (
@@ -97,9 +98,7 @@ defmodule Maru.Builder do
         end
       end,
 
-      quote do
-        unquote(endpoints_block)
-      end,
+      endpoints_block,
 
       if Module.get_attribute(module, :test) do
         quote do
