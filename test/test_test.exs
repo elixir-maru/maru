@@ -104,13 +104,12 @@ defmodule Maru.TestTest do
       end
     end
 
-    defmodule TestMount do
+    defmodule TestMountShared do
       use Maru.Router
 
-      plug Maru.TestTest.PlugTest
-
-      mount Maru.TestTest.TestMount1
-      mount Maru.TestTest.TestMount2
+      get :shared do
+        text(conn, "shared")
+      end
     end
 
     defmodule TestMount1 do
@@ -137,12 +136,13 @@ defmodule Maru.TestTest do
       end
     end
 
-    defmodule TestMountShared do
+    defmodule TestMount do
       use Maru.Router
 
-      get :shared do
-        text(conn, "shared")
-      end
+      plug Maru.TestTest.PlugTest
+
+      mount Maru.TestTest.TestMount1
+      mount Maru.TestTest.TestMount2
     end
 
     for module <- [Maru.TestTest.TestMount, Maru.TestTest.TestMount1, Maru.TestTest.TestMount2, Maru.TestTest.TestMountShared] do
@@ -186,12 +186,6 @@ defmodule Maru.TestTest do
       end
     end
 
-    defmodule MountedOverriable do
-      use Maru.Router
-      plug_overridable :test, Maru.TestTest.PlugTest2
-      mount Maru.TestTest.MountedOverriableShared
-    end
-
     defmodule MountedOverriableShared do
       use Maru.Router
 
@@ -201,6 +195,12 @@ defmodule Maru.TestTest do
       get :shared do
         text(conn, "shared")
       end
+    end
+
+    defmodule MountedOverriable do
+      use Maru.Router
+      plug_overridable :test, Maru.TestTest.PlugTest2
+      mount Maru.TestTest.MountedOverriableShared
     end
 
     defmodule MountedOverriableSharedTest do
@@ -214,24 +214,6 @@ defmodule Maru.TestTest do
   end
 
   test "mounted with exception handlers" do
-    defmodule MWEH do
-      use Maru.Router
-      mount Maru.TestTest.MWEH.M1
-
-      rescue_from :all do
-        conn |> put_status(500) |> text("500")
-      end
-    end
-
-    defmodule MWEH.M1 do
-      use Maru.Router
-      mount Maru.TestTest.MWEH.M2
-
-      rescue_from ArithmeticError do
-        conn |> put_status(501) |> text("501")
-      end
-    end
-
     defmodule MWEH.M2 do
       use Maru.Router
 
@@ -256,6 +238,24 @@ defmodule Maru.TestTest do
       get "runtime_error" do
         raise "runtime_error"
         text(conn, "200")
+      end
+    end
+
+    defmodule MWEH.M1 do
+      use Maru.Router
+      mount Maru.TestTest.MWEH.M2
+
+      rescue_from ArithmeticError do
+        conn |> put_status(501) |> text("501")
+      end
+    end
+
+    defmodule MWEH do
+      use Maru.Router
+      mount Maru.TestTest.MWEH.M1
+
+      rescue_from :all do
+        conn |> put_status(500) |> text("500")
       end
     end
 

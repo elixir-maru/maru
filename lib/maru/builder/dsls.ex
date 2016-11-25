@@ -121,6 +121,16 @@ defmodule Maru.Builder.DSLs do
   """
   defmacro mount({_, _, mod}) do
     module = Module.concat(mod)
+    try do
+      true = {:__routes__, 0} in module.__info__(:functions)
+    rescue
+      [UndefinedFunctionError, MatchError] ->
+        raise """
+          #{inspect module} is not an available Maru.Router.
+          If you mount it to another module written at the same file,
+          make sure this module at the front of the file.
+        """
+    end
     quote do
       if @test do
         @mounted_modules unquote(module)

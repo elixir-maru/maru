@@ -8,6 +8,7 @@
   * make unittest easier
   * add `with_exception_handlers` option to Maru.Test
   * allow maru to ignore `MIX_ENV=test` or force `test` for other `MIX_ENV` by `config :maru, test: TRUE_OR_FALSE`
+  * warning when mount unavailable module
 
 ## v0.10.6 (2016-11-20)
 * Enhancements
