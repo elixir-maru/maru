@@ -118,7 +118,12 @@ defmodule Maru.Utils do
     |> Enum.join(", ")
     |> case do
       "" -> nil
-      keys -> IO.write :stderr, "\e[33mwarning: \e[0munknown `use` options #{keys} for module #{inspect module}\n"
+      keys -> Maru.Utils.warn "unknown `use` options #{keys} for module #{inspect module}\n"
     end
+  end
+
+  @doc false
+  def warn(string) do
+    IO.write :stderr, "\e[33mwarning: \e[0m#{string}"
   end
 end

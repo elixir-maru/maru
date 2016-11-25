@@ -239,7 +239,7 @@ defmodule Maru.Builder.DSLs do
         import Maru.Builder.Before, only: []
         import Maru.Builder.DSLs
       else
-        IO.write :stderr, "Warning: #{inspect __MODULE__}: `before` only works for plug router, Ignore.\n"
+        Maru.Utils.warn "#{inspect __MODULE__}: `before` only works for plug router, Ignore.\n"
       end
     end
   end

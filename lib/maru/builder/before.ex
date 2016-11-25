@@ -45,7 +45,7 @@ defmodule Maru.Builder.Before do
   """
   defmacro plug_overridable(_, _, _ \\ nil) do
     quote do
-      IO.write :stderr, "Warning: #{inspect __MODULE__}: plug_overridable not works within `before` block, Ignore.\n"
+      Maru.Utils.warn "#{inspect __MODULE__}: plug_overridable not works within `before` block, Ignore.\n"
     end
   end
 

@@ -55,7 +55,7 @@ defmodule Maru.Builder.MountLink do
                 module |> Module.split |> Enum.join(".")
               end) |> Enum.join(", ")
 
-            IO.write :stderr, """
+            Maru.Utils.warn """
             Your tested module #{tested_module} mounted to #{linked_module}.
             You must decided which branch should be used for test like this:
 

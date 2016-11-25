@@ -46,7 +46,7 @@ defmodule Maru.Test do
         # Deprecated
         defp make_response(conn), do: make_response(conn, nil)
         defp make_response(conn, version) do
-          IO.write :stderr, """
+          Maru.Utils.warn """
           warning: make_response/2 is deprecated. See build_conn/0 for more details.
           """
 
@@ -101,7 +101,7 @@ defmodule Maru.Test do
 
   @doc false
   def conn(method, path, params_or_body \\ nil) do
-    IO.write :stderr, """
+    Maru.Utils.warn """
     warning: using conn/3 to build a connection is deprecated. Use build_conn/0 instead.
     """
     Plug.Test.conn(method, path, params_or_body)

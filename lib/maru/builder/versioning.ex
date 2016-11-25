@@ -61,7 +61,7 @@ defmodule Maru.Builder.Versioning do
   def get_adapter(:accept_version_header), do: Maru.Builder.Versioning.AcceptVersionHeader
   def get_adapter(:param),                 do: Maru.Builder.Versioning.Parameter
   def get_adapter(strategy) do
-    IO.write :stderr, "Unsupported versioning strategy: #{strategy}, Ignore."
+    Maru.Utils.warnd "Unsupported versioning strategy: #{strategy}, Ignore."
     Maru.Builder.Versioning.None
   end
 
