@@ -206,7 +206,7 @@ defmodule Maru.Builder.Params do
         {false, true} ->
           quote do
             fn _ ->
-              Maru.Exceptions.InvalidFormatter
+              Maru.Exceptions.InvalidFormat
               |> raise([reason: :required, param: unquote(attr_name), value: nil])
             end
           end

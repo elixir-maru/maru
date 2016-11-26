@@ -54,7 +54,7 @@ defmodule Maru.Builder.RouteTest do
     assert %{id: 1} = do_parse(ValidateParam.p1, %{"id" => 1})
     assert %{} == do_parse(ValidateParam.p2, %{})
     assert %{bool: false} == do_parse(ValidateParam.p3, %{"bool" => "false"})
-    assert_raise Maru.Exceptions.InvalidFormatter, fn ->
+    assert_raise Maru.Exceptions.InvalidFormat, fn ->
       do_parse(ValidateParam.p4, %{"id" => "id"})
     end
     assert_raise Maru.Exceptions.Validation, fn ->
@@ -335,8 +335,8 @@ defmodule Maru.Builder.RouteTest do
     assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> DispatchTest.r
   end
 
-  test "method not allow" do
-    defmodule MethodNotAllowTest do
+  test "method not allowed" do
+    defmodule MethodNotAllowedTest do
       use Maru.Helpers.Response
 
       adapter = Maru.Builder.Versioning.None
@@ -347,8 +347,8 @@ defmodule Maru.Builder.RouteTest do
       def r(conn), do: route(conn, [])
     end
 
-    assert_raise Maru.Exceptions.MethodNotAllow, fn ->
-      conn(:get, "/") |> MethodNotAllowTest.r
+    assert_raise Maru.Exceptions.MethodNotAllowed, fn ->
+      conn(:get, "/") |> MethodNotAllowedTest.r
     end
   end
 

@@ -38,7 +38,7 @@ defmodule Maru.Runtime do
       func.(value)
     rescue
       _ ->
-        Maru.Exceptions.InvalidFormatter
+        Maru.Exceptions.InvalidFormat
         |> raise([reason: :illegal, param: attr_name, value: value])
     end
   end
