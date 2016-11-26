@@ -23,7 +23,7 @@ defmodule Router.User do
       desc "description"
       params do
         requires :age,    type: Integer, values: 18..65
-        requires :sex,    type: Atom, values: [:male, :female], default: :female
+        requires :gender, type: Atom, values: [:male, :female], default: :female
         group    :name,   type: Map do
           requires :first_name
           requires :last_name
