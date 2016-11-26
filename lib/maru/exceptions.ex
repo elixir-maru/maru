@@ -1,5 +1,5 @@
 defmodule Maru.Exceptions do
-  defmodule InvalidFormatter do
+  defmodule InvalidFormat do
     @moduledoc """
     Raised when get param from request.
 
@@ -66,12 +66,12 @@ defmodule Maru.Exceptions do
     end
   end
 
-  defmodule MethodNotAllow do
+  defmodule MethodNotAllowed do
     @moduledoc """
     Raised when request path matched but method not matched.
     Catch this exception and return 405 like this:
 
-        rescue_from Maru.Exceptions.MethodNotAllow do
+        rescue_from Maru.Exceptions.MethodNotAllowed do
           conn
           |> put_status(405)
           |> text("Method Not Allow")
@@ -80,7 +80,7 @@ defmodule Maru.Exceptions do
 
     defexception [:method, :request_path]
     def message(_e) do
-      "MethodNotAllow"
+      "MethodNotAllowed"
     end
   end
 end

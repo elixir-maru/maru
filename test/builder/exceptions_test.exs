@@ -37,7 +37,7 @@ defmodule Maru.Builder.ExceptionsTest do
         |> text("function error")
       end
 
-      rescue_from Maru.Exceptions.MethodNotAllow, with: :err405
+      rescue_from Maru.Exceptions.MethodNotAllowed, with: :err405
 
       rescue_from :all, as: e do
         conn
@@ -48,7 +48,7 @@ defmodule Maru.Builder.ExceptionsTest do
       defp err405(conn, _exception) do
         conn
         |> put_status(405)
-        |> text("MethodNotAllow")
+        |> text("MethodNotAllowed")
       end
 
     end
@@ -63,7 +63,7 @@ defmodule Maru.Builder.ExceptionsTest do
     assert %Plug.Conn{resp_body: "err", status: 500} = RescueTest.call(conn3, [])
 
     conn4 = conn(:post, "test3")
-    assert %Plug.Conn{resp_body: "MethodNotAllow", status: 405} = RescueTest.call(conn4, [])
+    assert %Plug.Conn{resp_body: "MethodNotAllowed", status: 405} = RescueTest.call(conn4, [])
   end
 
   test "conn in process dict" do

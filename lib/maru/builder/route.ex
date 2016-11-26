@@ -65,7 +65,7 @@ defmodule Maru.Builder.Route do
   end
 
   @doc """
-  Generate MethodNotAllow route for all path without `match` method.
+  Generate MethodNotAllowed route for all path without `match` method.
   """
   def dispatch_405(version, path, mount_link, adapter) do
     method = Macro.var(:_, nil)
@@ -76,7 +76,7 @@ defmodule Maru.Builder.Route do
         adapter.conn_for_match(method, version, path)
       )=var!(conn), []) do
         fn ->
-          Maru.Exceptions.MethodNotAllow
+          Maru.Exceptions.MethodNotAllowed
           |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
         end |> unquote(func) |> apply([])
       end
