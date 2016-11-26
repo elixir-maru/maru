@@ -3,7 +3,7 @@
 [Upgrade Instructions](https://maru.readme.io/v0.10/docs/upgrade-instructions-from-v09-1) From v0.9 to v0.10
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
-## v0.11.0-dev
+## v0.11.0 (2016-11-26)
 * Enhancements
   * make unittest easier
   * add `with_exception_handlers` option to Maru.Test
