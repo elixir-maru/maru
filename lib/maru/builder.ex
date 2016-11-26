@@ -131,7 +131,7 @@ defmodule Maru.Builder do
   end
 
   @doc false
-  def make_method_not_allow_block(routes, version_adapter) do
+  def make_method_not_allowed_block(routes, version_adapter) do
     Enum.group_by(routes, fn route -> {route.version, route.path, route.mount_link} end)
     |> Enum.map(fn {{version, path, mount_link}, routes} ->
       unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do

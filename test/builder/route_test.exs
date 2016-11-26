@@ -335,7 +335,7 @@ defmodule Maru.Builder.RouteTest do
     assert %Plug.Conn{resp_body: "match"} = conn(:post, "/") |> DispatchTest.r
   end
 
-  test "method not allow" do
+  test "method not allowed" do
     defmodule MethodNotAllowedTest do
       use Maru.Helpers.Response
 

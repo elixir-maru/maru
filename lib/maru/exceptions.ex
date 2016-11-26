@@ -74,7 +74,7 @@ defmodule Maru.Exceptions do
         rescue_from Maru.Exceptions.MethodNotAllowed do
           conn
           |> put_status(405)
-          |> text("Method Not Allow")
+          |> text("Method Not Allowed")
         end
     """
 
