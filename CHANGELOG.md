@@ -4,7 +4,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
-## v0.11.1-dev
+## v0.11.1 (2016-11-27)
 * Bugfix
   * Fix typo of exception name: `MethodNotAllow` -> `MethodNotAllowed`, `InvalidFormatter` -> `InvalidFormat`
 
