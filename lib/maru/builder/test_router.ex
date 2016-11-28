@@ -37,14 +37,26 @@ defmodule Maru.Builder.TestRouter do
     routes_block = Maru.Builder.make_routes_block(routes, env, version_adapter)
     method_not_allowed_block = Maru.Builder.make_method_not_allowed_block(routes, version_adapter)
 
-    quote do
-      unquote(routes_block)
-      unquote(method_not_allowed_block)
-      defp route(conn, _), do: conn
+    [ quote do
+        unquote(routes_block)
+        unquote(method_not_allowed_block)
+        defp route(conn, _), do: conn
+      end,
 
-      def maru_test_call(unquote(conn)) do
-        unquote(body)
+      case Module.get_attribute(module, :exceptions) do
+        [_ | _] ->
+          quote do
+            def maru_test_call(unquote(conn)) do
+              __error_handler__(fn -> unquote(body) end).()
+            end
+          end
+        _ ->
+          quote do
+            def maru_test_call(unquote(conn)) do
+              unquote(body)
+            end
+          end
       end
-    end
+    ]
   end
 end

@@ -187,4 +187,39 @@ defmodule Maru.Builder.ExceptionsTest do
     assert %Plug.Conn{resp_body: "match error", status: 500} = MountedRoutes2Test.call(conn3, [])
   end
 
+  test "plug router exceptions" do
+    defmodule PlugRouterExceptionTest do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      get do
+        text(conn, "hello")
+      end
+    end
+
+    conn1 = conn(:get, "/not_found")
+    assert_raise Maru.Exceptions.NotFound, fn ->
+     PlugRouterExceptionTest.call(conn1, [])
+    end
+
+    defmodule HandlePlugRouterExceptionTest do
+      use Maru.Router
+      @test      false
+      @make_plug true
+
+      get do
+        text(conn, "hello")
+      end
+
+      rescue_from :all do
+        conn |> put_status(404) |> text("not found")
+      end
+    end
+
+    conn2 = conn(:get, "/not_found")
+    assert %Plug.Conn{status: 404} =
+      HandlePlugRouterExceptionTest.call(conn2, [])
+  end
+
 end
