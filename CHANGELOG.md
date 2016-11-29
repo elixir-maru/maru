@@ -6,11 +6,12 @@
 
 ## v0.11.2 (2016-11-28)
 * Bugfix
-  * Fix `rescue_from` can't catch `Maru.Exceptions.NotFound` exception
+  * fix `rescue_from` can't catch `Maru.Exceptions.NotFound` exception
+  * fix elixir v1.4 warnings
 
 ## v0.11.1 (2016-11-27)
 * Bugfix
-  * Fix typo of exception name: `MethodNotAllow` -> `MethodNotAllowed`, `InvalidFormatter` -> `InvalidFormat`
+  * fix typo of exception name: `MethodNotAllow` -> `MethodNotAllowed`, `InvalidFormatter` -> `InvalidFormat`
 
 ## v0.11.0 (2016-11-26)
 * Enhancements
