@@ -63,7 +63,7 @@ defmodule Maru.TestTest do
         requires :foo
       end
       post do
-        json(conn, params)
+        json(conn, params())
       end
     end
 

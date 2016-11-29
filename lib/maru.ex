@@ -23,7 +23,7 @@ defmodule Maru do
   @doc false
   def start(_type, _args) do
     Application.ensure_all_started :plug
-    for {module, options} <- servers do
+    for {module, options} <- servers() do
       if Keyword.has_key? options, :http do
         opts = options[:http] |> Keyword.merge([port: to_port(options[:http][:port]) || @default_http_port])
         Plug.Adapters.Cowboy.http module, [], opts
@@ -36,7 +36,7 @@ defmodule Maru do
         Logger.info "Running #{module} with Cowboy on https://127.0.0.1:#{opts[:port]}"
       end
     end
-    {:ok, self}
+    {:ok, self()}
   end
 
   def servers do

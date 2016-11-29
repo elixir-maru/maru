@@ -1,19 +1,19 @@
 defmodule Maru.Struct.Dependent do
-  @module false
+  @moduledoc false
 
   defstruct information: nil,
             runtime: nil
 end
 
 defmodule Maru.Struct.Dependent.Information do
-  @module false
+  @moduledoc false
 
   defstruct depends:  [],
             children: []
 end
 
 defmodule Maru.Struct.Dependent.Runtime do
-  @module false
+  @moduledoc false
 
   defstruct validators: [],
             children:   []

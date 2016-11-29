@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Maru.Routes do
-  @mdouledoc """
+  @moduledoc """
   Print routes for a `Maru.Router` module.
 
       $ mix maru.routes

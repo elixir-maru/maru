@@ -32,7 +32,8 @@ defmodule Maru.Builder.Versioning do
         end
       end
 
-      defp path_for_match(path) do
+      @doc false
+      def path_for_match(path) do
         Enum.filter_map(
           path,
           fn {:version} -> false

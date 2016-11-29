@@ -153,7 +153,6 @@ defmodule Maru.Builder.RouteTest do
         optional :baz, type: List[List[Integer]]
       end
       def p, do: @parameters
-      @parameters []
     end
 
     assert %{
@@ -190,7 +189,6 @@ defmodule Maru.Builder.RouteTest do
         end
       end
       def p2, do: @parameters
-      @parameters []
     end
 
     assert %{group: %{name: "name"}} ==

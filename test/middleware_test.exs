@@ -15,7 +15,6 @@ defmodule Maru.MiddlewareTest do
       use Maru.Router
 
       get do
-        params
         text(conn, "ok")
       end
     end

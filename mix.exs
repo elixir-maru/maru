@@ -8,11 +8,11 @@ defmodule Maru.Mixfile do
       elixir: "~> 1.2.3 or ~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      deps: deps,
+      deps: deps(),
       description: "REST-like API micro-framework for elixir inspired by grape.",
       source_url: "https://github.com/elixir-maru/maru",
       homepage_url: "https://maru.readme.io",
-      package: package,
+      package: package(),
       docs: [
         extras: ["README.md"],
         main: "readme",

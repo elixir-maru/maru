@@ -20,6 +20,6 @@ defmodule Maru.Helpers.ResponseTest do
 
   test "conn in process dict" do
     put_maru_conn(1)
-    assert 1 == get_maru_conn
+    assert 1 == get_maru_conn()
   end
 end

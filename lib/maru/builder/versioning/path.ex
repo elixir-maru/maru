@@ -32,7 +32,7 @@ defmodule Maru.Builder.Versioning.Path do
   end
 
   @doc false
-  defp path_for_match(path, version) do
+  def path_for_match(path, version) do
     Enum.map(path, fn
       {:version}        -> version
       x when is_atom(x) -> Macro.var(:_, nil)
