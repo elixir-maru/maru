@@ -4,6 +4,8 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
+## v0.11.3-dev
+
 ## v0.11.2 (2016-11-28)
 * Bugfix
   * fix `rescue_from` can't catch `Maru.Exceptions.NotFound` exception
