@@ -392,8 +392,11 @@ defmodule Maru.Builder.RouteTest do
       use Maru.Router
       @test false
 
+      defp unwarn(_), do: nil
+
       route_param :d do
         get do
+          unwarn(params)
           conn |> text("d")
         end
       end

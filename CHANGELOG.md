@@ -5,6 +5,8 @@
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
 ## v0.11.3-dev
+* Enhancements
+  * make `params` a variable instead of macro
 
 ## v0.11.2 (2016-11-28)
 * Bugfix

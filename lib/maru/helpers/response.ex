@@ -14,10 +14,8 @@ defmodule Maru.Helpers.Response do
   @doc """
   Get params.
   """
-  defmacro params do
-    quote do
-      var!(conn).private[:maru_params] || %{}
-    end
+  def get_maru_params(conn) do
+    conn.private[:maru_params]
   end
 
   @doc """

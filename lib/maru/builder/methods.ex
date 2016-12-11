@@ -37,16 +37,18 @@ defmodule Maru.Builder.Methods do
         if is_nil(resource.version) do
           [] else [{:version}]
         end
+      parameters = resource.parameters ++ Parameter.pop
       @endpoints %Endpoint{
-        func_id: @func_id,
-        block:   unquote(ep.block)
+        func_id:    @func_id,
+        block:      unquote(ep.block),
+        has_params: ([] != parameters),
       }
       @routes %Route{
         desc:       @desc,
         method:     unquote(ep.method),
         version:    resource.version,
         path:       version ++ resource.path ++ unquote(ep.path),
-        parameters: resource.parameters ++ Parameter.pop,
+        parameters: parameters,
         helpers:    resource.helpers,
         plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
         module:     __MODULE__,

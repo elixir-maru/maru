@@ -94,6 +94,7 @@ defmodule Maru.Builder.ExceptionsTest do
         requires :a
       end
       get "/a" do
+        unwarn(params)
         text(conn, "a")
       end
 
@@ -102,6 +103,7 @@ defmodule Maru.Builder.ExceptionsTest do
       end
       get "/b" do
         unwarn(conn)
+        unwarn(params)
         raise "b"
       end
 
