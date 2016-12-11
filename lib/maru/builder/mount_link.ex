@@ -55,13 +55,12 @@ defmodule Maru.Builder.MountLink do
                 module |> Module.split |> Enum.join(".")
               end) |> Enum.join(", ")
 
-            Maru.Utils.warn """
+            raise """
             Your tested module #{tested_module} mounted to #{linked_module}.
             You must decided which branch should be used for test like this:
 
             use Maru.Test, for: #{first_linked_module} |> #{tested_module}
             """
-            raise CompileError
           father -> do_get_mount_link(father, fathers, [father | result])
         end
     end

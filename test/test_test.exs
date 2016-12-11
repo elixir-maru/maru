@@ -226,12 +226,12 @@ defmodule Maru.TestTest do
       end
 
       get "match_error" do
-        1 = 2
+        raise MatchError # 1 = 2
         text(conn, "200")
       end
 
       get "arithmetic_error" do
-        2 / 0
+        raise ArithmeticError # 2 / 0
         text(conn, "200")
       end
 

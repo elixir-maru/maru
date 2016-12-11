@@ -8,7 +8,7 @@ defmodule Maru.Builder.MountLinkTest do
     MountLink.put_father(B, C)
     assert [A, C] = MountLink.get_mount_link(A, [C])
     assert [A, B, C] = MountLink.get_mount_link(A, [B])
-    assert_raise CompileError, fn ->
+    assert_raise RuntimeError, fn ->
       MountLink.get_mount_link(A, [])
     end
 
