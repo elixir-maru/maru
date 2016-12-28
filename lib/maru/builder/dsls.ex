@@ -81,6 +81,7 @@ defmodule Maru.Builder.DSLs do
     module = Module.concat(module)
     quote do
       unquote(module).__shared_params__ |> Enum.each(&(@shared_params &1))
+      import unquote(module)
     end
   end
 
