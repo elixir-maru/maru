@@ -42,7 +42,7 @@ defmodule Maru.Helper do
 
       defmacro current_user do
         quote do
-          assigns[:current_user]
+          var!(conn).assigns[:current_user]
         end
       end
 
