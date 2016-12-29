@@ -7,6 +7,7 @@
 ## v0.11.3-dev
 * Enhancements
   * make `params` a variable instead of macro
+  * import module when use a module as helper
 
 ## v0.11.2 (2016-11-28)
 * Bugfix
