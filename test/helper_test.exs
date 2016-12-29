@@ -36,11 +36,11 @@ defmodule Maru.HelperTest do
       helpers Maru.HelperTest.TestHelper
 
       get "/test1" do
-        text(conn, test_user1)
+        text(conn, test_user1())
       end
 
       get "/test2" do
-        set_test_user2
+        set_test_user2()
         text(conn, conn.assigns[:test_user2])
       end
     end
