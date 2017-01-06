@@ -4,7 +4,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
-## v0.11.3-dev
+## v0.11.3 (2017-01-06)
 * Enhancements
   * make `params` a variable instead of macro
   * import module when use a module as helper
