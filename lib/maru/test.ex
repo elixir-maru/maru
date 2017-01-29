@@ -71,9 +71,17 @@ defmodule Maru.Test do
             conn
             |> put_private(:maru_version, version)
             |> Plug.Adapters.Test.Conn.conn(method, path, body_or_params)
-          Enum.reduce(plugs, conn, fn {plug, opts}, conn ->
+          refute_received {:plug_conn, :sent}
+          result = Enum.reduce(plugs, conn, fn {plug, opts}, conn ->
             plug.call(conn, plug.init(opts))
-          end) |> maru_test_call
+          end) |> maru_test_call()
+          receive do
+            {_ref, {_code, _headers, _body}} -> :ok
+          end
+          receive do
+            {:plug_conn, :sent} -> :ok
+          end
+          result
         end
       end |
 
