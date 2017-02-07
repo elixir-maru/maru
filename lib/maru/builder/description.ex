@@ -33,4 +33,12 @@ defmodule Maru.Builder.Description do
     end
   end
 
+  defmacro headers([do: block]) do
+    desc = Keyword.get(options, :desc)
+    quote do
+      @desc put_in(@desc, [:headers], [])
+      unquote(block)
+    end
+  end
+
 end
