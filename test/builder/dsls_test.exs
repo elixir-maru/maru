@@ -112,8 +112,12 @@ defmodule Maru.Builder.DSLsTest do
         this is detail
         """
         headers do
-          requires :token, type: :string, desc: "ok"
-          requires "access-token", type: :string, desc: "ok"
+          need :token, type: :string, desc: "ok"
+          need "access-token", type: :string, desc: "ok"
+        end
+
+        params do
+          requires :test, type: :string, desc: "ok"
         end
 
         responses do

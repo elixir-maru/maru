@@ -44,7 +44,7 @@ defmodule Maru.Builder.Description do
     end
   end
 
-  defmacro requires(name, options) do
+  defmacro need(name, options) do
     desc = Keyword.get(options, :desc)
     type = Keyword.get(options, :type)
     header = %{attr_name: case is_atom(name) do
