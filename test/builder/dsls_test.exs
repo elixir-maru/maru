@@ -101,6 +101,9 @@ defmodule Maru.Builder.DSLsTest do
   end
 
   test "description with block" do
+    alias Maru.Struct.Parameter, as: P
+    alias Maru.Struct.Parameter.Information, as: PI
+
     defmodule DescTestWithBlock do
       use Maru.Router
 
@@ -108,6 +111,10 @@ defmodule Maru.Builder.DSLsTest do
         detail """
         this is detail
         """
+        headers do
+          requires :token, type: :string, desc: "ok"
+          requires "access-token", type: :string, desc: "ok"
+        end
 
         responses do
           status 200, desc: "ok"
@@ -120,6 +127,10 @@ defmodule Maru.Builder.DSLsTest do
     assert %{
       summary: "desc test",
       detail:  "this is detail\n",
+      headers: [
+        %{attr_name: "token", type: "string", description: "ok"},
+        %{attr_name: "access-token", type: "string", description: "ok"}
+      ],
       responses: [
         %{code: 200, description: "ok"},
         %{code: 500, description: "error"},
