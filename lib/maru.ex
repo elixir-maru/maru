@@ -8,6 +8,7 @@ defmodule Maru do
   """
 
   use Application
+  use Supervisor
 
   @doc """
   Maru version.
@@ -17,26 +18,24 @@ defmodule Maru do
     @version
   end
 
-  @default_http_port 4000
-  @default_https_port 4040
+  @default_ports http: 4000, https: 4040
+  @default_bind_addr {127, 0, 0, 1}
 
   @doc false
   def start(_type, _args) do
     Application.ensure_all_started :plug
-    for {module, options} <- servers() do
-      if Keyword.has_key? options, :http do
-        opts = options[:http] |> Keyword.merge([port: to_port(options[:http][:port]) || @default_http_port])
-        Plug.Adapters.Cowboy.http module, [], opts
-        Logger.info "Running #{module} with Cowboy on http://127.0.0.1:#{opts[:port]}"
+
+    children =
+      for {module, options} <- servers() do
+        for protocol <- [:http, :https] do
+          if Keyword.has_key? options, protocol do
+            endpoint_spec(protocol, module, options[protocol])
+          end || []
+        end
       end
 
-      if Keyword.has_key? options, :https do
-        opts = options[:https] |> Keyword.merge([port: to_port(options[:https][:port]) || @default_https_port])
-        Plug.Adapters.Cowboy.https module, [], opts
-        Logger.info "Running #{module} with Cowboy on https://127.0.0.1:#{opts[:port]}"
-      end
-    end
-    {:ok, self()}
+    opts = [strategy: :one_for_one, name: Maru.Supervisor]
+    Supervisor.start_link(List.flatten(children), opts)
   end
 
   def servers do
@@ -55,7 +54,26 @@ defmodule Maru do
     end
   end
 
+  defp endpoint_spec(proto, module, opts) do
+    bind_addr = to_ip(opts[:bind_addr]) || opts[:ip] || @default_bind_addr
+
+    normalized_opts =
+      opts
+      |> Keyword.merge([port: to_port(opts[:port]) || @default_ports[proto]])
+      |> Keyword.merge([ip: bind_addr])
+      |> Keyword.delete(:bind_addr)
+    Logger.info "Starting #{module} with Cowboy on " <>
+                "#{proto}://#{:inet_parse.ntoa(bind_addr)}:#{opts[:port]}"
+    Plug.Adapters.Cowboy.child_spec(proto, module, [], normalized_opts)
+  end
+
   defp to_port(nil),                        do: nil
   defp to_port(port) when is_integer(port), do: port
   defp to_port(port) when is_binary(port),  do: port |> String.to_integer
+
+  defp to_ip(nil), do: nil
+  defp to_ip(ip_addr) do
+    {:ok, inet_ip} = :inet_parse.ipv4_address(String.to_charlist(ip_addr))
+    inet_ip
+  end
 end
