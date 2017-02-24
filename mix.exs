@@ -34,7 +34,6 @@ defmodule Maru.Mixfile do
       { :inch_ex, "~> 0.5",  only: :docs },
       { :earmark, "~> 1.0",  only: :docs },
       { :ex_doc,  "~> 0.14", only: :docs },
-      { :confex,  "~> 1.4", optional: true },
     ]
   end
 
