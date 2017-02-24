@@ -5,6 +5,8 @@
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
 ## v0.11.4-dev
+* Enhancements
+  * Make all confuguration options configurable via OS ENVs
 * Bugfix
   * receive messages sent by plug for unittest
 
