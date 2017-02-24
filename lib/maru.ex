@@ -40,13 +40,22 @@ defmodule Maru do
   end
 
   def servers do
-    Enum.filter(Application.get_all_env(:maru), fn {k, _} ->
-      match?("Elixir." <> _, to_string(k))
-    end)
+    servers =
+      Enum.filter(Application.get_all_env(:maru), fn {k, _} ->
+        match?("Elixir." <> _, to_string(k))
+      end)
+    # If Confex is available, replace all system variables
+    case Code.ensure_loaded?(Confex) do
+      true ->
+        Enum.map(servers, fn {k, v} ->
+          {k, Confex.process_env(v)}
+        end)
+      false ->
+        servers
+    end
   end
 
   defp to_port(nil),                        do: nil
   defp to_port(port) when is_integer(port), do: port
   defp to_port(port) when is_binary(port),  do: port |> String.to_integer
-  defp to_port({:system, env_var}),         do: System.get_env(env_var) |> to_port
 end
