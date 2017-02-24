@@ -8,6 +8,7 @@ defmodule Maru do
   """
 
   use Application
+  use Supervisor
 
   @doc """
   Maru version.
@@ -23,18 +24,18 @@ defmodule Maru do
   @doc false
   def start(_type, _args) do
     Application.ensure_all_started :plug
-    for {module, options} <- servers() do
-      protocols =
-        [http: &Plug.Adapters.Cowboy.http/3,
-         https: &Plug.Adapters.Cowboy.https/3]
 
-      for {protocol, plug} <- protocols do
-        if Keyword.has_key? options, protocol do
-          start_endpoint(plug, protocol, module, options[protocol])
+    children =
+      for {module, options} <- servers() do
+        for protocol <- [:http, :https] do
+          if Keyword.has_key? options, protocol do
+            endpoint_spec(protocol, module, options[protocol])
+          end || []
         end
       end
-    end
-    {:ok, self()}
+
+    opts = [strategy: :one_for_one, name: Maru.Supervisor]
+    Supervisor.start_link(List.flatten(children), opts)
   end
 
   def servers do
@@ -53,14 +54,14 @@ defmodule Maru do
     end
   end
 
-  defp start_endpoint(plug, proto, module, opts) do
+  defp endpoint_spec(proto, module, opts) do
     normalized_opts =
       opts
       |> Keyword.merge([port: to_port(opts[:port]) || @default_ports[proto]])
       |> Keyword.merge([ip: to_ip(opts[:bind_addr])])
-    plug.(module, [], normalized_opts)
-    Logger.info "Running #{module} with Cowboy on"
+    Logger.info "Starting #{module} with Cowboy on"
                 "#{proto}://#{opts[:bind_addr]}:#{opts[:port]}"
+    Plug.Adapters.Cowboy.child_spec(proto, module, [], normalized_opts)
   end
 
   defp to_port(nil),                        do: nil
