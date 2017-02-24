@@ -19,7 +19,7 @@ defmodule Maru do
   end
 
   @default_ports http: 4000, https: 4040
-  @default_bind_addr "127.0.0.1"
+  @default_bind_addr {127, 0, 0, 1}
 
   @doc false
   def start(_type, _args) do
@@ -55,13 +55,15 @@ defmodule Maru do
   end
 
   defp endpoint_spec(proto, module, opts) do
-    bind_addr = opts[:bind_addr]
+    bind_addr = to_ip(opts[:bind_addr]) || opts[:ip] || @default_bind_addr
+
     normalized_opts =
-      Keyword.delete(opts, :bind_addr)
+      opts
       |> Keyword.merge([port: to_port(opts[:port]) || @default_ports[proto]])
-      |> Keyword.merge([ip: to_ip(bind_addr)])
+      |> Keyword.merge([ip: bind_addr])
+      |> Keyword.delete(:bind_addr)
     Logger.info "Starting #{module} with Cowboy on " <>
-                "#{proto}://#{bind_addr}:#{opts[:port]}"
+                "#{proto}://#{:inet_parse.ntoa(bind_addr)}:#{opts[:port]}"
     Plug.Adapters.Cowboy.child_spec(proto, module, [], normalized_opts)
   end
 
@@ -69,7 +71,7 @@ defmodule Maru do
   defp to_port(port) when is_integer(port), do: port
   defp to_port(port) when is_binary(port),  do: port |> String.to_integer
 
-  defp to_ip(nil), do: to_ip(@default_bind_addr)
+  defp to_ip(nil), do: nil
   defp to_ip(ip_addr) do
     {:ok, inet_ip} = :inet_parse.ipv4_address(String.to_charlist(ip_addr))
     inet_ip
