@@ -61,7 +61,7 @@ defmodule Maru.Builder.Versioning do
   def get_adapter(:path),                  do: Maru.Builder.Versioning.Path
   def get_adapter(:accept_version_header), do: Maru.Builder.Versioning.AcceptVersionHeader
   def get_adapter(:param),                 do: Maru.Builder.Versioning.Parameter
-  def get_adapter(:version_header),        do: Maru.Builder.Versioning.VersionHeader
+  def get_adapter(:accept_header),        do: Maru.Builder.Versioning.AcceptHeader
   def get_adapter(strategy) do
     Maru.Utils.warn "Unsupported versioning strategy: #{strategy}, Ignore."
     Maru.Builder.Versioning.None
