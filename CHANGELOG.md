@@ -4,9 +4,9 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
-## v0.11.4-dev
+## v0.11.4 (2017-03-18)
 * Enhancements
-  * Make all confuguration options configurable via OS ENVs
+  * make all configuration options configurable via OS ENVs, support by [confex](https://hex.pm/packages/confex)
 * Bugfix
   * receive messages sent by plug for unittest
 
