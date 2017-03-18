@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Maru.Routes do
         end
 
       Code.ensure_loaded?(Phoenix) ->
-        phoenix_module = Module.concat(Mix.Phoenix.base(), "Router")
+        phoenix_module = apply(Mix.Phoenix, :base, []) |> Module.concat("Router")
         for %{
           __struct__: Phoenix.Router.Route,
           kind: :forward,
