@@ -3,10 +3,7 @@ defmodule Maru.Builder.Methods do
   Method DSLs for parsing router.
   """
 
-  alias Maru.Struct.Resource
-  alias Maru.Struct.Parameter
-  alias Maru.Struct.Endpoint
-  alias Maru.Struct.Route
+  alias Maru.Struct.{Resource, Parameter, Endpoint, Route}
   alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Path, as: MaruPath
 

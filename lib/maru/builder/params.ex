@@ -4,10 +4,8 @@ defmodule Maru.Builder.Params do
   """
 
   alias Maru.Struct.Parameter
-  alias Maru.Struct.Parameter.Information
-  alias Maru.Struct.Parameter.Runtime
-  alias Maru.Struct.Dependent
-  alias Maru.Struct.Validator
+  alias Maru.Struct.Parameter.{Information, Runtime}
+  alias Maru.Struct.{Dependent, Validator}
   alias Maru.Utils
 
   @doc false

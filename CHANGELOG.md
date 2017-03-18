@@ -5,6 +5,8 @@
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
 ## v0.12.0-dev
+* Deprecations
+  * do NOT support elixir 1.2.x any more
 
 ## v0.11.4 (2017-03-18)
 * Enhancements

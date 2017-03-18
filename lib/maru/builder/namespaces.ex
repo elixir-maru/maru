@@ -3,8 +3,7 @@ defmodule Maru.Builder.Namespaces do
   Namespace DSLs for parsing router.
   """
 
-  alias Maru.Struct.Parameter
-  alias Maru.Struct.Resource
+  alias Maru.Struct.{Parameter, Resource}
   alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Params
   alias Maru.Builder.Path, as: MaruPath
