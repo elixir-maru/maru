@@ -8,7 +8,7 @@ defmodule Maru.Supervisor do
   end
 
   def init([]) do
-    for {module, options} <- Maru.servers() do
+    for {module, options} <- maru_servers() do
       for protocol <- [:http, :https] do
         if Keyword.has_key? options, protocol do
           endpoint_spec(protocol, module, options[protocol])
@@ -43,5 +43,15 @@ defmodule Maru.Supervisor do
   defp to_ip(ip_addr) do
     {:ok, inet_ip} = :inet_parse.ipv4_address(String.to_charlist(ip_addr))
     inet_ip
+  end
+
+  defp maru_servers do
+    if Code.ensure_loaded?(Confex) do
+      Enum.map(Maru.servers(), fn {k, v} ->
+        {k, apply(Confex, :process_env, [v])}
+      end)
+    else
+      Maru.servers()
+    end
   end
 end
