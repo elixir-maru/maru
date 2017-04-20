@@ -12,7 +12,7 @@ defmodule Maru.Test do
     |> to_char_list
     |> :cover.compile_beam_directory
     for module <- :cover.modules do
-      if {:__mounted_modules__, 0} in module.__info__(:functions) do
+      if {:__mounted_modules__, 0} in module.module_info(:exports) do
         Enum.each(module.__mounted_modules__, fn mounted ->
           Maru.Builder.MountLink.put_father(mounted, module)
         end)
