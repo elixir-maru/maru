@@ -5,9 +5,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "rescue_from" do
     defmodule RescueTest do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       defp unwarn(_), do: nil
 
@@ -68,9 +66,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "conn in process dict" do
     defmodule RescueWithConnTest do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       defp unwarn(_), do: nil
 
@@ -133,9 +129,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "mounted routes" do
     defmodule MountedRoutesTest.Mounted do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       defp unwarn(_), do: nil
 
@@ -158,9 +152,7 @@ defmodule Maru.Builder.ExceptionsTest do
     end
 
     defmodule MountedRoutesTest do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
 
@@ -172,9 +164,7 @@ defmodule Maru.Builder.ExceptionsTest do
     end
 
     defmodule MountedRoutes2Test do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
     end
@@ -191,9 +181,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "plug router exceptions" do
     defmodule PlugRouterExceptionTest do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       get do
         text(conn, "hello")
@@ -206,9 +194,7 @@ defmodule Maru.Builder.ExceptionsTest do
     end
 
     defmodule HandlePlugRouterExceptionTest do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       get do
         text(conn, "hello")

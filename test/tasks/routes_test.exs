@@ -12,9 +12,7 @@ defmodule Maru.Tasks.RoutesTest do
     end
 
     defmodule API do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       mount Maru.Tasks.RoutesTest.Router
     end
@@ -35,9 +33,7 @@ defmodule Maru.Tasks.RoutesTest do
     end
 
     defmodule API2 do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       mount Maru.Tasks.RoutesTest.Router2
     end

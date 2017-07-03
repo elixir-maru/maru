@@ -27,4 +27,13 @@ defmodule Maru do
     end)
   end
 
+  @doc false
+  def test_mode? do
+    case Application.get_env(:maru, :test) do
+      true  -> true
+      false -> false
+      nil   -> Mix.env == :test
+    end
+  end
+
 end

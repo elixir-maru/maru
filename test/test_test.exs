@@ -3,8 +3,7 @@ defmodule Maru.TestTest do
 
   test "test" do
     defmodule Test1 do
-      use Maru.Router
-      version "v3"
+      use Maru.Router, make_plug: true
 
       get do
         text(conn, "resp")
@@ -12,7 +11,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest1 do
-      use Maru.Test, for: Maru.TestTest.Test1
+      use Maru.Test, root: Maru.TestTest.Test1
 
       def test do
         get("/") |> text_response
@@ -24,7 +23,9 @@ defmodule Maru.TestTest do
 
   test "version test" do
     defmodule Test2 do
-      use Maru.Router
+      Application.put_env(:maru, Maru.TestTest.Test2, [versioning: [using: :param, parameter: "v"]])
+
+      use Maru.Router, make_plug: true
 
       version "v1" do
         get do
@@ -40,24 +41,46 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest2 do
-      use Maru.Test, for: Maru.TestTest.Test2
+      use Maru.Test, root: Maru.TestTest.Test2
 
       def test1 do
-        get("/", "v1") |> text_response
+        get("/?v=v1") |> text_response
       end
 
       def test2 do
-        get("/", "v2") |> text_response
+        get("/?v=v2") |> text_response
+      end
+
+      def test3 do
+        build_conn()
+        |> put_body_or_params(%{v: "v1"})
+        |> get("/")
+        |> text_response
+      end
+
+      def test4 do
+        build_conn()
+        |> put_body_or_params(%{v: "v2"})
+        |> get("/")
+        |> text_response
       end
     end
 
     assert "resp v1" = TestTest2.test1
     assert "resp v2" = TestTest2.test2
+    assert "resp v1" = TestTest2.test3
+    assert "resp v2" = TestTest2.test4
   end
 
   test "parser test" do
     defmodule Test3 do
-      use Maru.Router
+      use Maru.Router, make_plug: true
+
+      plug Plug.Parsers, [
+        parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
+        pass: ["*/*"],
+        json_decoder: Poison
+      ]
 
       params do
         requires :foo
@@ -68,19 +91,12 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest3 do
-      use Maru.Test, for: Maru.TestTest.Test3
+      use Maru.Test, root: Maru.TestTest.Test3
 
       def test do
-        opts = [
-          parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
-          pass: ["*/*"],
-          json_decoder: Poison
-        ]
-
         build_conn()
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> put_body_or_params(~s({"foo":"bar"}))
-        |> put_plug(Plug.Parsers, opts)
         |> post("/")
         |> json_response
       end
@@ -137,7 +153,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestMount do
-      use Maru.Router
+      use Maru.Router, make_plug: true
 
       plug Maru.TestTest.PlugTest
 
@@ -145,23 +161,17 @@ defmodule Maru.TestTest do
       mount Maru.TestTest.TestMount2
     end
 
-    for module <- [Maru.TestTest.TestMount, Maru.TestTest.TestMount1, Maru.TestTest.TestMount2, Maru.TestTest.TestMountShared] do
-      Enum.each(module.__mounted_modules__, fn mounted ->
-        Maru.Builder.MountLink.put_father(mounted, module)
-      end)
-    end
-
-    defmodule TestMountTest do
-      use Maru.Test, for: Maru.TestTest.TestMount1 |> Maru.TestTest.TestMountShared
-      def test, do: get("shared")
+    defmodule TestMountTest1 do
+      use Maru.Test, root: Maru.TestTest.TestMount
+      def test, do: get("/m1/shared")
     end
 
     defmodule TestMountTest2 do
-      use Maru.Test, for: Maru.TestTest.TestMount2 |> Maru.TestTest.TestMountShared
-      def test, do: get("shared")
+      use Maru.Test, root: Maru.TestTest.TestMount
+      def test, do: get("/m2/shared")
     end
 
-    private1 = TestMountTest.test().private
+    private1 = TestMountTest1.test().private
     assert 0 == private1.maru_plug_test
     assert 0 == private1.maru_plug_test1
 
@@ -198,13 +208,14 @@ defmodule Maru.TestTest do
     end
 
     defmodule MountedOverriable do
-      use Maru.Router
+      use Maru.Router, make_plug: true
+
       plug_overridable :test, Maru.TestTest.PlugTest2
       mount Maru.TestTest.MountedOverriableShared
     end
 
     defmodule MountedOverriableSharedTest do
-      use Maru.Test, for: Maru.TestTest.MountedOverriableShared
+      use Maru.Test, root: Maru.TestTest.MountedOverriable
       def test, do: get("shared")
     end
 
@@ -251,7 +262,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule MWEH do
-      use Maru.Router
+      use Maru.Router, make_plug: true
       mount Maru.TestTest.MWEH.M1
 
       rescue_from :all do
@@ -259,14 +270,8 @@ defmodule Maru.TestTest do
       end
     end
 
-    for module <- [Maru.TestTest.MWEH, Maru.TestTest.MWEH.M1, Maru.TestTest.MWEH.M2] do
-      Enum.each(module.__mounted_modules__, fn mounted ->
-        Maru.Builder.MountLink.put_father(mounted, module)
-      end)
-    end
-
-    defmodule MWEH.M2.TEST1 do
-      use Maru.Test, for: Maru.TestTest.MWEH.M2
+    defmodule MWEH.M2.TEST do
+      use Maru.Test, root: Maru.TestTest.MWEH
 
       def test1, do: get("/").status
       def test2, do: get("/match_error").status
@@ -274,30 +279,10 @@ defmodule Maru.TestTest do
       def test4, do: get("/runtime_error").status
     end
 
-    assert 200 == MWEH.M2.TEST1.test1
-    assert 502 == MWEH.M2.TEST1.test2
-    assert_raise ArithmeticError, fn ->
-      MWEH.M2.TEST1.test3
-    end
-    assert_raise RuntimeError, fn ->
-      MWEH.M2.TEST1.test4
-    end
-
-    defmodule MWEH.M2.TEST2 do
-      use Maru.Test,
-        for: Maru.TestTest.MWEH.M2,
-        with_exception_handlers: true
-
-      def test1, do: get("/").status
-      def test2, do: get("/match_error").status
-      def test3, do: get("/arithmetic_error").status
-      def test4, do: get("/runtime_error").status
-    end
-
-    assert 200 == MWEH.M2.TEST2.test1
-    assert 502 == MWEH.M2.TEST2.test2
-    assert 501 == MWEH.M2.TEST2.test3
-    assert 500 == MWEH.M2.TEST2.test4
+    assert 200 == MWEH.M2.TEST.test1
+    assert 502 == MWEH.M2.TEST.test2
+    assert 501 == MWEH.M2.TEST.test3
+    assert 500 == MWEH.M2.TEST.test4
   end
 
 end

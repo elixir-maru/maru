@@ -7,10 +7,6 @@ defmodule Maru.Builder do
       `__routes__/0` for returning routes.
       `endpoint/2` for execute endpoint block.
 
-  For test environments:
-      these functions generated:
-      `__version__/0`, `__mounted_modules__/0`, `__plugs__/0`
-
   For plug modules:
       You can define a plug module by `use Maru.Router, make_plug: true` or
       `config :maru, MyPlugModule` within config.exs.
@@ -43,7 +39,6 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
       Module.register_attribute __MODULE__, :exceptions,    accumulate: true
-      Module.register_attribute __MODULE__, :mounted_modules, accumulate: true
 
 
       @extend     nil
@@ -54,13 +49,6 @@ defmodule Maru.Builder do
       @func_id    0
 
       @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
-      @test (
-        case Application.get_env(:maru, :test) do
-          true  -> true
-          false -> false
-          nil   -> Mix.env == :test
-        end
-      )
       @before_compile unquote(__MODULE__)
     end
   end
@@ -74,8 +62,6 @@ defmodule Maru.Builder do
       current_routes ++ mounted_routes, extend_opts
     )
     all_routes     = current_routes ++ mounted_routes ++ extended
-
-    mounted_modules = Module.get_attribute(module, :mounted_modules)
 
     exceptions =
       Module.get_attribute(module, :exceptions)
@@ -104,17 +90,8 @@ defmodule Maru.Builder do
 
       endpoints_block,
 
-      if Module.get_attribute(module, :test) do
-        quote do
-          def __version__, do: Maru.Struct.Resource.get_version
-          def __routes__, do: unquote(Macro.escape(current_routes))
-          def __mounted_modules__, do: unquote(mounted_modules)
-          def __plugs__, do: @resource.plugs
-        end
-      else
-        quote do
-          def __routes__, do: unquote(Macro.escape(all_routes))
-        end
+      quote do
+        def __routes__, do: unquote(Macro.escape(all_routes))
       end,
 
       if Module.get_attribute(module, :make_plug) do

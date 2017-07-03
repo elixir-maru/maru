@@ -133,14 +133,10 @@ defmodule Maru.Builder.DSLs do
         """
     end
     quote do
-      if @test do
-        @mounted_modules unquote(module)
-      else
-        for route <- unquote(module).__routes__ do
-          @mounted Maru.Struct.Route.merge(
-            @resource, @plugs, __MODULE__, route
-          )
-        end
+      for route <- unquote(module).__routes__ do
+        @mounted Maru.Struct.Route.merge(
+          @resource, @plugs, __MODULE__, route
+        )
       end
     end
   end
