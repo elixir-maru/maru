@@ -81,6 +81,36 @@ defmodule Maru.Builder.RouteTest do
     )
   end
 
+  test "validate standalone Map param" do
+    defmodule MapParam do
+      use Maru.Builder
+
+      params do
+        group :group, type: Map do
+          requires :group2, type: Map
+        end
+      end
+      def p1, do: @parameters
+
+      @parameters []
+
+      params do
+        requires :group, type: Map
+      end
+      def p2, do: @parameters
+    end
+
+    assert %{group: %{group2: %{"name" => "name", "name2" => "name2"}}} ==
+      do_parse(
+        MapParam.p1,
+        %{"group" => %{"group2" => %{"name" => "name", "name2" => "name2"}}, "group_ignore" => "ignore"}
+      )
+
+    assert_raise Maru.Exceptions.InvalidFormat, fn ->
+      do_parse(MapParam.p2, %{"group" => "not map"})
+    end
+  end
+
   test "validate Map nested param" do
     defmodule MapNestedParam do
       use Maru.Builder
@@ -141,6 +171,27 @@ defmodule Maru.Builder.RouteTest do
         ListNestedParam.p2,
         %{"group" => [%{"foo" => [%{"bar" => %{"baz" => "baz"}}]}]}
       )
+  end
+
+  test "validate standalone List param" do
+    defmodule ListParam do
+      use Maru.Builder
+
+      params do
+        group :group, type: List
+      end
+      def p, do: @parameters
+    end
+
+    assert %{group: ["1", 2, %{"a" => 3}]} ==
+      do_parse(
+        ListNestedParam.p,
+        %{"group" => ["1", 2, %{"a" => 3}]}
+      )
+
+    assert_raise Maru.Exceptions.InvalidFormat, fn ->
+      do_parse(ListNestedParam.p, "not a list")
+    end
   end
 
   test "validate one-line List nested param" do

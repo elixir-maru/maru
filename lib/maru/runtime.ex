@@ -45,9 +45,13 @@ defmodule Maru.Runtime do
 
 
   defp do_nested(nil, _, value), do: value
+
+  defp do_nested(:map, [], value), do: value
   defp do_nested(:map, children, value) do
     parse_params(children, %{}, value)
   end
+
+  defp do_nested(:list, [], value), do: value
   defp do_nested(:list, children, value) do
     Enum.map(value, &parse_params(children, %{}, &1))
   end
