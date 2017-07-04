@@ -4,7 +4,11 @@ defmodule Maru.Supervisor do
   use Supervisor
 
   def start_link do
-    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+    if Maru.test_mode? do
+      {:ok, self()}
+    else
+      Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+    end
   end
 
   def init([]) do

@@ -31,7 +31,7 @@ defmodule Maru.HelperTest do
     end
 
     defmodule TestRouter do
-      use Maru.Router
+      use Maru.Router, make_plug: true
 
       helpers Maru.HelperTest.TestHelper
 
@@ -46,7 +46,7 @@ defmodule Maru.HelperTest do
     end
 
     defmodule Test1 do
-      use Maru.Test, for: Maru.HelperTest.TestRouter
+      use Maru.Test, root: Maru.HelperTest.TestRouter
 
       def test1 do
         get("/test1") |> text_response

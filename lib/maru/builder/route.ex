@@ -45,7 +45,6 @@ defmodule Maru.Builder.Route do
     end
 
     func = exception_function(route.mount_link)
-
     quote do
       defp route(unquote(
         adapter.conn_for_match(route.method, route.version, route.path)

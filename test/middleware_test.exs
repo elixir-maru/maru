@@ -20,9 +20,7 @@ defmodule Maru.MiddlewareTest do
     end
 
     defmodule API do
-      use Maru.Router
-      @test      false
-      @make_plug true
+      use Maru.Router, make_plug: true
 
       plug Maru.MiddlewareTest.Before
       mount Maru.MiddlewareTest.Router
