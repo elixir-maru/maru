@@ -7,6 +7,7 @@
 ## v0.12.0-dev
 * Enhancements
   * support set version by `accept` header
+  * refactor unittest
 * Deprecations
   * do NOT support elixir 1.2.x any more
 
