@@ -178,20 +178,16 @@ defmodule Maru.Builder.RouteTest do
       use Maru.Builder
 
       params do
-        group :group, type: List
+        requires :group, type: List
       end
       def p, do: @parameters
     end
 
     assert %{group: ["1", 2, %{"a" => 3}]} ==
       do_parse(
-        ListNestedParam.p,
+        ListParam.p,
         %{"group" => ["1", 2, %{"a" => 3}]}
       )
-
-    assert_raise Maru.Exceptions.InvalidFormat, fn ->
-      do_parse(ListNestedParam.p, "not a list")
-    end
   end
 
   test "validate one-line List nested param" do
