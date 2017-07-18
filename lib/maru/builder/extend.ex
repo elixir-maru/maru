@@ -10,7 +10,7 @@ defmodule Maru.Builder.Extend do
     v_old   = opts |> Keyword.fetch!(:extend)
     only    = opts |> Keyword.get(:only, nil)
     except  = opts |> Keyword.get(:except, nil)
-    'Elixir.' ++ _ = Atom.to_char_list module
+    'Elixir.' ++ _ = Atom.to_charlist module
     unless is_nil(only) or is_nil(except) do
       raise ":only and :except are in conflict!"
     end

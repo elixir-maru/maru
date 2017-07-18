@@ -35,7 +35,7 @@ defmodule Maru.Plugs.GetVersion do
       do
         vsn
       else
-        nil
+        _ -> nil
       end
     conn |> Conn.put_private(:maru_version, vsn)
   end

@@ -376,10 +376,13 @@ defmodule Maru.Builder.Params do
         module = unquote(module)
         attr_names =
           Parameter.snapshot
-          |> Enum.filter_map(
-            fn %Parameter{} -> true; _ -> false end,
-            fn %Parameter{information: %Information{attr_name: attr_name}} -> attr_name end
+          |> Enum.filter(fn
+            %Parameter{} -> true
+            _ -> false end
           )
+          |> Enum.map(fn
+            %Parameter{information: %Information{attr_name: attr_name}} -> attr_name
+          end)
         runtime = quote do
           %Validator.Runtime{
             validate_func: fn result ->

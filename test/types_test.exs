@@ -30,9 +30,9 @@ defmodule Maru.TypesTest do
     assert Types.Boolean.parse(nil, %{})     == false
   end
 
-  test "char list" do
-    assert Types.CharList.parse(1, %{})   == '1'
-    assert Types.CharList.parse("s", %{}) == 's'
+  test "charlist" do
+    assert Types.Charlist.parse(1, %{})   == '1'
+    assert Types.Charlist.parse("s", %{}) == 's'
   end
 
   test "atom" do

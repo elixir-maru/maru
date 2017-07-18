@@ -34,15 +34,15 @@ defmodule Maru.Builder.Versioning do
 
       @doc false
       def path_for_match(path) do
-        Enum.filter_map(
-          path,
-          fn {:version} -> false
-             _          -> true
-          end,
-          fn x when is_atom(x) -> Macro.var(:_, nil)
-             x                 -> x
-          end
-        )
+        path
+        |> Enum.filter(fn
+          {:version} -> false
+          _          -> true
+        end)
+        |> Enum.map(fn
+          x when is_atom(x) -> Macro.var(:_, nil)
+          x                 -> x
+        end)
       end
 
       defoverridable [

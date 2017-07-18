@@ -64,12 +64,12 @@ defmodule Mix.Tasks.Maru.Routes do
 
   defp format_version(nil), do: "nil" |> format_version
   defp format_version(version) do
-    version |> String.ljust(5)
+    version |> String.pad_trailing(5)
   end
 
   defp format_method({:_, [], nil}), do: ":match" |> format_method
   defp format_method(method) do
-    method |> String.ljust(7)
+    method |> String.pad_trailing(7)
   end
 
   defp format_path([]), do: "/"

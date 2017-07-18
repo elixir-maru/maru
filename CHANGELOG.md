@@ -9,8 +9,9 @@
   * support set version by `accept` header
   * refactor unittest
   * return original value for `map` and `list` type without `do block`
+  * fix elixir 1.5 warning
 * Deprecations
-  * do NOT support elixir 1.2.x any more
+  * only support elixir ~> 1.5
 
 ## v0.11.4 (2017-03-18)
 * Enhancements
