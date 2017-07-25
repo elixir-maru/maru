@@ -4,7 +4,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.11/docs/upgrade-instructions-from-v010) From v0.10 to v0.11
 
-## v0.12.0-dev
+## v0.12.0 (2017-07-25)
 * Enhancements
   * support set version by `accept` header
   * refactor unittest
