@@ -5,7 +5,7 @@ defmodule Maru.Mixfile do
     [ app: :maru,
       name: "Maru",
       version: "0.12.0",
-      elixir: "~> 1.5.0",
+      elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
@@ -22,7 +22,7 @@ defmodule Maru.Mixfile do
 
   def application do
     [ mod: { Maru, [] },
-      applications: [ :plug, :cowboy, :poison ]
+      applications: [ :ranch, :cowboy, :plug, :poison ]
     ]
   end
 
