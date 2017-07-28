@@ -7,6 +7,8 @@
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
 ## v0.12.2-dev
+* Enhancements
+  * log the error instead of raise error when the router module defined but bot loaded
 
 ## v0.12.1 (2017-07-26)
 * Enhancements
