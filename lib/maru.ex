@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Maru do
   @moduledoc """
   This is documentation for maru.
@@ -22,8 +24,17 @@ defmodule Maru do
 
   @doc false
   def servers do
-    Enum.filter(Application.get_all_env(:maru), fn {k, _} ->
-      match?("Elixir." <> _, to_string(k))
+    Enum.filter(Application.get_all_env(:maru), fn {module, _} ->
+      cond do
+        not match?("Elixir." <> _, to_string(module)) -> false
+        not Code.ensure_loaded?(module) ->
+          Logger.info "Maru router `#{module}` defined in config but not loaded, ignore..."
+          false
+        not {:call, 2} in module.__info__(:functions) ->
+          Logger.info "your module  `#{module}` defined in config is not a maru router, ignore..."
+          false
+        true -> true
+      end
     end)
   end
 
