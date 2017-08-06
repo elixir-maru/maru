@@ -92,10 +92,16 @@ defmodule MyAPP.API do
 end
 ```
 
-then add the `maru` to your `config/config.exs`
+Then configure `maru`:
+
 ```elixir
+# config/config.exs
 config :maru, MyAPP.API,
   http: [port: 8880]
+
+# config/test.exs
+config :maru, MyAPP.API,
+  test: true
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
