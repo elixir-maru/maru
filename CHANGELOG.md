@@ -9,6 +9,8 @@
 ## v0.12.2-dev
 * Enhancements
   * log the error instead of raise error when the router module defined but bot loaded
+* Bugfix
+  * Don't rely on `Mix` module being present
 
 ## v0.12.1 (2017-07-26)
 * Enhancements
