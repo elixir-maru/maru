@@ -52,7 +52,7 @@ defmodule Maru.Supervisor do
   defp maru_servers do
     if Code.ensure_loaded?(Confex) do
       Enum.map(Maru.servers(), fn {k, v} ->
-        {k, apply(Confex, :process_env, [v])}
+        {k, apply(Confex.Resolver, :resolve!, [v])}
       end)
     else
       Maru.servers()
