@@ -4,7 +4,6 @@ defmodule Maru.Builder.Namespaces do
   """
 
   alias Maru.Struct.{Parameter, Resource}
-  alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Params
   alias Maru.Builder.Path, as: MaruPath
 
@@ -18,8 +17,8 @@ defmodule Maru.Builder.Namespaces do
       quote do
         r = Resource.snapshot
         Resource.push_path(unquote(path))
-        Resource.push_plug(MaruPlug.pop)
         Resource.push_param(Parameter.pop)
+        Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
         unquote(block)
         Resource.restore(r)
       end
@@ -31,7 +30,7 @@ defmodule Maru.Builder.Namespaces do
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))
-      Resource.push_plug(MaruPlug.pop)
+      Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
       Resource.push_param(Parameter.pop)
       [ attr_name: unquote(param),
         required:  true,
@@ -47,7 +46,7 @@ defmodule Maru.Builder.Namespaces do
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))
-      Resource.push_plug(MaruPlug.pop)
+      Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
       Resource.push_param(Parameter.pop)
       [ attr_name: unquote(param),
         required:  true,

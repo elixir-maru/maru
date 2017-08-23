@@ -4,11 +4,13 @@ defmodule Maru.Struct.Resource do
   alias Maru.Struct.Resource
   alias Maru.Struct.Plug, as: MaruPlug
 
-  defstruct path:       [],
-            parameters: [],
-            plugs:      [],
-            helpers:    [],
-            version:    nil
+  defstruct [
+    path:       [],
+    parameters: [],
+    plugs:      [],
+    helpers:    [],
+    version:    nil,
+  ]
 
   @doc "make snapshot for current scope."
   defmacro snapshot do

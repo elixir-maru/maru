@@ -22,6 +22,8 @@ defmodule Maru.Builder do
     quote do
       Maru.Utils.warning_unknown_opts(__MODULE__, unquote(warning_keys))
 
+      use Maru.Builder.Plugins.Pipeline
+
       use Maru.Helpers.Response
 
       require Maru.Struct.Parameter
@@ -45,7 +47,6 @@ defmodule Maru.Builder do
       @resource   %Maru.Struct.Resource{}
       @desc       nil
       @parameters []
-      @plugs      []
       @func_id    0
 
       @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))

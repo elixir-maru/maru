@@ -135,7 +135,7 @@ defmodule Maru.Builder.DSLs do
     quote do
       for route <- unquote(module).__routes__ do
         @mounted Maru.Struct.Route.merge(
-          @resource, @plugs, __MODULE__, route
+          @resource, __MODULE__, route, __ENV__
         )
       end
     end
@@ -203,24 +203,6 @@ defmodule Maru.Builder.DSLs do
      })
     end
   end
-
-  @doc """
-  Define pipeline block of current endpoint.
-  """
-  defmacro pipeline(block) do
-    quote do
-      import Kernel, only: []
-      import Maru.Builder.DSLs, only: []
-      import Maru.Builder.Pipeline, only: [
-        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
-      ]
-      unquote(block)
-      import Maru.Builder.Pipeline, only: []
-      import Maru.Builder.DSLs
-      import Kernel
-    end
-  end
-
 
   @doc """
   Define plugs which execute before routes match.
