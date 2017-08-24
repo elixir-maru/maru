@@ -23,6 +23,7 @@ defmodule Maru.Builder do
       Maru.Utils.warning_unknown_opts(__MODULE__, unquote(warning_keys))
 
       use Maru.Builder.Plugins.Pipeline
+      use Maru.Builder.Plugins.Exception
 
       use Maru.Helpers.Response
 
@@ -32,7 +33,6 @@ defmodule Maru.Builder do
 
       import Maru.Builder.Namespaces
       import Maru.Builder.Methods
-      import Maru.Builder.Exceptions
       import Maru.Builder.DSLs, except: [params: 2]
 
       Module.register_attribute __MODULE__, :plugs_before,  accumulate: true
@@ -40,8 +40,6 @@ defmodule Maru.Builder do
       Module.register_attribute __MODULE__, :endpoints,     accumulate: true
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
-      Module.register_attribute __MODULE__, :exceptions,    accumulate: true
-
 
       @extend     nil
       @resource   %Maru.Struct.Resource{}
@@ -64,31 +62,14 @@ defmodule Maru.Builder do
     )
     all_routes     = current_routes ++ mounted_routes ++ extended
 
-    exceptions =
-      Module.get_attribute(module, :exceptions)
-      |> Enum.reverse
-      |> Enum.map(&Maru.Builder.Exceptions.make_rescue_block/1)
-      |> List.flatten
-
     endpoints_block =
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse
       |> Enum.map(&Maru.Builder.Endpoint.dispatch/1)
 
-    [ unless Enum.empty?(exceptions) do
-        quote do
-          def __error_handler__(func) do
-            fn ->
-              try do
-                func.()
-              rescue
-                unquote(exceptions)
-              end
-            end
-          end
-        end
-      end,
+    Maru.Builder.Plugins.Exception.callback_before_compile(env)
 
+    [
       endpoints_block,
 
       quote do
@@ -100,23 +81,4 @@ defmodule Maru.Builder do
       end,
     ]
   end
-
-  @doc false
-  def make_routes_block(routes, env, version_adapter) do
-    Enum.map(routes, fn route ->
-      Maru.Builder.Route.dispatch(route, env, version_adapter)
-    end)
-  end
-
-  @doc false
-  def make_method_not_allowed_block(routes, version_adapter) do
-    Enum.group_by(routes, fn route -> {route.version, route.path, route.mount_link} end)
-    |> Enum.map(fn {{version, path, mount_link}, routes} ->
-      unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
-        Maru.Builder.Route.dispatch_405(version, path, mount_link, version_adapter)
-      end
-    end)
-  end
-
-
 end

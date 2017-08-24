@@ -1,4 +1,4 @@
-defmodule Maru.Builder.ExceptionsTest do
+defmodule Maru.Builder.Plugins.ExceptionTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
@@ -70,7 +70,7 @@ defmodule Maru.Builder.ExceptionsTest do
 
       defp unwarn(_), do: nil
 
-      Application.put_env(:maru, Maru.Builder.ExceptionsTest.RescueWithConnTest,
+      Application.put_env(:maru, Maru.Builder.Plugins.ExceptionTest.RescueWithConnTest,
         versioning: [
           using: :param,
           parameter: "v",
@@ -154,7 +154,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutesTest do
       use Maru.Router, make_plug: true
 
-      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount Elixir.Maru.Builder.Plugins.ExceptionTest.MountedRoutesTest.Mounted
 
       rescue_from :all, as: e do
         conn
@@ -166,7 +166,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutes2Test do
       use Maru.Router, make_plug: true
 
-      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount Elixir.Maru.Builder.Plugins.ExceptionTest.MountedRoutesTest.Mounted
     end
 
     conn1 = conn(:get, "test1")

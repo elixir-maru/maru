@@ -135,7 +135,7 @@ defmodule Maru.Builder.DSLs do
     quote do
       for route <- unquote(module).__routes__ do
         @mounted Maru.Struct.Route.merge(
-          @resource, __MODULE__, route, __ENV__
+          @resource, unquote(module), route, __ENV__
         )
       end
     end

@@ -44,7 +44,11 @@ defmodule Maru.Builder.Route do
       Maru.Helpers.Response.put_maru_conn(var!(conn))
     end
 
-    func = exception_function(route.mount_link)
+    func =
+      route
+      |> Maru.Builder.Plugins.Exception.callback_route(env)
+      |> pipe_functions()
+
     quote do
       defp route(unquote(
         adapter.conn_for_match(route.method, route.version, route.path)
@@ -66,39 +70,26 @@ defmodule Maru.Builder.Route do
   @doc """
   Generate MethodNotAllowed route for all path without `match` method.
   """
-  def dispatch_405(version, path, mount_link, adapter) do
+  def dispatch_405(version, path, adapter) do
     method = Macro.var(:_, nil)
-    func = exception_function(mount_link)
 
     quote do
       defp route(unquote(
         adapter.conn_for_match(method, version, path)
       )=var!(conn), []) do
-        fn ->
-          Maru.Exceptions.MethodNotAllowed
-          |> raise([method: var!(conn).method, request_path: var!(conn).request_path])
-        end |> unquote(func) |> apply([])
+          raise Maru.Exceptions.MethodNotAllowed, [method: var!(conn).method, request_path: var!(conn).request_path]
       end
     end
   end
 
-  defp exception_function(mount_link) do
-    exception_modules =
-      Enum.filter(mount_link, fn module ->
-        if Module.open?(module) do
-          Module.get_attribute(module, :exceptions) != []
-        else
-          {:__error_handler__, 1} in module.__info__(:functions)
-        end
-      end)
-
+  def pipe_functions(mfs) do
     quote do
       fn func ->
         Enum.reduce(
-          unquote(exception_modules),
+          unquote(mfs),
           func,
-          fn module, func ->
-            module.__error_handler__(func)
+          fn {m, f}, func ->
+            apply(m, f, [func])
           end
         )
       end.()

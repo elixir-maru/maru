@@ -11,8 +11,7 @@ defmodule Maru.Struct.Route do
     plugs:      [],
     module:     nil,
     func_id:    nil,
-    mount_link: []
-  ]
+  ] ++ Maru.Builder.Plugins.Exception.route_struct()
 
   @doc "push an endpoint to current scope."
   defmacro push(%__MODULE__{}=value) do
@@ -31,8 +30,9 @@ defmodule Maru.Struct.Route do
        version:    route.version       || resource.version,
        path:       versioning_path     ++ resource.path ++ route.path,
        parameters: resource.parameters ++ route.parameters,
-       mount_link: route.mount_link ++ [module],
-     } |> Maru.Builder.Plugins.Pipeline.callback_mount(env)
+     }
+     |> Maru.Builder.Plugins.Pipeline.callback_mount(env)
+     |> Maru.Builder.Plugins.Exception.callback_mount(module, env)
   end
 
 end

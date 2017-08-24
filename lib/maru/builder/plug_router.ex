@@ -17,8 +17,13 @@ defmodule Maru.Builder.PlugRouter do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    routes_block = Maru.Builder.make_routes_block(routes, env, version_adapter)
-    method_not_allowed_block = Maru.Builder.make_method_not_allowed_block(routes, version_adapter)
+    routes_block = make_routes_block(routes, env, version_adapter)
+    method_not_allowed_block = make_method_not_allowed_block(routes, version_adapter)
+
+    func =
+      env
+      |> Maru.Builder.Plugins.Exception.callback_plug_router()
+      |> Maru.Builder.Route.pipe_functions()
 
     [ quote do
         unquote(routes_block)
@@ -28,20 +33,28 @@ defmodule Maru.Builder.PlugRouter do
         def init(_), do: []
       end,
 
-      if Module.get_attribute(module, :exceptions) != [] do
-        quote do
-          def call(unquote(conn), _) do
-            __error_handler__(fn -> unquote(body) end).()
-          end
-        end
-      else
-        quote do
-          def call(unquote(conn), _) do
+      quote do
+        def call(unquote(conn), _) do
+          fn ->
             unquote(body)
-          end
+          end |> unquote(func) |> apply([])
         end
       end
     ]
   end
 
+  defp make_routes_block(routes, env, version_adapter) do
+    Enum.map(routes, fn route ->
+      Maru.Builder.Route.dispatch(route, env, version_adapter)
+    end)
+  end
+
+  defp make_method_not_allowed_block(routes, version_adapter) do
+    Enum.group_by(routes, fn route -> {route.version, route.path} end)
+    |> Enum.map(fn {{version, path}, routes} ->
+      unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
+        Maru.Builder.Route.dispatch_405(version, path, version_adapter)
+      end
+    end)
+  end
 end
