@@ -20,6 +20,7 @@ defmodule Maru.Builder do
       use Maru.Builder.Plugins.Pipeline
       use Maru.Builder.Plugins.Exception
       use Maru.Builder.Plugins.PlugRouter, unquote(opts)
+      use Maru.Builder.Plugins.Description
 
       use Maru.Helpers.Response
 
@@ -38,7 +39,6 @@ defmodule Maru.Builder do
 
       @extend     nil
       @resource   %Maru.Struct.Resource{}
-      @desc       nil
       @parameters []
       @func_id    0
 

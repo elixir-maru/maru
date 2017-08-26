@@ -1,7 +1,27 @@
-defmodule Maru.Builder.Description do
-  @moduledoc """
-  Parse and build description block.
+alias Maru.Builder.Plugins.Description
+
+defmodule Description.DSLs do
+  @doc """
+  Define description for current endpoint.
   """
+  defmacro desc(desc) do
+    quote do
+      @desc %{summary: unquote(desc)}
+    end
+  end
+
+  @doc """
+  Define description with a block for current endpoint.
+  """
+  defmacro desc(desc, [do: block]) do
+    quote do
+      @desc %{summary: unquote(desc)}
+      import Description.DSLs
+      import Description.DSLs, except: [desc: 1, desc: 2]
+      unquote(block)
+      import Description.DSLs, only: [desc: 1, desc: 2]
+    end
+  end
 
   @doc """
   Define detail of description.
@@ -32,5 +52,4 @@ defmodule Maru.Builder.Description do
       @desc update_in(@desc, [:responses], &(&1 ++ [unquote(status)]))
     end
   end
-
 end

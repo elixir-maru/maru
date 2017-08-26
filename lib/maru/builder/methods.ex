@@ -40,8 +40,7 @@ defmodule Maru.Builder.Methods do
         block:      unquote(ep.block),
         has_params: ([] != parameters),
       }
-      @routes %Route{
-        desc:       @desc,
+      @route %Route{
         method:     unquote(ep.method),
         version:    resource.version,
         path:       version ++ resource.path ++ unquote(ep.path),
@@ -51,8 +50,10 @@ defmodule Maru.Builder.Methods do
         module:     __MODULE__,
         func_id:    @func_id,
       }
-      @desc nil
       @func_id @func_id + 1
+
+      Maru.Builder.Plugins.Description.callback_build_route(__ENV__)
+      @routes @route
     end
   end
 

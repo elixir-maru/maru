@@ -5,13 +5,14 @@ defmodule Maru.Struct.Route do
     method:     nil,
     path:       [],
     version:    nil,
-    desc:       nil,
     parameters: [],
     helpers:    [],
     plugs:      [],
     module:     nil,
     func_id:    nil,
-  ] ++ Maru.Builder.Plugins.Exception.route_struct()
+  ]
+  ++ Maru.Builder.Plugins.Exception.route_struct()
+  ++ Maru.Builder.Plugins.Description.route_struct()
 
   @doc "push an endpoint to current scope."
   defmacro push(%__MODULE__{}=value) do
