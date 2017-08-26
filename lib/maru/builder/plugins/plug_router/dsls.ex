@@ -9,9 +9,8 @@ defmodule PlugRouter.DSLs do
       import Maru.Builder.DSLs, except: [
         plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
       ]
-      import PlugRouter.DSLs, only: [
-        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
-      ]
+      import PlugRouter.DSLs
+      import PlugRouter.DSLs, except: [before: 1]
       unquote(block)
       import PlugRouter.DSLs, only: [before: 1]
       import Maru.Builder.DSLs
