@@ -66,16 +66,9 @@ defmodule Maru.Builder.Plugins.ExceptionTest do
 
   test "conn in process dict" do
     defmodule RescueWithConnTest do
-      use Maru.Router, make_plug: true
+      use Maru.Router, versioning: [using: :param, parameter: "v"]
 
       defp unwarn(_), do: nil
-
-      Application.put_env(:maru, Maru.Builder.Plugins.ExceptionTest.RescueWithConnTest,
-        versioning: [
-          using: :param,
-          parameter: "v",
-        ]
-      )
 
       version "v1"
 

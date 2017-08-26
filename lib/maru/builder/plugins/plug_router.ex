@@ -1,9 +1,32 @@
-defmodule Maru.Builder.PlugRouter do
+alias Maru.Builder.Plugins.PlugRouter
+alias Maru.Builder.Exception.RETURN
+
+defmodule PlugRouter do
+
+  defmacro __using__(opts) do
+    env_config = Application.get_env(:maru, __CALLER__.module)
+    versioning = Keyword.get(opts, :versioning) || (env_config || [])[:versioning] || []
+    make_plug = Keyword.get(opts, :make_plug, false) or ([] != versioning) or not is_nil(env_config)
+    [ quote do
+        @make_plug unquote(make_plug)
+      end,
+
+      if make_plug do
+        quote do
+          @versioning unquote(versioning)
+          Module.register_attribute __MODULE__, :plugs_before, accumulate: true
+          import PlugRouter.DSLs, only: [before: 1]
+        end
+      end
+    ]
+  end
 
   @doc false
-  def __before_compile__(%Macro.Env{module: module}=env, routes) do
+  def callback_before_compile(%Macro.Env{module: module}=env, routes) do
+    Module.get_attribute(module, :make_plug) || raise RETURN
+
     plugs_before    = Module.get_attribute(module, :plugs_before) |> Enum.reverse
-    version_config  = (Application.get_env(:maru, module) || [])[:versioning] || []
+    version_config  = Module.get_attribute(module, :versioning)
     version_adapter = Maru.Builder.Versioning.get_adapter(version_config[:using])
 
     pipeline = [
@@ -25,22 +48,24 @@ defmodule Maru.Builder.PlugRouter do
       |> Maru.Builder.Plugins.Exception.callback_plug_router()
       |> Maru.Builder.Route.pipe_functions()
 
-    [ quote do
+    quoted =
+      quote do
         unquote(routes_block)
         unquote(method_not_allowed_block)
         defp route(conn, _), do: conn
 
         def init(_), do: []
-      end,
 
-      quote do
         def call(unquote(conn), _) do
           fn ->
             unquote(body)
           end |> unquote(func) |> apply([])
         end
       end
-    ]
+
+    Module.eval_quoted(env, quoted)
+  rescue
+    RETURN -> nil
   end
 
   defp make_routes_block(routes, env, version_adapter) do

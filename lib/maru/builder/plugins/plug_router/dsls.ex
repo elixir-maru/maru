@@ -1,7 +1,22 @@
-defmodule Maru.Builder.Before do
-  @moduledoc """
-  DSLs for defining top-level plugs.
+alias Maru.Builder.Plugins.PlugRouter
+
+defmodule PlugRouter.DSLs do
+  @doc """
+  Define plugs which execute before routes match.
   """
+  defmacro before([do: block]) do
+    quote do
+      import Maru.Builder.DSLs, except: [
+        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
+      ]
+      import PlugRouter.DSLs, only: [
+        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
+      ]
+      unquote(block)
+      import PlugRouter.DSLs, only: [before: 1]
+      import Maru.Builder.DSLs
+    end
+  end
 
   @doc """
   Define a top-level `Plug`.
@@ -48,5 +63,4 @@ defmodule Maru.Builder.Before do
       Maru.Utils.warn "#{inspect __MODULE__}: plug_overridable not works within `before` block, Ignore.\n"
     end
   end
-
 end

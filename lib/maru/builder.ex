@@ -16,14 +16,10 @@ defmodule Maru.Builder do
 
   @doc false
   defmacro __using__(opts) do
-    make_plug = opts |> Keyword.get(:make_plug, false)
-    warning_keys = Keyword.drop(opts, [:make_plug]) |> Keyword.keys
-
     quote do
-      Maru.Utils.warning_unknown_opts(__MODULE__, unquote(warning_keys))
-
       use Maru.Builder.Plugins.Pipeline
       use Maru.Builder.Plugins.Exception
+      use Maru.Builder.Plugins.PlugRouter, unquote(opts)
 
       use Maru.Helpers.Response
 
@@ -35,7 +31,6 @@ defmodule Maru.Builder do
       import Maru.Builder.Methods
       import Maru.Builder.DSLs, except: [params: 2]
 
-      Module.register_attribute __MODULE__, :plugs_before,  accumulate: true
       Module.register_attribute __MODULE__, :routes,        accumulate: true
       Module.register_attribute __MODULE__, :endpoints,     accumulate: true
       Module.register_attribute __MODULE__, :mounted,       accumulate: true
@@ -47,7 +42,6 @@ defmodule Maru.Builder do
       @parameters []
       @func_id    0
 
-      @make_plug unquote(make_plug) or not is_nil(Application.get_env(:maru, __MODULE__))
       @before_compile unquote(__MODULE__)
     end
   end
@@ -68,17 +62,14 @@ defmodule Maru.Builder do
       |> Enum.map(&Maru.Builder.Endpoint.dispatch/1)
 
     Maru.Builder.Plugins.Exception.callback_before_compile(env)
+    Maru.Builder.Plugins.PlugRouter.callback_before_compile(env, all_routes)
 
     [
       endpoints_block,
 
       quote do
         def __routes__, do: unquote(Macro.escape(all_routes))
-      end,
-
-      if Module.get_attribute(module, :make_plug) do
-        Maru.Builder.PlugRouter.__before_compile__(env, all_routes)
-      end,
+      end
     ]
   end
 end

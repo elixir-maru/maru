@@ -1,4 +1,5 @@
 alias Maru.Builder.Plugins.Exception
+alias Maru.Builder.Exception.RETURN
 
 defmodule Exception do
   defstruct errors:    nil,
@@ -48,24 +49,23 @@ defmodule Exception do
       |> Enum.map(&Exception.Helper.make_rescue_block/1)
       |> List.flatten
 
-    quoted =
-      if [] == rescue_block do
-        nil
-      else
-        quote do
-          def __error_handler__(func) do
-            fn ->
-              try do
-                func.()
-              rescue
-                unquote(rescue_block)
-              end
-            end
+    [] == rescue_block && raise RETURN
+
+    quoted = quote do
+      def __error_handler__(func) do
+        fn ->
+          try do
+            func.()
+          rescue
+          unquote(rescue_block)
           end
         end
       end
+    end
 
     Module.eval_quoted(env, quoted)
+  rescue
+    RETURN -> nil
   end
 
 end

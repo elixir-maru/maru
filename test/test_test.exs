@@ -23,9 +23,7 @@ defmodule Maru.TestTest do
 
   test "version test" do
     defmodule Test2 do
-      Application.put_env(:maru, Maru.TestTest.Test2, [versioning: [using: :param, parameter: "v"]])
-
-      use Maru.Router, make_plug: true
+      use Maru.Router, versioning: [using: :param, parameter: "v"]
 
       version "v1" do
         get do
