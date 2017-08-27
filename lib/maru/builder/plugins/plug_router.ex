@@ -46,7 +46,7 @@ defmodule PlugRouter do
     func =
       env
       |> Maru.Builder.Plugins.Exception.callback_plug_router()
-      |> Maru.Builder.Route.pipe_functions()
+      |> PlugRouter.Helper.pipe_functions()
 
     quoted =
       quote do
@@ -70,7 +70,7 @@ defmodule PlugRouter do
 
   defp make_routes_block(routes, env, version_adapter) do
     Enum.map(routes, fn route ->
-      Maru.Builder.Route.dispatch(route, env, version_adapter)
+      PlugRouter.Helper.dispatch(route, env, version_adapter)
     end)
   end
 
@@ -78,7 +78,7 @@ defmodule PlugRouter do
     Enum.group_by(routes, fn route -> {route.version, route.path} end)
     |> Enum.map(fn {{version, path}, routes} ->
       unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
-        Maru.Builder.Route.dispatch_405(version, path, version_adapter)
+        PlugRouter.Helper.dispatch_405(version, path, version_adapter)
       end
     end)
   end

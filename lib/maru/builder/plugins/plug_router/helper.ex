@@ -1,7 +1,6 @@
-defmodule Maru.Builder.Route do
-  @moduledoc """
-  Generate routes of maru router.
-  """
+alias Maru.Builder.Plugins.PlugRouter
+
+defmodule PlugRouter.Helper do
 
   @doc """
   Generate general route defined by user within method block.

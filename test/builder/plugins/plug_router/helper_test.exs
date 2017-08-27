@@ -1,8 +1,8 @@
-defmodule Maru.Builder.RouteTest do
+defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
-  alias Maru.Builder.Route, warn: false
+  alias Maru.Builder.Plugins.PlugRouter.Helper, warn: false
 
   defp do_parse(parameters, data, result \\ %{}) do
     runtime = Enum.map(parameters, fn p -> p.runtime end)
@@ -362,13 +362,13 @@ defmodule Maru.Builder.RouteTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Route.dispatch(%Maru.Struct.Route{
+        Helper.dispatch(%Maru.Struct.Route{
           method: "GET", path: [], module: __MODULE__, func_id: 0,
         }, __ENV__, adapter)
       ), [], __ENV__
 
       Module.eval_quoted __MODULE__, (
-        Route.dispatch(%Maru.Struct.Route{
+        Helper.dispatch(%Maru.Struct.Route{
           method: {:_, [], nil}, path: [], module: __MODULE__, func_id: 1,
         }, __ENV__, adapter)
       ), [], __ENV__
@@ -386,7 +386,7 @@ defmodule Maru.Builder.RouteTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Route.dispatch_405("v1", [], adapter)
+        Helper.dispatch_405("v1", [], adapter)
       ), [], __ENV__
 
       def r(conn), do: route(conn, [])
@@ -417,7 +417,7 @@ defmodule Maru.Builder.RouteTest do
         conn |> text("bb")
       end
 
-      mount Maru.Builder.RouteTest.RoutesOrderTest.A
+      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.A
     end
 
     defmodule RoutesOrderTest.C do
@@ -444,8 +444,8 @@ defmodule Maru.Builder.RouteTest do
         end
       end
 
-      mount Maru.Builder.RouteTest.RoutesOrderTest.B
-      mount Maru.Builder.RouteTest.RoutesOrderTest.C
+      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.B
+      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.C
     end
 
     assert [
@@ -455,7 +455,7 @@ defmodule Maru.Builder.RouteTest do
       %Maru.Struct.Route{path: ["a"]},
       %Maru.Struct.Route{path: ["c"]},
       %Maru.Struct.Route{path: ["cc"]},
-    ] = Maru.Builder.RouteTest.RoutesOrderTest.D.__routes__
+    ] = Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.D.__routes__
   end
 
 end
