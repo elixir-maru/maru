@@ -38,7 +38,6 @@ defmodule Maru.Builder do
       @extend     nil
       @resource   %Maru.Struct.Resource{}
       @parameters []
-      @func_id    0
 
       @before_compile unquote(__MODULE__)
     end
