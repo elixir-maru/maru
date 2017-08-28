@@ -18,16 +18,24 @@ defmodule Route do
   defmacro __using__(_) do
     quote do
       Module.register_attribute __MODULE__, :routes,  accumulate: true
+      @func_id 0
+
       use Route.Mount
       use Route.Endpoint
     end
   end
 
   def callback_build_method(%Macro.Env{module: module}=env) do
+    func_id = Module.get_attribute(module, :func_id)
+    Module.put_attribute(module, :func_id, func_id + 1)
+
+    context = Module.get_attribute(module, :context)
+    Module.put_attribute(module, :context, Map.put(context, :func_id, func_id))
+
     route =
-      Module.get_attribute(module, :context)
-      |> Map.take([:method, :version, :path, :parameters, :helpers, :plugs, :func_id])
-      |> Map.put(:module, module)
+      context
+      |> Map.take([:method, :version, :path, :parameters, :helpers, :plugs])
+      |> Map.merge(%{module: module, func_id: func_id})
     Module.put_attribute(module, :route, struct(Route, route))
 
     Maru.Builder.Plugins.Description.callback_build_route(env)
