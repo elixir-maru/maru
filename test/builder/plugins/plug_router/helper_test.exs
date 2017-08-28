@@ -362,13 +362,13 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Helper.dispatch(%Maru.Struct.Route{
+        Helper.dispatch(%Maru.Builder.Plugins.Route{
           method: "GET", path: [], module: __MODULE__, func_id: 0,
         }, __ENV__, adapter)
       ), [], __ENV__
 
       Module.eval_quoted __MODULE__, (
-        Helper.dispatch(%Maru.Struct.Route{
+        Helper.dispatch(%Maru.Builder.Plugins.Route{
           method: {:_, [], nil}, path: [], module: __MODULE__, func_id: 1,
         }, __ENV__, adapter)
       ), [], __ENV__
@@ -449,12 +449,12 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
     end
 
     assert [
-      %Maru.Struct.Route{path: [:d]},
-      %Maru.Struct.Route{path: ["b"]},
-      %Maru.Struct.Route{path: ["bb"]},
-      %Maru.Struct.Route{path: ["a"]},
-      %Maru.Struct.Route{path: ["c"]},
-      %Maru.Struct.Route{path: ["cc"]},
+      %Maru.Builder.Plugins.Route{path: [:d]},
+      %Maru.Builder.Plugins.Route{path: ["b"]},
+      %Maru.Builder.Plugins.Route{path: ["bb"]},
+      %Maru.Builder.Plugins.Route{path: ["a"]},
+      %Maru.Builder.Plugins.Route{path: ["c"]},
+      %Maru.Builder.Plugins.Route{path: ["cc"]},
     ] = Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.D.__routes__
   end
 

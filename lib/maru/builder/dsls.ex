@@ -97,30 +97,6 @@ defmodule Maru.Builder.DSLs do
   end
 
   @doc """
-  Mount another router to current router.
-  """
-  defmacro mount({_, _, mod}) do
-    module = Module.concat(mod)
-    try do
-      true = {:__routes__, 0} in module.__info__(:functions)
-    rescue
-      [UndefinedFunctionError, MatchError] ->
-        raise """
-          #{inspect module} is not an available Maru.Router.
-          If you mount it to another module written at the same file,
-          make sure this module at the front of the file.
-        """
-    end
-    quote do
-      for route <- unquote(module).__routes__ do
-        @mounted Maru.Struct.Route.merge(
-          @resource, unquote(module), route, __ENV__
-        )
-      end
-    end
-  end
-
-  @doc """
   Push a `Plug` struct to current scope.
   """
   defmacro plug(plug)

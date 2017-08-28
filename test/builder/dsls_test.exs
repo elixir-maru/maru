@@ -88,24 +88,6 @@ defmodule Maru.Builder.DSLsTest do
     assert [:x] = HelpersTest1.s
   end
 
-  test "mount" do
-    defmodule Mounted do
-      def __routes__ do
-        [%Maru.Struct.Route{}]
-      end
-    end
-
-    defmodule MountTest do
-      use Maru.Router
-      mount Maru.Builder.DSLsTest.Mounted
-
-      def m, do: @mounted
-    end
-
-    assert [%Maru.Struct.Route{}] = MountTest.m
-  end
-
-
   test "plug" do
     defmodule PlugTest do
       use Maru.Router

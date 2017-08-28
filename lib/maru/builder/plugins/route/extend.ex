@@ -1,6 +1,6 @@
-defmodule Maru.Builder.Extend do
-  @moduledoc false
+alias Maru.Builder.Plugins.Route
 
+defmodule Route.Extend do
   @doc """
   Take routes by an extended module.
   """
@@ -61,5 +61,4 @@ defmodule Maru.Builder.Extend do
   defp path_match?([h|t1], [h|t2]),                 do: path_match?(t1, t2)
   defp path_match?([_|t1], [h|t2]) when is_atom(h), do: path_match?(t1, t2)
   defp path_match?(_, _),                           do: false
-
 end

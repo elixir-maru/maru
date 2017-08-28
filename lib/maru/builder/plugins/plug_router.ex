@@ -22,9 +22,10 @@ defmodule PlugRouter do
   end
 
   @doc false
-  def callback_before_compile(%Macro.Env{module: module}=env, routes) do
+  def callback_before_compile(%Macro.Env{module: module}=env) do
     Module.get_attribute(module, :make_plug) || raise RETURN
 
+    routes          = Module.get_attribute(module, :all_routes)
     plugs_before    = Module.get_attribute(module, :plugs_before) |> Enum.reverse
     version_config  = Module.get_attribute(module, :versioning)
     version_adapter = Maru.Builder.Versioning.get_adapter(version_config[:using])

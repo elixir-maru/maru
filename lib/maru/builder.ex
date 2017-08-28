@@ -21,6 +21,8 @@ defmodule Maru.Builder do
       use Maru.Builder.Plugins.Exception
       use Maru.Builder.Plugins.PlugRouter, unquote(opts)
       use Maru.Builder.Plugins.Description
+      use Maru.Builder.Plugins.Route
+      use Maru.Builder.Plugins.Endpoint
 
       use Maru.Helpers.Response
 
@@ -32,9 +34,6 @@ defmodule Maru.Builder do
       import Maru.Builder.Methods
       import Maru.Builder.DSLs, except: [params: 2]
 
-      Module.register_attribute __MODULE__, :routes,        accumulate: true
-      Module.register_attribute __MODULE__, :endpoints,     accumulate: true
-      Module.register_attribute __MODULE__, :mounted,       accumulate: true
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
 
       @extend     nil
@@ -47,29 +46,10 @@ defmodule Maru.Builder do
   end
 
   @doc false
-  defmacro __before_compile__(%Macro.Env{module: module}=env) do
-    current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
-    mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
-    extend_opts    = Module.get_attribute(module, :extend)
-    extended       = Maru.Builder.Extend.take_extended(
-      current_routes ++ mounted_routes, extend_opts
-    )
-    all_routes     = current_routes ++ mounted_routes ++ extended
-
-    endpoints_block =
-      Module.get_attribute(module, :endpoints)
-      |> Enum.reverse
-      |> Enum.map(&Maru.Builder.Endpoint.dispatch/1)
-
+  defmacro __before_compile__(%Macro.Env{}=env) do
+    Maru.Builder.Plugins.Route.callback_before_compile(env)
     Maru.Builder.Plugins.Exception.callback_before_compile(env)
-    Maru.Builder.Plugins.PlugRouter.callback_before_compile(env, all_routes)
-
-    [
-      endpoints_block,
-
-      quote do
-        def __routes__, do: unquote(Macro.escape(all_routes))
-      end
-    ]
+    Maru.Builder.Plugins.PlugRouter.callback_before_compile(env)
+    Maru.Builder.Plugins.Endpoint.callback_before_compile(env)
   end
 end

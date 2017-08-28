@@ -1,8 +1,6 @@
-defmodule Maru.Builder.Endpoint do
-  @moduledoc """
-  Generate endpoints of maru router.
-  """
+alias Maru.Builder.Plugins.Endpoint
 
+defmodule Endpoint.Helper do
   @doc """
   Generate endpoint called within route block.
   """
@@ -25,5 +23,4 @@ defmodule Maru.Builder.Endpoint do
       end
     end
   end
-
 end
