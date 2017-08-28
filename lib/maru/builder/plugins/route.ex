@@ -19,6 +19,7 @@ defmodule Route do
     quote do
       Module.register_attribute __MODULE__, :routes,  accumulate: true
       use Route.Mount
+      use Route.Endpoint
     end
   end
 
@@ -32,6 +33,8 @@ defmodule Route do
     Maru.Builder.Plugins.Description.callback_build_route(env)
     route = Module.get_attribute(module, :route)
     Module.put_attribute(module, :routes, route)
+
+    Route.Endpoint.callback_build_method(env)
   end
 
   def callback_before_compile(%Macro.Env{module: module}=env) do
@@ -48,5 +51,7 @@ defmodule Route do
       def __routes__, do: unquote(Macro.escape(all_routes))
     end
     Module.eval_quoted(env, quoted)
+
+    Route.Endpoint.callback_before_compile(env)
   end
 end

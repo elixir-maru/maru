@@ -49,7 +49,6 @@ defmodule Maru.Builder.Methods do
 
       @func_id @func_id + 1
 
-      Maru.Builder.Plugins.Endpoint.callback_build_method(__ENV__)
       Maru.Builder.Plugins.Route.callback_build_method(__ENV__)
     end
   end

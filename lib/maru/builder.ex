@@ -22,7 +22,6 @@ defmodule Maru.Builder do
       use Maru.Builder.Plugins.PlugRouter, unquote(opts)
       use Maru.Builder.Plugins.Description
       use Maru.Builder.Plugins.Route
-      use Maru.Builder.Plugins.Endpoint
 
       use Maru.Helpers.Response
 
@@ -50,6 +49,5 @@ defmodule Maru.Builder do
     Maru.Builder.Plugins.Route.callback_before_compile(env)
     Maru.Builder.Plugins.Exception.callback_before_compile(env)
     Maru.Builder.Plugins.PlugRouter.callback_before_compile(env)
-    Maru.Builder.Plugins.Endpoint.callback_before_compile(env)
   end
 end
