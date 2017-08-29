@@ -29,8 +29,8 @@ defmodule Route do
     func_id = Module.get_attribute(module, :func_id)
     Module.put_attribute(module, :func_id, func_id + 1)
 
-    context = Module.get_attribute(module, :context)
-    Module.put_attribute(module, :context, Map.put(context, :func_id, func_id))
+    context = Module.get_attribute(module, :method_context)
+    Module.put_attribute(module, :method_context, Map.put(context, :func_id, func_id))
 
     route =
       context

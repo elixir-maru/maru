@@ -12,7 +12,7 @@ defmodule Route.Endpoint do
   end
 
   def callback_build_method(%{module: module}) do
-    endpoint = Module.get_attribute(module, :context)
+    endpoint = Module.get_attribute(module, :method_context)
     endpoint =
       endpoint
       |> Map.take([:block, :func_id])

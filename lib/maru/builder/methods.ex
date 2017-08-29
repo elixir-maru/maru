@@ -36,7 +36,7 @@ defmodule Maru.Builder.Methods do
         end
       parameters = resource.parameters ++ @parameters # TODO: fixme
 
-      @context %{
+      @method_context %{
         block:      unquote(ep.block),
         method:     unquote(ep.method),
         version:    resource.version,
