@@ -12,11 +12,11 @@ defmodule Route.Endpoint do
   end
 
   def callback_build_method(%{module: module}) do
-    endpoint = Module.get_attribute(module, :method_context)
+    route = Module.get_attribute(module, :route)
     endpoint =
-      endpoint
+      Module.get_attribute(module, :method_context)
       |> Map.take([:block, :func_id])
-      |> Map.put(:has_params, [] != endpoint.parameters)
+      |> Map.put(:has_params, [] != route.parameters)
     Module.put_attribute(module, :endpoints, struct(Route.Endpoint, endpoint))
   end
 

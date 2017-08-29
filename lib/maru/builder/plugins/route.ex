@@ -34,11 +34,13 @@ defmodule Route do
 
     route =
       context
-      |> Map.take([:method, :version, :path, :parameters, :helpers, :plugs])
+      |> Map.take([:method, :version, :path, :helpers, :plugs])
       |> Map.merge(%{module: module, func_id: func_id})
     Module.put_attribute(module, :route, struct(Route, route))
 
+    Maru.Builder.Plugins.Parameter.callback_build_route(env)
     Maru.Builder.Plugins.Description.callback_build_route(env)
+
     route = Module.get_attribute(module, :route)
     Module.put_attribute(module, :routes, route)
 

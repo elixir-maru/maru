@@ -34,19 +34,16 @@ defmodule Maru.Builder.Methods do
         if is_nil(resource.version) do
           [] else [{:version}]
         end
-      parameters = resource.parameters ++ @parameters # TODO: fixme
 
       @method_context %{
         block:      unquote(ep.block),
         method:     unquote(ep.method),
         version:    resource.version,
         path:       version ++ resource.path ++ unquote(ep.path),
-        parameters: parameters,
         helpers:    resource.helpers,
         plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
       }
 
-      @parameters []
       Maru.Builder.Plugins.Route.callback_build_method(__ENV__)
     end
   end

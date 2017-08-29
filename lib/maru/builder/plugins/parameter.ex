@@ -53,4 +53,13 @@ defmodule Parameter do
     new_parameters = resource.parameters ++ parameters ++ List.wrap(addittion_parameter)
     Module.put_attribute(module, :resource, %{resource | parameters: new_parameters})
   end
+
+  def callback_build_route(%Macro.Env{module: module}) do
+    resource = Module.get_attribute(module, :resource)
+    parameters = Module.get_attribute(module, :parameters)
+    Module.put_attribute(module, :parameters, [])
+
+    route = Module.get_attribute(module, :route)
+    Module.put_attribute(module, :route, %{route | parameters: resource.parameters ++ parameters})
+  end
 end

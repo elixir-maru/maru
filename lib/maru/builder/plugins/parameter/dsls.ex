@@ -6,6 +6,10 @@ defmodule Parameter.DSLs do
   """
 
   alias Parameter.Helper
+  alias Maru.Builder.Plugins.Parameter
+  alias Maru.Builder.Plugins.Parameter.Information
+  alias Maru.Struct.{Dependent, Validator}
+  alias Maru.Utils
 
   defmacro params([do: block]) do
     quote do
@@ -20,11 +24,6 @@ defmodule Parameter.DSLs do
       import Maru.Builder.Namespaces
     end
   end
-
-  alias Maru.Builder.Plugins.Parameter
-  alias Maru.Builder.Plugins.Parameter.Information
-  alias Maru.Struct.{Dependent, Validator}
-  alias Maru.Utils
 
   @doc false
   defmacro use(param) when is_atom(param) do
