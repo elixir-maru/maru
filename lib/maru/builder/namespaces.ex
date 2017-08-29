@@ -3,8 +3,7 @@ defmodule Maru.Builder.Namespaces do
   Namespace DSLs for parsing router.
   """
 
-  alias Maru.Struct.{Parameter, Resource}
-  alias Maru.Builder.Params
+  alias Maru.Struct.Resource
   alias Maru.Builder.Path, as: MaruPath
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
@@ -14,10 +13,16 @@ defmodule Maru.Builder.Namespaces do
     defmacro unquote(namespace)([do: block]), do: block
     defmacro unquote(namespace)(path, [do: block]) do
       path = path |> MaruPath.split
+      namespace = unquote(namespace)
       quote do
+        @namespace_context %{
+          namespace: unquote(namespace),
+          parameter: unquote(path),
+          options:   [],
+        }
         r = Resource.snapshot
         Resource.push_path(unquote(path))
-        Resource.push_param(Parameter.pop)
+        Maru.Builder.Plugins.Parameter.callback_namespace(__ENV__)
         Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
         unquote(block)
         Resource.restore(r)
@@ -26,31 +31,35 @@ defmodule Maru.Builder.Namespaces do
   end
 
   @doc "Special namespace which save path to param list."
-  defmacro route_param(param, [do: block]) do
+  defmacro route_param(param, [do: block]) when is_atom(param) do
     quote do
+      @namespace_context %{
+        namespace: :route_param,
+        parameter: unquote(param),
+        options:   [],
+      }
       r = Resource.snapshot
       Resource.push_path(unquote(param))
       Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
-      Resource.push_param(Parameter.pop)
-      [ attr_name: unquote(param),
-        required:  true,
-      ] |> Params.parse |> Resource.push_param
+      Maru.Builder.Plugins.Parameter.callback_namespace(__ENV__)
       unquote(block)
       Resource.restore(r)
     end
   end
 
   @doc "Special namespace which save path to param list with options."
-  defmacro route_param(param, options, [do: block]) do
+  defmacro route_param(param, options, [do: block]) when is_atom(param) do
     options = options |> Macro.escape
     quote do
+      @namespace_context %{
+        namespace: :route_param,
+        parameter: unquote(param),
+        options:   unquote(options),
+      }
       r = Resource.snapshot
       Resource.push_path(unquote(param))
       Maru.Builder.Plugins.Pipeline.callback_namespace(__ENV__)
-      Resource.push_param(Parameter.pop)
-      [ attr_name: unquote(param),
-        required:  true,
-      ] |> Enum.concat(unquote options) |> Params.parse |> Resource.push_param
+      Maru.Builder.Plugins.Parameter.callback_namespace(__ENV__)
       unquote(block)
       Resource.restore(r)
     end

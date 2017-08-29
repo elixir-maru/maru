@@ -1,7 +1,7 @@
 defmodule Maru.Runtime do
   @moduledoc false
 
-  alias Maru.Struct.Parameter.Runtime, as: PR
+  alias Maru.Builder.Plugins.Parameter.Runtime, as: PR
   alias Maru.Struct.Dependent.Runtime, as: DR
   alias Maru.Struct.Validator.Runtime, as: VR
 

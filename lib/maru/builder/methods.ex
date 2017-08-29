@@ -3,7 +3,7 @@ defmodule Maru.Builder.Methods do
   Method DSLs for parsing router.
   """
 
-  alias Maru.Struct.{Resource, Parameter}
+  alias Maru.Struct.Resource
   alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Path, as: MaruPath
 
@@ -34,7 +34,7 @@ defmodule Maru.Builder.Methods do
         if is_nil(resource.version) do
           [] else [{:version}]
         end
-      parameters = resource.parameters ++ Parameter.pop
+      parameters = resource.parameters ++ @parameters # TODO: fixme
 
       @context %{
         block:      unquote(ep.block),
@@ -46,6 +46,7 @@ defmodule Maru.Builder.Methods do
         plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
       }
 
+      @parameters []
       Maru.Builder.Plugins.Route.callback_build_method(__ENV__)
     end
   end

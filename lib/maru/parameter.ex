@@ -7,8 +7,8 @@ defmodule Maru.Parameter.Phoenix do
   @doc false
   defmacro __using__(_) do
     quote do
-      require Maru.Struct.Parameter
-      import Maru.Builder.DSLs, only: [helpers: 1, params: 1, params: 2]
+      use Maru.Builder.Plugins.Parameter
+      import Maru.Builder.DSLs, only: [helpers: 1, params: 2]
 
       Module.register_attribute __MODULE__, :parameter_functions, accumulate: true
 

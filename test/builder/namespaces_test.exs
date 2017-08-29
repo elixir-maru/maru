@@ -2,8 +2,8 @@ defmodule Maru.Builder.NamespacesTest do
   use ExUnit.Case, async: true
 
   alias Maru.Struct.Resource
-  alias Maru.Struct.Parameter
-  alias Maru.Struct.Parameter.Information
+  alias Maru.Builder.Plugins.Parameter
+  alias Maru.Builder.Plugins.Parameter.Information
 
   test "namespaces" do
     defmodule Test do

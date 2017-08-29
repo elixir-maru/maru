@@ -22,10 +22,10 @@ defmodule Maru.Builder do
       use Maru.Builder.Plugins.PlugRouter, unquote(opts)
       use Maru.Builder.Plugins.Description
       use Maru.Builder.Plugins.Route
+      use Maru.Builder.Plugins.Parameter
 
       use Maru.Helpers.Response
 
-      require Maru.Struct.Parameter
       require Maru.Struct.Resource
       require Maru.Struct.Plug
 
@@ -37,7 +37,6 @@ defmodule Maru.Builder do
 
       @extend     nil
       @resource   %Maru.Struct.Resource{}
-      @parameters []
 
       @before_compile unquote(__MODULE__)
     end

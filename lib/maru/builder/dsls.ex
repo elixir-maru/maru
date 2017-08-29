@@ -18,32 +18,6 @@ defmodule Maru.Builder.DSLs do
   end
 
 
-  @doc """
-  Define params block of current endpoint.
-  """
-  defmacro params([do: block]) do
-    quote do
-      import Maru.Builder.Namespaces, only: []
-      import Kernel, except: [use: 1]
-      import Maru.Builder.Params
-      @group []
-      unquote(block)
-      import Maru.Builder.Params, only: []
-      import Kernel
-      import Maru.Builder.Namespaces
-    end
-  end
-
-
-  @doc """
-  Save shared param to module attribute.
-  """
-  defmacro params(name, [do: block]) do
-    quote do
-      @shared_params unquote({name, block |> Macro.escape})
-    end
-  end
-
 
   @doc """
   Define version of current router.
@@ -74,6 +48,15 @@ defmodule Maru.Builder.DSLs do
     quote do
       Resource.set_version(unquote(v))
       @extend {unquote(v), unquote(opts)}
+    end
+  end
+
+  @doc """
+  Save shared param to module attribute.
+  """
+  defmacro params(name, [do: block]) do
+    quote do
+      @shared_params unquote({name, block |> Macro.escape})
     end
   end
 
