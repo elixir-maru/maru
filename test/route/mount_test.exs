@@ -1,20 +1,20 @@
-defmodule Maru.Builder.Plugins.Route.MountTest do
+defmodule Maru.Route.MountTest do
   use ExUnit.Case, async: true
 
   test "mount" do
     defmodule Mounted do
       def __routes__ do
-        [%Maru.Builder.Plugins.Route{}]
+        [%Maru.Route{}]
       end
     end
 
     defmodule MountTest do
       use Maru.Router
-      mount Maru.Builder.Plugins.Route.MountTest.Mounted
+      mount Maru.Route.MountTest.Mounted
 
       def m, do: @mounted
     end
 
-    assert [%Maru.Builder.Plugins.Route{}] = MountTest.m
+    assert [%Maru.Route{}] = MountTest.m
   end
 end

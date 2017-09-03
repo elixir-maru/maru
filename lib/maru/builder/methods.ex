@@ -44,7 +44,7 @@ defmodule Maru.Builder.Methods do
         plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
       }
 
-      Maru.Builder.Plugins.Route.callback_build_method(__ENV__)
+      Maru.Route.callback_build_method(__ENV__)
     end
   end
 

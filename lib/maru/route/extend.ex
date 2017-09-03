@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Route
+alias Maru.Route
 
 defmodule Route.Extend do
   @doc """

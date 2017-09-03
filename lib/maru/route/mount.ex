@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Route
+alias Maru.Route
 
 defmodule Route.Mount do
   defmacro __using__(_) do

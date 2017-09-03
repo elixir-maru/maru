@@ -17,11 +17,12 @@ defmodule Maru.Builder do
   @doc false
   defmacro __using__(opts) do
     quote do
+      use Maru.Route
+
       use Maru.Builder.Plugins.Pipeline
       use Maru.Builder.Plugins.Exception
       use Maru.Builder.Plugins.PlugRouter, unquote(opts)
       use Maru.Builder.Plugins.Description
-      use Maru.Builder.Plugins.Route
       use Maru.Builder.Plugins.Parameter
 
       use Maru.Helpers.Response
@@ -44,7 +45,8 @@ defmodule Maru.Builder do
 
   @doc false
   defmacro __before_compile__(%Macro.Env{}=env) do
-    Maru.Builder.Plugins.Route.callback_before_compile(env)
+    Maru.Route.callback_before_compile(env)
+
     Maru.Builder.Plugins.Exception.callback_before_compile(env)
     Maru.Builder.Plugins.PlugRouter.callback_before_compile(env)
   end

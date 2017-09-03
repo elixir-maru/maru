@@ -32,37 +32,6 @@ defmodule Maru.Helper do
           ...
         end
       end
-
-  ## Extended functions or macros
-
-  Defined helper like this:
-
-    defmodule Authorization do
-      use Maru.Helper
-
-      defmacro current_user do
-        quote do
-          var!(conn).assigns[:current_user]
-        end
-      end
-
-      defmacro current_user! do
-        quote do
-          current_user || raise Unauthorized
-        end
-      end
-    end
-
-  And use it within Maru.Router like this:
-
-      defmodule API do
-        helpers Authorization
-
-        get do
-          current_user!
-          ...
-        end
-      end
   """
 
   @doc false
