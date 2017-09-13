@@ -13,7 +13,7 @@ defmodule Maru.Builder.Plugins.PipelineTest do
       end
     end
 
-    assert %Maru.Struct.Resource{
+    assert %Maru.Resource{
       path: ["p1"],
       plugs: [%Maru.Struct.Plug{guards: true, name: nil, options: [], plug: A}],
     } = Namespace.resource

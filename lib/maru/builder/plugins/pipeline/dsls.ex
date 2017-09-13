@@ -7,13 +7,13 @@ defmodule Maru.Builder.Plugins.Pipeline.DSLs do
   defmacro pipeline(block) do
     quote do
       import Kernel, only: []
-      import Maru.Builder.DSLs, only: []
+      import Maru.Resource.DSLs, only: []
       import Maru.Builder.Plugins.Pipeline.DSLs, only: [
         plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
       ]
       unquote(block)
       import Maru.Builder.Plugins.Pipeline.DSLs, only: [pipeline: 1]
-      import Maru.Builder.DSLs
+      import Maru.Resource.DSLs
       import Kernel
     end
   end

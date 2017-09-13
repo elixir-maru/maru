@@ -1,7 +1,7 @@
-defmodule Maru.Builder.NamespacesTest do
+defmodule Maru.Builder.ResourceTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Resource
+  alias Maru.Resource
   alias Maru.Builder.Plugins.Parameter
   alias Maru.Builder.Plugins.Parameter.Information
 
@@ -68,7 +68,26 @@ defmodule Maru.Builder.NamespacesTest do
         }
       ]
     } = Test.r6
-
   end
 
+  test "methods" do
+    defmodule MethodsTest do
+      use Maru.Builder
+
+      get do
+        text(conn, "get")
+      end
+
+      match do
+        text(conn, "match")
+      end
+
+      def route, do: @routes
+    end
+
+    assert [
+      %{method: {:_, [], nil}, path: []},
+      %{method: "GET", path: []},
+    ] = MethodsTest.route
+  end
 end

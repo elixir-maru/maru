@@ -13,7 +13,7 @@ defmodule Parameter.DSLs do
 
   defmacro params([do: block]) do
     quote do
-      import Maru.Builder.Namespaces, only: []
+      import Maru.Resource.DSLs, only: []
       import Kernel, except: [use: 1]
       import Parameter.DSLs
       import Parameter.DSLs, except: [params: 1]
@@ -21,7 +21,7 @@ defmodule Parameter.DSLs do
       unquote(block)
       import Parameter.DSLs, only: [params: 1]
       import Kernel
-      import Maru.Builder.Namespaces
+      import Maru.Resource.DSLs
     end
   end
 

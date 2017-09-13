@@ -7,7 +7,6 @@ defmodule Maru.Builder.ParamsTest do
   alias Maru.Struct.Dependent.Information, as: DI
   alias Maru.Struct.Validator, as: V
   alias Maru.Struct.Validator.Information, as: VI
-  alias Maru.Struct.Resource
 
   test "optional requires group" do
     defmodule Elixir.Maru.Validations.Range do
@@ -128,7 +127,7 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
+    assert %Maru.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
     assert [%P{information: %PI{attr_name: :param_with_options, required: true}}] = ResourcesTest.parameters
   end
 
@@ -142,7 +141,7 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
+    assert %Maru.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
   end
 
 

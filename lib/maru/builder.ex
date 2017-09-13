@@ -17,6 +17,7 @@ defmodule Maru.Builder do
   @doc false
   defmacro __using__(opts) do
     quote do
+      use Maru.Resource
       use Maru.Route
 
       use Maru.Builder.Plugins.Pipeline
@@ -27,17 +28,11 @@ defmodule Maru.Builder do
 
       use Maru.Helpers.Response
 
-      require Maru.Struct.Resource
       require Maru.Struct.Plug
 
-      import Maru.Builder.Namespaces
-      import Maru.Builder.Methods
       import Maru.Builder.DSLs, except: [params: 2]
 
       Module.register_attribute __MODULE__, :shared_params, accumulate: true
-
-      @extend     nil
-      @resource   %Maru.Struct.Resource{}
 
       @before_compile unquote(__MODULE__)
     end

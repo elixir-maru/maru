@@ -25,6 +25,11 @@ defmodule Route do
     end
   end
 
+  def callback_namespace(env) do
+    Maru.Builder.Plugins.Pipeline.callback_namespace(env)
+    Maru.Builder.Plugins.Parameter.callback_namespace(env)
+  end
+
   def callback_build_method(%Macro.Env{module: module}=env) do
     func_id = Module.get_attribute(module, :func_id)
     Module.put_attribute(module, :func_id, func_id + 1)

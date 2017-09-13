@@ -1,7 +1,7 @@
 defmodule Maru.Builder.DSLsTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Resource
+  alias Maru.Resource
   alias Maru.Struct.Plug, as: MaruPlug
 
   test "prefix" do
