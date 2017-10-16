@@ -4,6 +4,7 @@ defmodule Maru.ValidationsTest do
 
   test "regexp" do
     assert Validations.Regexp.validate_param!(:param, "1", ~r"1")
+    assert Validations.Regexp.validate_param!(:param, ["1", "12", "31"], ~r"1")
     assert_raise Maru.Exceptions.Validation, fn ->
       Validations.Regexp.validate_param!(:param, "1", ~r"2")
     end

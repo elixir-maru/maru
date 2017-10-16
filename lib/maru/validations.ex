@@ -5,6 +5,12 @@ defmodule Maru.Validations do
     """
 
     @doc false
+    def validate_param!(attr_name, values, option) when is_list(values) do
+      for value <- values do
+        validate_param!(attr_name, value, option)
+      end
+    end
+
     def validate_param!(attr_name, value, option) do
       value |> to_string =~ option ||
         Maru.Exceptions.Validation |> raise([param: attr_name, validator: :regexp, value: value, option: option])
