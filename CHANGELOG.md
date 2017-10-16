@@ -9,6 +9,7 @@
 ## v0.12.4-dev
 * Enhancements
   * make regexp validator support list
+  * support mount alias modules
 * Bugfix
   * Support :chunk response
 
