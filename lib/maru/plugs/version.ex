@@ -1,6 +1,6 @@
 defmodule Maru.Plugs.GetVersion do
   @moduledoc """
-  This module is a plug, fetch `version` from connection and wirte to private variable `maru_version`.
+  This module is a plug, fetch `version` from connection and write to private variable `maru_version`.
   """
 
   alias Plug.Conn
