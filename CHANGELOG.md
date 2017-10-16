@@ -7,6 +7,8 @@
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
 ## v0.12.4-dev
+* Bugfix
+  * Support :chunk response
 
 ## v0.12.3 (2017-08-19)
 * Bugfix
