@@ -75,8 +75,12 @@ defmodule Maru.Test do
           result = Enum.reduce(plugs, conn, fn {plug, opts}, conn ->
             plug.call(conn, plug.init(opts))
           end) |> maru_test_call()
-          receive do
-            {_ref, {_code, _headers, _body}} -> :ok
+          case result do
+            %Plug.Conn{state: :sent} ->
+              receive do
+                {_ref, {_code, _headers, _body}} -> :ok
+              end
+            _ -> :ok
           end
           receive do
             {:plug_conn, :sent} -> :ok
