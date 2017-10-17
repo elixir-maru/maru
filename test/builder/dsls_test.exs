@@ -134,14 +134,23 @@ defmodule Maru.Builder.DSLsTest do
       end
     end
 
+    defmodule MountedAlias do
+      def __routes__ do
+        [%Maru.Struct.Route{}]
+      end
+    end
+
     defmodule MountTest do
       use Maru.Router
+      alias Maru.Builder.DSLsTest.MountedAlias
+
       mount Maru.Builder.DSLsTest.Mounted
+      mount MountedAlias
 
       def m, do: @mounted
     end
 
-    assert [%Maru.Struct.Route{}] = MountTest.m
+    assert [%Maru.Struct.Route{}, %Maru.Struct.Route{}] = MountTest.m
   end
 
 

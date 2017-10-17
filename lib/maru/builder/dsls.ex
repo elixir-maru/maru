@@ -120,8 +120,14 @@ defmodule Maru.Builder.DSLs do
   @doc """
   Mount another router to current router.
   """
-  defmacro mount({_, _, mod}) do
-    module = Module.concat(mod)
+  defmacro mount({_, _, [h | t]}=mod) do
+    h = Module.concat([h])
+    module =
+      __CALLER__.aliases
+      |> Keyword.get(h, h)
+      |> Module.split
+      |> Enum.concat(t)
+      |> Module.concat
     try do
       true = {:__routes__, 0} in module.__info__(:functions)
     rescue
@@ -133,7 +139,7 @@ defmodule Maru.Builder.DSLs do
         """
     end
     quote do
-      for route <- unquote(module).__routes__ do
+      for route <- unquote(mod).__routes__ do
         @mounted Maru.Struct.Route.merge(
           @resource, @plugs, __MODULE__, route
         )
