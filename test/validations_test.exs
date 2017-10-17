@@ -55,4 +55,12 @@ defmodule Maru.ValidationsTest do
       Validations.AtLeastOneOf.validate!([:a, :b], %{})
     end
   end
+
+  test "all_or_none_of" do
+    assert Validations.AllOrNoneOf.validate!([:a, :b], %{})
+    assert Validations.AllOrNoneOf.validate!([:a, :b], %{a: 1, b: 2})
+    assert_raise Maru.Exceptions.Validation, fn ->
+      Validations.AllOrNoneOf.validate!([:a, :b], %{a: 1})
+    end
+  end
 end

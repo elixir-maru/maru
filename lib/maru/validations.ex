@@ -83,4 +83,18 @@ defmodule Maru.Validations do
       true
     end
   end
+
+  defmodule AllOrNoneOf do
+    @moduledoc """
+    Param Validator: make sure all or none of designated params present.
+    """
+
+    @doc false
+    def validate!(attr_names, params) do
+      unless Enum.count(attr_names, &(not is_nil(params[&1]))) in [0, length(attr_names)] do
+        Maru.Exceptions.Validation |> raise([param: attr_names, validator: :all_or_none_of, value: params])
+      end
+      true
+    end
+  end
 end
