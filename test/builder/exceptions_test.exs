@@ -154,7 +154,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutesTest do
       use Maru.Router, make_plug: true
 
-      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
 
       rescue_from :all, as: e do
         conn
@@ -166,7 +166,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutes2Test do
       use Maru.Router, make_plug: true
 
-      mount Elixir.Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
     end
 
     conn1 = conn(:get, "test1")
