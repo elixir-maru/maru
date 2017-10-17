@@ -13,8 +13,14 @@ defmodule Route.Mount.DSLs do
   @doc """
   Mount another router to current router.
   """
-  defmacro mount({_, _, mod}) do
-    module = Module.concat(mod)
+  defmacro mount({_, _, [h | t]}=mod) do
+    h = Module.concat([h])
+    module =
+      __CALLER__.aliases
+      |> Keyword.get(h, h)
+      |> Module.split
+      |> Enum.concat(t)
+      |> Module.concat
     try do
       true = {:__routes__, 0} in module.__info__(:functions)
     rescue
@@ -27,7 +33,7 @@ defmodule Route.Mount.DSLs do
     end
 
     quote do
-      Route.Mount.Helper.mount(unquote(module), __ENV__)
+      Route.Mount.Helper.mount(unquote(mod), __ENV__)
     end
   end
 end

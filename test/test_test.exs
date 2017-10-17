@@ -1,24 +1,42 @@
 defmodule Maru.TestTest do
   use ExUnit.Case, async: true
 
-  test "test" do
+  describe "general test" do
     defmodule Test1 do
       use Maru.Router, make_plug: true
 
-      get do
-        text(conn, "resp")
+      get :sent do
+        text(conn, "sent")
+      end
+
+      get :chunk do
+        conn = Plug.Conn.send_chunked(conn, 200)
+        {:ok, conn} = Plug.Conn.chunk(conn, "hello")
+        {:ok, conn} = Plug.Conn.chunk(conn, "world")
+        Plug.Conn.halt(conn)
       end
     end
 
     defmodule TestTest1 do
       use Maru.Test, root: Maru.TestTest.Test1
 
-      def test do
-        get("/") |> text_response
+      def sent do
+        get("/sent") |> text_response
+      end
+
+      def chunk do
+        get("/chunk") |> text_response
       end
     end
 
-    assert "resp" = TestTest1.test
+    test "sent" do
+      assert "sent" = TestTest1.sent
+    end
+
+    test "chunk" do
+      assert "helloworld" = TestTest1.chunk
+    end
+
   end
 
   test "version test" do

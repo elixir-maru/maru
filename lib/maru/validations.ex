@@ -5,6 +5,12 @@ defmodule Maru.Validations do
     """
 
     @doc false
+    def validate_param!(attr_name, values, option) when is_list(values) do
+      for value <- values do
+        validate_param!(attr_name, value, option)
+      end
+    end
+
     def validate_param!(attr_name, value, option) do
       value |> to_string =~ option ||
         Maru.Exceptions.Validation |> raise([param: attr_name, validator: :regexp, value: value, option: option])
@@ -73,6 +79,20 @@ defmodule Maru.Validations do
     def validate!(attr_names, params) do
       unless Enum.count(attr_names, &(not is_nil(params[&1]))) >= 1 do
         Maru.Exceptions.Validation |> raise([param: attr_names, validator: :at_least_one_of, value: params])
+      end
+      true
+    end
+  end
+
+  defmodule AllOrNoneOf do
+    @moduledoc """
+    Param Validator: make sure all or none of designated params present.
+    """
+
+    @doc false
+    def validate!(attr_names, params) do
+      unless Enum.count(attr_names, &(not is_nil(params[&1]))) in [0, length(attr_names)] do
+        Maru.Exceptions.Validation |> raise([param: attr_names, validator: :all_or_none_of, value: params])
       end
       true
     end

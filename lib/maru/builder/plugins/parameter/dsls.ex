@@ -193,7 +193,7 @@ defmodule Parameter.DSLs do
   end
 
 
-  @actions [:mutually_exclusive, :exactly_one_of, :at_least_one_of]
+  @actions [:mutually_exclusive, :exactly_one_of, :at_least_one_of, :all_or_none_of]
   for action <- @actions do
     @doc "Validator: #{action}"
     defmacro unquote(action)(:above_all) do

@@ -26,8 +26,12 @@ defmodule Maru.Test do
           conn = conn |> Plug.Adapters.Test.Conn.conn(method, path, body_or_params)
           refute_received {:plug_conn, :sent}
           result = root.call(conn, [])
-          receive do
-            {_ref, {_code, _headers, _body}} -> :ok
+          case result do
+            %Plug.Conn{state: :sent} ->
+              receive do
+                {_ref, {_code, _headers, _body}} -> :ok
+              end
+            _ -> :ok
           end
           receive do
             {:plug_conn, :sent} -> :ok

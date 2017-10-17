@@ -25,15 +25,20 @@ defmodule Maru do
   @doc false
   def servers do
     Enum.filter(Application.get_all_env(:maru), fn {module, _} ->
-      cond do
-        not match?("Elixir." <> _, to_string(module)) -> false
-        not Code.ensure_loaded?(module) ->
+      with true <- match?("Elixir." <> _, to_string(module)),
+           true <- (Code.ensure_loaded?(module)          || :module_not_loaded),
+           true <- (function_exported?(module, :call, 2) || :function_not_exported)
+      do
+        true
+      else
+        :module_not_loaded ->
           Logger.info "Maru router `#{module}` defined in config but not loaded, ignore..."
           false
-        not {:call, 2} in module.__info__(:functions) ->
+        :function_not_exported ->
           Logger.info "your module  `#{module}` defined in config is not a maru router, ignore..."
           false
-        true -> true
+        _ ->
+          false
       end
     end)
   end

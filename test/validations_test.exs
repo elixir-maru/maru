@@ -4,6 +4,7 @@ defmodule Maru.ValidationsTest do
 
   test "regexp" do
     assert Validations.Regexp.validate_param!(:param, "1", ~r"1")
+    assert Validations.Regexp.validate_param!(:param, ["1", "12", "31"], ~r"1")
     assert_raise Maru.Exceptions.Validation, fn ->
       Validations.Regexp.validate_param!(:param, "1", ~r"2")
     end
@@ -52,6 +53,14 @@ defmodule Maru.ValidationsTest do
     assert Validations.AtLeastOneOf.validate!([:a, :b], %{a: 1, b: 2})
     assert_raise Maru.Exceptions.Validation, fn ->
       Validations.AtLeastOneOf.validate!([:a, :b], %{})
+    end
+  end
+
+  test "all_or_none_of" do
+    assert Validations.AllOrNoneOf.validate!([:a, :b], %{})
+    assert Validations.AllOrNoneOf.validate!([:a, :b], %{a: 1, b: 2})
+    assert_raise Maru.Exceptions.Validation, fn ->
+      Validations.AllOrNoneOf.validate!([:a, :b], %{a: 1})
     end
   end
 end

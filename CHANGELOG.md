@@ -6,6 +6,18 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
+## v0.12.4 (2017-10-17)
+* Enhancements
+  * make regexp validator support list
+  * support mount alias modules
+  * add `all_or_none_of` validation
+* Bugfix
+  * Support :chunk response
+
+## v0.12.3 (2017-08-19)
+* Bugfix
+  * Support confex ~> 3.2
+
 ## v0.12.2 (2017-08-08)
 * Enhancements
   * log the error instead of raise error when the router module defined but bot loaded
