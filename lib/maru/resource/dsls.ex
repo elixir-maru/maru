@@ -187,18 +187,15 @@ defmodule Resource.DSLs do
   defp endpoint(ep) do
     quote do
       resource = @resource
-      version =
-        if is_nil(resource.version) do
-          [] else [{:version}]
-        end
+      version = is_nil(resource.version) && [] || [{:version}]
 
       @method_context %{
-        block:      unquote(ep.block),
-        method:     unquote(ep.method),
-        version:    resource.version,
-        path:       version ++ resource.path ++ unquote(ep.path),
-        helpers:    resource.helpers,
-        plugs:      MaruPlug.merge(resource.plugs, MaruPlug.pop),
+        block:   unquote(ep.block),
+        method:  unquote(ep.method),
+        version: resource.version,
+        path:    version ++ resource.path ++ unquote(ep.path),
+        helpers: resource.helpers,
+        plugs:   MaruPlug.merge(resource.plugs, MaruPlug.pop),
       }
 
       Maru.Route.callback_build_method(__ENV__)
