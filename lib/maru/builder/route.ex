@@ -17,31 +17,25 @@ defmodule Maru.Builder.Route do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    params = quote do
-      Map.merge(
-        var!(conn).params,
-        Maru.Builder.Path.parse_params(
-          var!(conn).path_info,
-          unquote(adapter.path_for_params(route.path, route.version))
-        )
+    path_params = quote do
+      Maru.Builder.Path.parse_params(
+        var!(conn).path_info,
+        unquote(adapter.path_for_params(route.path, route.version))
       )
     end
 
     parameters_runtime = route.parameters |> Enum.map(fn p -> p.runtime end)
     parser_block = quote do
       Maru.Runtime.parse_params(
-        unquote(parameters_runtime), %{}, unquote(params)
+        unquote(parameters_runtime), %{}, var!(conn).params
       )
     end
 
     params_block = quote do
-      var!(conn) =
-        Plug.Conn.put_private(
-          var!(conn),
-          :maru_params,
-          unquote(parser_block)
-        )
-      Maru.Helpers.Response.put_maru_conn(var!(conn))
+      var!(conn) = Map.put(var!(conn), :path_params, unquote(path_params))
+      var!(conn) = Map.put(var!(conn), :params, Map.merge(var!(conn).params, var!(conn).path_params))
+      var!(conn) = Plug.Conn.put_private(var!(conn), :maru_params, unquote(parser_block))
+     Maru.Helpers.Response.put_maru_conn(var!(conn))
     end
 
     func = exception_function(route.mount_link)

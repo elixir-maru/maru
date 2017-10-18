@@ -303,4 +303,24 @@ defmodule Maru.TestTest do
     assert 500 == MWEH.M2.TEST.test4
   end
 
+  test "path_params" do
+    defmodule PathParams do
+      use Maru.Router, make_plug: true
+
+      get "a/:a/b/:b" do
+        json(conn, conn.path_params)
+      end
+    end
+
+    defmodule PathParamsTest do
+      use Maru.Test, root: Maru.TestTest.PathParams
+
+      def test do
+        get("/a/1/b/2") |> json_response
+      end
+    end
+
+    assert %{"a" => "1", "b" => "2"} = PathParamsTest.test
+  end
+
 end
