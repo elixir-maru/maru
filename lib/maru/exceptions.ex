@@ -9,7 +9,7 @@ defmodule Maru.Exceptions do
         * `:illegal` raised when parse param error
     """
 
-    defexception [:reason, :param, :value]
+    defexception [:reason, :param, :value, plug_status: 400]
     def message(e) do
       "Parsing Param Error: #{e.param}"
     end
@@ -20,7 +20,7 @@ defmodule Maru.Exceptions do
     Raised when validate param failed.
     """
 
-    defexception [:param, :validator, :value, :option]
+    defexception [:param, :validator, :value, :option, plug_status: 400]
     def message(e) do
       "Validate Param Error: #{inspect e.param}"
     end
@@ -60,7 +60,7 @@ defmodule Maru.Exceptions do
         end
     """
 
-    defexception [:method, :path_info]
+    defexception [:method, :path_info, plug_status: 404]
     def message(_e) do
       "NotFound"
     end
@@ -78,7 +78,7 @@ defmodule Maru.Exceptions do
         end
     """
 
-    defexception [:method, :request_path]
+    defexception [:method, :request_path, plug_status: 405]
     def message(_e) do
       "MethodNotAllowed"
     end

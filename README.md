@@ -78,9 +78,9 @@ defmodule MyAPP.API do
 
   rescue_from [MatchError, RuntimeError], with: :custom_error
 
-  rescue_from :all do
+  rescue_from :all, as: e do
     conn
-    |> put_status(500)
+    |> put_status(Plug.Exception.status(e))
     |> text("Server Error")
   end
 

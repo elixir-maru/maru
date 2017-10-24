@@ -266,6 +266,26 @@ defmodule Maru.TestTest do
         raise "runtime_error"
         text(conn, "200")
       end
+
+      get "invalid_format" do
+        raise Maru.Exceptions.InvalidFormat
+        text(conn, "200")
+      end
+
+      get "validation" do
+        raise Maru.Exceptions.Validation
+        text(conn, "200")
+      end
+
+      get "not_found" do
+        raise Maru.Exceptions.NotFound
+        text(conn, "200")
+      end
+
+      get "method_not_allowed" do
+        raise Maru.Exceptions.MethodNotAllowed
+        text(conn, "200")
+      end
     end
 
     defmodule MWEH.M1 do
@@ -281,8 +301,8 @@ defmodule Maru.TestTest do
       use Maru.Router, make_plug: true
       mount Maru.TestTest.MWEH.M1
 
-      rescue_from :all do
-        conn |> put_status(500) |> text("500")
+      rescue_from :all, as: e do
+        conn |> put_status(Plug.Exception.status(e)) |> text("failed")
       end
     end
 
@@ -293,12 +313,20 @@ defmodule Maru.TestTest do
       def test2, do: get("/match_error").status
       def test3, do: get("/arithmetic_error").status
       def test4, do: get("/runtime_error").status
+      def test5, do: get("/invalid_format").status
+      def test6, do: get("/validation").status
+      def test7, do: get("/not_found").status
+      def test8, do: get("/method_not_allowed").status
     end
 
     assert 200 == MWEH.M2.TEST.test1
     assert 502 == MWEH.M2.TEST.test2
     assert 501 == MWEH.M2.TEST.test3
     assert 500 == MWEH.M2.TEST.test4
+    assert 400 == MWEH.M2.TEST.test5
+    assert 400 == MWEH.M2.TEST.test6
+    assert 404 == MWEH.M2.TEST.test7
+    assert 405 == MWEH.M2.TEST.test8
   end
 
 end
