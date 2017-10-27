@@ -11,6 +11,12 @@ defmodule Parameter.DSLs do
   alias Maru.Struct.{Dependent, Validator}
   alias Maru.Utils
 
+  defmacro params(name, [do: block]) do
+    quote do
+      @shared_params unquote({name, block |> Macro.escape})
+    end
+  end
+
   defmacro params([do: block]) do
     quote do
       import Maru.Resource.DSLs, only: []

@@ -33,8 +33,23 @@ defmodule Parameter do
   defmacro __using__(_) do
     quote do
       @parameters []
-      import Parameter.DSLs, only: [params: 1]
+      Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      import Parameter.DSLs, only: [params: 1, params: 2]
     end
+  end
+
+  def using_helper(_) do
+    quote do
+      Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      import Parameter.DSLs, only: [params: 2]
+    end
+  end
+
+  def after_helper(helper_module, %Macro.Env{module: env_module}) do
+    Enum.each(
+      helper_module.__shared_params__(),
+      &Module.put_attribute(env_module, :shared_params, &1)
+    )
   end
 
   def before_parse_namespace(%Macro.Env{module: module}) do
@@ -61,5 +76,19 @@ defmodule Parameter do
 
     route = Module.get_attribute(module, :route)
     Module.put_attribute(module, :route, %{route | parameters: resource.parameters ++ parameters})
+  end
+
+  def before_compile_helper(%Macro.Env{module: module}=env) do
+    shared_params =
+      for {name, params} <- Module.get_attribute(module, :shared_params) do
+        {name, params |> Macro.escape}
+      end
+    quoted =
+      quote do
+        def __shared_params__ do
+          unquote(shared_params)
+        end
+      end
+    Module.eval_quoted(env, quoted)
   end
 end

@@ -30,9 +30,7 @@ defmodule Maru.Builder do
 
       require Maru.Struct.Plug
 
-      import Maru.Builder.DSLs, except: [params: 2]
-
-      Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      import Maru.Helper.DSLs
 
       @before_compile unquote(__MODULE__)
     end

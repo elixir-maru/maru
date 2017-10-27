@@ -147,12 +147,10 @@ defmodule Maru.Builder.DSLsTest do
 
   test "named params" do
     defmodule Test do
-      use Maru.Builder
+      use Maru.Builder.Plugins.Parameter
 
-      helpers do
-        params :foo do
-          requests :bar, type: String
-        end
+      params :foo do
+        requests :bar, type: String
       end
 
       def sp, do: @shared_params

@@ -8,7 +8,7 @@ defmodule Maru.Parameter.Phoenix do
   defmacro __using__(_) do
     quote do
       use Maru.Builder.Plugins.Parameter
-      import Maru.Builder.DSLs, only: [helpers: 1, params: 2]
+      import Maru.Helper.DSLs, only: [helpers: 1]
 
       Module.register_attribute __MODULE__, :parameter_functions, accumulate: true
 

@@ -187,10 +187,8 @@ defmodule Maru.Builder.ParamsTest do
 
       helpers Maru.Builder.ParamsTest.Helper
 
-      helpers do
-        params :foo2 do
-          optional :qux
-        end
+      params :foo2 do
+        optional :qux
       end
 
       params do
