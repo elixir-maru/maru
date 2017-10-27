@@ -8,6 +8,23 @@
 [![Docs](https://inch-ci.org/github/elixir-maru/maru.svg?branch=master&style=flat-square)](https://inch-ci.org/github/elixir-maru/maru)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
 
+## Installation
+
+To get started with Maru, add the following to `mix.exs`:
+
+```elixir
+def deps() do
+  [
+    {:maru, "~> 0.12"},
+
+    # Optional dependency for runtime configuration loading.
+    {:confex, "~> 3.3"},
+  ]
+end
+```
+
+[Confex][] allows for runtime configuration to be loaded for ease of environment-specific use.
+
 ## Usage
 
 ```elixir
@@ -105,3 +122,6 @@ config :maru, MyAPP.API,
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
+
+
+[confex]: https://hex.pm/packages/confex
