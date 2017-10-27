@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Exception
+alias Maru.Builder.Exception
 
 defmodule Exception.DSLs do
   @moduledoc """

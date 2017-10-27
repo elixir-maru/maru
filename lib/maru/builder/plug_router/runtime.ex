@@ -1,9 +1,9 @@
-alias Maru.Builder.Plugins.PlugRouter
+alias Maru.Builder.PlugRouter
 
 defmodule PlugRouter.Runtime do
   @moduledoc false
 
-  alias Maru.Builder.Plugins.Parameter.Runtime, as: PR
+  alias Maru.Builder.Parameter.Runtime, as: PR
   alias Maru.Struct.Dependent.Runtime, as: DR
   alias Maru.Struct.Validator.Runtime, as: VR
 

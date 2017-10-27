@@ -147,7 +147,7 @@ defmodule Maru.Builder.DSLsTest do
 
   test "named params" do
     defmodule Test do
-      use Maru.Builder.Plugins.Parameter
+      use Maru.Builder.Parameter
 
       params :foo do
         requests :bar, type: String

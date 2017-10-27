@@ -1,4 +1,4 @@
-defmodule Maru.Builder.Plugins.PlugRouterTest do
+defmodule Maru.Builder.PlugRouterTest do
   use ExUnit.Case, async: true
 
   alias Maru.Struct.Plug, as: MaruPlug

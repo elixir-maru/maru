@@ -1,4 +1,4 @@
-defmodule Maru.Builder.Plugins.PipelineTest do
+defmodule Maru.Builder.PipelineTest do
   use ExUnit.Case, async: true
 
   test "pipeline for namespaces" do
@@ -33,7 +33,7 @@ defmodule Maru.Builder.Plugins.PipelineTest do
 
     assert %Maru.Route{
       method: "GET",
-      module: Maru.Builder.Plugins.PipelineTest.Method,
+      module: Maru.Builder.PipelineTest.Method,
       path: [],
       plugs: [%Maru.Struct.Plug{guards: true, name: nil, options: [], plug: A}],
     } = Method.__routes__ |> List.first

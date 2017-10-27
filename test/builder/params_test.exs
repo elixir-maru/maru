@@ -1,8 +1,8 @@
 defmodule Maru.Builder.ParamsTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Builder.Plugins.Parameter, as: P
-  alias Maru.Builder.Plugins.Parameter.Information, as: PI
+  alias Maru.Builder.Parameter, as: P
+  alias Maru.Builder.Parameter.Information, as: PI
   alias Maru.Struct.Dependent, as: D
   alias Maru.Struct.Dependent.Information, as: DI
   alias Maru.Struct.Validator, as: V

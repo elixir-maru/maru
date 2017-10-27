@@ -1,15 +1,15 @@
-defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
+defmodule Maru.Builder.PlugRouter.HelperTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
-  alias Maru.Builder.Plugins.PlugRouter.Helper, warn: false
+  alias Maru.Builder.PlugRouter.Helper, warn: false
 
   defp do_parse(parameters, data, result \\ %{}) do
     runtime = Enum.map(parameters, fn p -> p.runtime end)
     data = data |> Macro.escape
     result = result |> Macro.escape
     quote do
-      Maru.Builder.Plugins.PlugRouter.Runtime.parse_params(
+      Maru.Builder.PlugRouter.Runtime.parse_params(
         unquote(runtime),
         unquote(result),
         unquote(data)
@@ -418,7 +418,7 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
         conn |> text("bb")
       end
 
-      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.A
+      mount Maru.Builder.PlugRouter.HelperTest.RoutesOrderTest.A
     end
 
     defmodule RoutesOrderTest.C do
@@ -445,8 +445,8 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
         end
       end
 
-      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.B
-      mount Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.C
+      mount Maru.Builder.PlugRouter.HelperTest.RoutesOrderTest.B
+      mount Maru.Builder.PlugRouter.HelperTest.RoutesOrderTest.C
     end
 
     assert [
@@ -456,7 +456,7 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
       %Maru.Route{path: ["a"]},
       %Maru.Route{path: ["c"]},
       %Maru.Route{path: ["cc"]},
-    ] = Maru.Builder.Plugins.PlugRouter.HelperTest.RoutesOrderTest.D.__routes__
+    ] = Maru.Builder.PlugRouter.HelperTest.RoutesOrderTest.D.__routes__
   end
 
 end

@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Description
+alias Maru.Builder.Description
 
 defmodule Description.DSLs do
   @doc """

@@ -39,13 +39,13 @@ defmodule Maru.Helper do
     [ quote do
         @before_compile unquote(__MODULE__)
       end,
-      Maru.Builder.Plugins.Parameter.using_helper(opts)
+      Maru.Builder.Parameter.using_helper(opts)
     ]
   end
 
   @doc false
   defmacro __before_compile__(%Macro.Env{}=env) do
-    Maru.Builder.Plugins.Parameter.before_compile_helper(env)
+    Maru.Builder.Parameter.before_compile_helper(env)
   end
 
 end
@@ -53,7 +53,7 @@ end
 defmodule Maru.Helper.DSLs do
   defmacro helpers({_, _, _}=module) do
     quote do
-      Maru.Builder.Plugins.Parameter.after_helper(unquote(module), __ENV__)
+      Maru.Builder.Parameter.after_helper(unquote(module), __ENV__)
     end
   end
 end

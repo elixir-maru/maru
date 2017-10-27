@@ -1,5 +1,5 @@
-alias Maru.Builder.Plugins.PlugRouter
-alias Maru.Builder.Exception.RETURN
+alias Maru.Builder.PlugRouter
+alias Maru.Builder.RETURN
 
 defmodule PlugRouter do
 
@@ -46,7 +46,7 @@ defmodule PlugRouter do
     method_not_allowed_block = make_method_not_allowed_block(routes, version_adapter)
 
     Module.put_attribute(module, :pipe_functions, [])
-    Maru.Builder.Plugins.Exception.before_build_plug(env)
+    Maru.Builder.Exception.before_build_plug(env)
 
     func =
       module
@@ -76,7 +76,7 @@ defmodule PlugRouter do
   defp make_routes_block(routes, %Macro.Env{module: module}=env, version_adapter) do
     Enum.map(routes, fn route ->
       Module.put_attribute(module, :pipe_functions, [])
-      Maru.Builder.Plugins.Exception.before_build_route(route, env)
+      Maru.Builder.Exception.before_build_route(route, env)
       PlugRouter.Helper.dispatch(route, env, version_adapter)
     end)
   end

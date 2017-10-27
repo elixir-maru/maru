@@ -11,8 +11,8 @@ defmodule Route do
     module:     nil,
     func_id:    nil,
   ]
-  ++ Maru.Builder.Plugins.Exception.route_struct()
-  ++ Maru.Builder.Plugins.Description.route_struct()
+  ++ Maru.Builder.Exception.route_struct()
+  ++ Maru.Builder.Description.route_struct()
 
 
   defmacro __using__(_) do
@@ -26,8 +26,8 @@ defmodule Route do
   end
 
   def before_parse_namespace(env) do
-    Maru.Builder.Plugins.Pipeline.before_parse_namespace(env)
-    Maru.Builder.Plugins.Parameter.before_parse_namespace(env)
+    Maru.Builder.Pipeline.before_parse_namespace(env)
+    Maru.Builder.Parameter.before_parse_namespace(env)
   end
 
   def before_parse_method(%Macro.Env{module: module}=env) do
@@ -43,8 +43,8 @@ defmodule Route do
       |> Map.merge(%{module: module, func_id: func_id})
     Module.put_attribute(module, :route, struct(Route, route))
 
-    Maru.Builder.Plugins.Parameter.before_parse_route(env)
-    Maru.Builder.Plugins.Description.before_parse_route(env)
+    Maru.Builder.Parameter.before_parse_route(env)
+    Maru.Builder.Description.before_parse_route(env)
 
     route = Module.get_attribute(module, :route)
     Module.put_attribute(module, :routes, route)

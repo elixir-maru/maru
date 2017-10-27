@@ -1,6 +1,6 @@
 alias Maru.Struct.Plug, as: MaruPlug
 
-defmodule Maru.Builder.Plugins.Pipeline.DSLs do
+defmodule Maru.Builder.Pipeline.DSLs do
   @doc """
   Define pipeline block of current endpoint.
   """
@@ -8,11 +8,11 @@ defmodule Maru.Builder.Plugins.Pipeline.DSLs do
     quote do
       import Kernel, only: []
       import Maru.Resource.DSLs, only: []
-      import Maru.Builder.Plugins.Pipeline.DSLs, only: [
+      import Maru.Builder.Pipeline.DSLs, only: [
         plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
       ]
       unquote(block)
-      import Maru.Builder.Plugins.Pipeline.DSLs, only: [pipeline: 1]
+      import Maru.Builder.Pipeline.DSLs, only: [pipeline: 1]
       import Maru.Resource.DSLs
       import Kernel
     end

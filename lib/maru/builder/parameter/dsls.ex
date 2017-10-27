@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Parameter
+alias Maru.Builder.Parameter
 
 defmodule Parameter.DSLs do
   @doc """
@@ -6,8 +6,8 @@ defmodule Parameter.DSLs do
   """
 
   alias Parameter.Helper
-  alias Maru.Builder.Plugins.Parameter
-  alias Maru.Builder.Plugins.Parameter.Information
+  alias Maru.Builder.Parameter
+  alias Maru.Builder.Parameter.Information
   alias Maru.Struct.{Dependent, Validator}
   alias Maru.Utils
 

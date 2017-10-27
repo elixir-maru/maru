@@ -7,7 +7,7 @@ defmodule Maru.Parameter.Phoenix do
   @doc false
   defmacro __using__(_) do
     quote do
-      use Maru.Builder.Plugins.Parameter
+      use Maru.Builder.Parameter
       import Maru.Helper.DSLs, only: [helpers: 1]
 
       Module.register_attribute __MODULE__, :parameter_functions, accumulate: true
@@ -44,7 +44,7 @@ defmodule Maru.Parameter.Phoenix do
       quote do
         defoverridable [{unquote(name), 2}]
         def unquote(name)(conn, params) when unquote(guards) do
-          super(conn, Maru.Builder.Plugins.PlugRouter.Runtime.parse_params(
+          super(conn, Maru.Builder.PlugRouter.Runtime.parse_params(
             unquote(runtime), %{}, params
           ))
         end

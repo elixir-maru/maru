@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Parameter
+alias Maru.Builder.Parameter
 
 defmodule Parameter.Information do
   @moduledoc false

@@ -1,4 +1,4 @@
-defmodule Maru.Builder.Plugins.ExceptionTest do
+defmodule Maru.Builder.ExceptionTest do
   use ExUnit.Case, async: true
   import Plug.Test
 

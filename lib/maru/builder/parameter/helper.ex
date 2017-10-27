@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.Parameter
+alias Maru.Builder.Parameter
 
 defmodule Parameter.Helper do
   alias Parameter.{Information, Runtime}

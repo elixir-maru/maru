@@ -1,5 +1,5 @@
 alias Maru.Struct.Plug, as: MaruPlug
-alias Maru.Builder.Plugins.Pipeline
+alias Maru.Builder.Pipeline
 
 defmodule Pipeline do
   defmacro __using__(_) do

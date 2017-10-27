@@ -2,8 +2,8 @@ defmodule Maru.Builder.ResourceTest do
   use ExUnit.Case, async: true
 
   alias Maru.Resource
-  alias Maru.Builder.Plugins.Parameter
-  alias Maru.Builder.Plugins.Parameter.Information
+  alias Maru.Builder.Parameter
+  alias Maru.Builder.Parameter.Information
 
   test "namespaces" do
     defmodule Test do

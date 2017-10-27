@@ -1,4 +1,4 @@
-alias Maru.Builder.Plugins.PlugRouter
+alias Maru.Builder.PlugRouter
 
 defmodule PlugRouter.DSLs do
   @doc """

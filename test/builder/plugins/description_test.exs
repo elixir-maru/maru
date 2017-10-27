@@ -1,4 +1,4 @@
-defmodule Maru.Builder.Plugins.DescriptionTest do
+defmodule Maru.Builder.DescriptionTest do
   use ExUnit.Case, async: true
 
   test "description" do
