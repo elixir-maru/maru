@@ -16,7 +16,9 @@ defmodule Maru.Mixfile do
       docs: [
         extras: ["README.md"],
         main: "readme",
-      ]
+      ],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
     ]
   end
 
@@ -33,6 +35,7 @@ defmodule Maru.Mixfile do
       { :inch_ex, "~> 0.5",  only: :docs },
       { :earmark, "~> 1.2",  only: :docs },
       { :ex_doc,  "~> 0.16", only: :docs },
+      { :excoveralls, "~> 0.7.4", only: [:dev, :test] },
     ]
   end
 
