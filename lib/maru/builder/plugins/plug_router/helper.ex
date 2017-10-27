@@ -19,7 +19,7 @@ defmodule PlugRouter.Helper do
     params = quote do
       Map.merge(
         var!(conn).params,
-        Maru.Builder.Path.parse_params(
+        PlugRouter.Runtime.parse_path_params(
           var!(conn).path_info,
           unquote(adapter.path_for_params(route.path, route.version))
         )
@@ -28,7 +28,7 @@ defmodule PlugRouter.Helper do
 
     parameters_runtime = route.parameters |> Enum.map(fn p -> p.runtime end)
     parser_block = quote do
-      Maru.Runtime.parse_params(
+      PlugRouter.Runtime.parse_params(
         unquote(parameters_runtime), %{}, unquote(params)
       )
     end

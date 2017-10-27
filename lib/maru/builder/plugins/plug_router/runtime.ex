@@ -1,4 +1,6 @@
-defmodule Maru.Runtime do
+alias Maru.Builder.Plugins.PlugRouter
+
+defmodule PlugRouter.Runtime do
   @moduledoc false
 
   alias Maru.Builder.Plugins.Parameter.Runtime, as: PR
@@ -54,6 +56,22 @@ defmodule Maru.Runtime do
   defp do_nested(:list, [], value), do: value
   defp do_nested(:list, children, value) do
     Enum.map(value, &parse_params(children, %{}, &1))
+  end
+
+
+  @doc """
+  parse path params
+  """
+  def parse_path_params(conn_path_info, route_path) do
+    do_parse_path_params(conn_path_info, route_path , %{})
+  end
+
+  defp do_parse_path_params([], [], result), do: result
+  defp do_parse_path_params([h|t1], [h|t2], result) do
+    do_parse_path_params(t1, t2, result)
+  end
+  defp do_parse_path_params([h1|t1], [h2|t2], result) when is_atom(h2) do
+    do_parse_path_params(t1, t2, put_in(result, [to_string(h2)], h1))
   end
 
 end

@@ -45,7 +45,7 @@ defmodule Route.Extend do
 
   defp route_match?(conds, route) do
     Enum.any?(conds, fn {method, path} ->
-      path = Maru.Builder.Path.split(path)
+      path = Maru.Utils.split_path(path)
       method_match?(route.method, method) and path_match?(route.path, path)
     end)
   end

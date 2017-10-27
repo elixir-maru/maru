@@ -4,14 +4,14 @@ defmodule Resource.DSLs do
   alias Resource.Helper
 
   alias Maru.Struct.Plug, as: MaruPlug
-  alias Maru.Builder.Path, as: MaruPath
+  alias Maru.Utils
 
   @doc """
   Define path prefix of current router.
   """
   defmacro prefix(path) do
     quote do
-      unquote(path) |> MaruPath.split() |> Helper.push_path(__ENV__)
+      unquote(path) |> Utils.split_path() |> Helper.push_path(__ENV__)
     end
   end
 
@@ -123,7 +123,7 @@ defmodule Resource.DSLs do
           namespace: unquote(namespace),
         }
         r = @resource
-        unquote(path) |> MaruPath.split() |> Helper.push_path(__ENV__)
+        unquote(path) |> Utils.split_path() |> Helper.push_path(__ENV__)
         Maru.Route.before_parse_namespace(__ENV__)
         unquote(block)
         @resource r
@@ -170,8 +170,8 @@ defmodule Resource.DSLs do
     @doc "Handle #{method} method."
     defmacro unquote(method)(path \\ "", [do: block]) do
       %{ method: unquote(method) |> to_string |> String.upcase,
-         path:   path |> MaruPath.split,
-         block:  block |> Macro.escape,
+         path:   Utils.split_path(path),
+         block:  Macro.escape(block),
        } |> endpoint
     end
   end
@@ -179,8 +179,8 @@ defmodule Resource.DSLs do
   @doc "Handle all method."
   defmacro match(path \\ "", [do: block]) do
     %{ method: Macro.var(:_, nil) |> Macro.escape,
-       path:   path |> MaruPath.split,
-       block:  block |> Macro.escape,
+       path:   Utils.split_path(path),
+       block:  Macro.escape(block),
      } |> endpoint
   end
 

@@ -9,7 +9,7 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
     data = data |> Macro.escape
     result = result |> Macro.escape
     quote do
-      Maru.Runtime.parse_params(
+      Maru.Builder.Plugins.PlugRouter.Runtime.parse_params(
         unquote(runtime),
         unquote(result),
         unquote(data)

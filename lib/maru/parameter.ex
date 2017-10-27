@@ -44,7 +44,7 @@ defmodule Maru.Parameter.Phoenix do
       quote do
         defoverridable [{unquote(name), 2}]
         def unquote(name)(conn, params) when unquote(guards) do
-          super(conn, Maru.Runtime.parse_params(
+          super(conn, Maru.Builder.Plugins.PlugRouter.Runtime.parse_params(
             unquote(runtime), %{}, params
           ))
         end

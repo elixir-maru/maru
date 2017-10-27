@@ -126,4 +126,17 @@ defmodule Maru.Utils do
   def warn(string) do
     IO.write :stderr, "\e[33mwarning: \e[0m#{string}"
   end
+
+  @doc false
+  def split_path(path) when is_atom(path), do: [path |> to_string]
+  def split_path(path) when is_binary(path) do
+    func = fn
+      ("", r) -> r
+      (":" <> param, r) -> [param |> String.to_atom | r]
+      (p, r) -> [p | r]
+    end
+    path |> String.split("/") |> Enum.reduce([], func) |> Enum.reverse
+  end
+  def split_path(_path), do: raise "path should be Atom or String"
+
 end
