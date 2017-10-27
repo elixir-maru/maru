@@ -11,7 +11,7 @@ defmodule Route.Endpoint do
     end
   end
 
-  def callback_build_method(%{module: module}) do
+  def before_method(%{module: module}) do
     route = Module.get_attribute(module, :route)
     endpoint =
       Module.get_attribute(module, :method_context)
@@ -20,7 +20,7 @@ defmodule Route.Endpoint do
     Module.put_attribute(module, :endpoints, struct(Route.Endpoint, endpoint))
   end
 
-  def callback_before_compile(%Macro.Env{module: module}=env) do
+  def before_compile_router(%Macro.Env{module: module}=env) do
     quoted =
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse

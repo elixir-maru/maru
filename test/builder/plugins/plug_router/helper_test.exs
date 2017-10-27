@@ -351,6 +351,7 @@ defmodule Maru.Builder.Plugins.PlugRouter.HelperTest do
   test "dispatch method" do
     defmodule DispatchTest do
       use Maru.Helpers.Response
+      @pipe_functions []
 
       def endpoint(conn, 0) do
         conn |> Plug.Conn.send_resp(200, "get") |> Plug.Conn.halt

@@ -40,9 +40,9 @@ defmodule Maru.Builder do
 
   @doc false
   defmacro __before_compile__(%Macro.Env{}=env) do
-    Maru.Route.callback_before_compile(env)
+    Maru.Route.before_compile_router(env)
 
-    Maru.Builder.Plugins.Exception.callback_before_compile(env)
-    Maru.Builder.Plugins.PlugRouter.callback_before_compile(env)
+    Maru.Builder.Plugins.Exception.before_compile_router(env)
+    Maru.Builder.Plugins.PlugRouter.before_compile_router(env)
   end
 end

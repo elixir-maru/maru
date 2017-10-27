@@ -9,7 +9,7 @@ defmodule Pipeline do
     end
   end
 
-  def callback_mount(%{plugs: mounted_plugs}=mounted_route, %Macro.Env{module: module}) do
+  def after_mount(%{plugs: mounted_plugs}=mounted_route, _module, %Macro.Env{module: module}) do
     plugs = Module.get_attribute(module, :plugs)
     resource = Module.get_attribute(module, :resource)
     %{ mounted_route |
@@ -17,7 +17,7 @@ defmodule Pipeline do
     }
   end
 
-  def callback_namespace(%Macro.Env{module: module}) do
+  def before_parse_namespace(%Macro.Env{module: module}) do
     plugs = Module.get_attribute(module, :plugs)
     Module.put_attribute(module, :plugs, [])
 

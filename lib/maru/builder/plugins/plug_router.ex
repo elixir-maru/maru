@@ -14,6 +14,7 @@ defmodule PlugRouter do
       if make_plug do
         quote do
           @versioning unquote(versioning)
+          @pipe_functions []
           Module.register_attribute __MODULE__, :plugs_before, accumulate: true
           import PlugRouter.DSLs, only: [before: 1]
         end
@@ -22,7 +23,7 @@ defmodule PlugRouter do
   end
 
   @doc false
-  def callback_before_compile(%Macro.Env{module: module}=env) do
+  def before_compile_router(%Macro.Env{module: module}=env) do
     Module.get_attribute(module, :make_plug) || raise RETURN
 
     routes          = Module.get_attribute(module, :all_routes)
@@ -44,10 +45,13 @@ defmodule PlugRouter do
     routes_block = make_routes_block(routes, env, version_adapter)
     method_not_allowed_block = make_method_not_allowed_block(routes, version_adapter)
 
+    Module.put_attribute(module, :pipe_functions, [])
+    Maru.Builder.Plugins.Exception.before_build_plug(env)
+
     func =
-      env
-      |> Maru.Builder.Plugins.Exception.callback_plug_router()
-      |> PlugRouter.Helper.pipe_functions()
+      module
+      |> Module.get_attribute(:pipe_functions)
+      |> PlugRouter.Helper.make_pipe_functions()
 
     quoted =
       quote do
@@ -69,8 +73,10 @@ defmodule PlugRouter do
     RETURN -> nil
   end
 
-  defp make_routes_block(routes, env, version_adapter) do
+  defp make_routes_block(routes, %Macro.Env{module: module}=env, version_adapter) do
     Enum.map(routes, fn route ->
+      Module.put_attribute(module, :pipe_functions, [])
+      Maru.Builder.Plugins.Exception.before_build_route(route, env)
       PlugRouter.Helper.dispatch(route, env, version_adapter)
     end)
   end

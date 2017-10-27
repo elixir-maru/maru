@@ -124,7 +124,7 @@ defmodule Resource.DSLs do
         }
         r = @resource
         unquote(path) |> MaruPath.split() |> Helper.push_path(__ENV__)
-        Maru.Route.callback_namespace(__ENV__)
+        Maru.Route.before_parse_namespace(__ENV__)
         unquote(block)
         @resource r
       end
@@ -141,7 +141,7 @@ defmodule Resource.DSLs do
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
-      Maru.Route.callback_namespace(__ENV__)
+      Maru.Route.before_parse_namespace(__ENV__)
       unquote(block)
       @resource r
     end
@@ -158,7 +158,7 @@ defmodule Resource.DSLs do
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
-      Maru.Route.callback_namespace(__ENV__)
+      Maru.Route.before_parse_namespace(__ENV__)
       unquote(block)
       @resource r
     end
@@ -198,7 +198,7 @@ defmodule Resource.DSLs do
         plugs:   MaruPlug.merge(resource.plugs, MaruPlug.pop),
       }
 
-      Maru.Route.callback_build_method(__ENV__)
+      Maru.Route.before_parse_method(__ENV__)
     end
   end
 end

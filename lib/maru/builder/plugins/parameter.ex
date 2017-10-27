@@ -37,7 +37,7 @@ defmodule Parameter do
     end
   end
 
-  def callback_namespace(%Macro.Env{module: module}) do
+  def before_parse_namespace(%Macro.Env{module: module}) do
     parameters = Module.get_attribute(module, :parameters)
     Module.put_attribute(module, :parameters, [])
 
@@ -54,7 +54,7 @@ defmodule Parameter do
     Module.put_attribute(module, :resource, %{resource | parameters: new_parameters})
   end
 
-  def callback_build_route(%Macro.Env{module: module}) do
+  def before_parse_route(%Macro.Env{module: module}) do
     resource = Module.get_attribute(module, :resource)
     parameters = Module.get_attribute(module, :parameters)
     Module.put_attribute(module, :parameters, [])

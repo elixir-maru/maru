@@ -5,7 +5,7 @@ defmodule PlugRouter.Helper do
   @doc """
   Generate general route defined by user within method block.
   """
-  def dispatch(route, env, adapter) do
+  def dispatch(route, %Macro.Env{module: module}=env, adapter) do
     pipeline = [
       adapter.put_version_plug(route.version),
       [{Maru.Plugs.SaveConn, [], true}],
@@ -44,9 +44,9 @@ defmodule PlugRouter.Helper do
     end
 
     func =
-      route
-      |> Maru.Builder.Plugins.Exception.callback_route(env)
-      |> pipe_functions()
+      module
+      |> Module.get_attribute(:pipe_functions)
+      |> make_pipe_functions()
 
     quote do
       defp route(unquote(
@@ -81,11 +81,11 @@ defmodule PlugRouter.Helper do
     end
   end
 
-  def pipe_functions(mfs) do
+  def make_pipe_functions(mf_list) do
     quote do
       fn func ->
         Enum.reduce(
-          unquote(mfs),
+          unquote(mf_list),
           func,
           fn {m, f}, func ->
             apply(m, f, [func])

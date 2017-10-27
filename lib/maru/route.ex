@@ -25,12 +25,12 @@ defmodule Route do
     end
   end
 
-  def callback_namespace(env) do
-    Maru.Builder.Plugins.Pipeline.callback_namespace(env)
-    Maru.Builder.Plugins.Parameter.callback_namespace(env)
+  def before_parse_namespace(env) do
+    Maru.Builder.Plugins.Pipeline.before_parse_namespace(env)
+    Maru.Builder.Plugins.Parameter.before_parse_namespace(env)
   end
 
-  def callback_build_method(%Macro.Env{module: module}=env) do
+  def before_parse_method(%Macro.Env{module: module}=env) do
     func_id = Module.get_attribute(module, :func_id)
     Module.put_attribute(module, :func_id, func_id + 1)
 
@@ -43,16 +43,16 @@ defmodule Route do
       |> Map.merge(%{module: module, func_id: func_id})
     Module.put_attribute(module, :route, struct(Route, route))
 
-    Maru.Builder.Plugins.Parameter.callback_build_route(env)
-    Maru.Builder.Plugins.Description.callback_build_route(env)
+    Maru.Builder.Plugins.Parameter.before_parse_route(env)
+    Maru.Builder.Plugins.Description.before_parse_route(env)
 
     route = Module.get_attribute(module, :route)
     Module.put_attribute(module, :routes, route)
 
-    Route.Endpoint.callback_build_method(env)
+    Route.Endpoint.before_method(env)
   end
 
-  def callback_before_compile(%Macro.Env{module: module}=env) do
+  def before_compile_router(%Macro.Env{module: module}=env) do
     current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
     mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
     extend_opts    = Module.get_attribute(module, :extend)
@@ -67,6 +67,6 @@ defmodule Route do
     end
     Module.eval_quoted(env, quoted)
 
-    Route.Endpoint.callback_before_compile(env)
+    Route.Endpoint.before_compile_router(env)
   end
 end

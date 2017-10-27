@@ -55,8 +55,8 @@ defmodule Route.Mount.Helper do
            path:       versioning_path       ++ resource.path ++ mounted_route.path,
            parameters: resource.parameters   ++ mounted_route.parameters,
         }
-        |> Maru.Builder.Plugins.Pipeline.callback_mount(env)
-        |> Maru.Builder.Plugins.Exception.callback_mount(mounted_module, env)
+        |> Maru.Builder.Plugins.Pipeline.after_mount(mounted_module, env)
+        |> Maru.Builder.Plugins.Exception.after_mount(mounted_module, env)
       Module.put_attribute(module, :mounted, mounted)
     end)
   end

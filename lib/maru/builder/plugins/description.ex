@@ -10,7 +10,7 @@ defmodule Description do
 
   def route_struct, do: [desc: nil]
 
-  def callback_build_route(%Macro.Env{module: module}) do
+  def before_parse_route(%Macro.Env{module: module}) do
     desc = Module.get_attribute(module, :desc)
     Module.put_attribute(module, :desc, nil)
 

@@ -16,33 +16,38 @@ defmodule Exception do
 
   def route_struct, do: [mount_link: []]
 
-  def callback_mount(%{mount_link: mount_link}=mounted_route, module, _env) do
+  def after_mount(%{mount_link: mount_link}=mounted_route, module, _env) do
     %{mounted_route | mount_link: mount_link ++ [module]}
   end
 
-  def callback_route(route, _env) do
-    route.mount_link
-    |> Enum.filter(fn module ->
-      if Module.open?(module) do
-        Module.get_attribute(module, :exceptions) != []
-      else
-        {:__error_handler__, 1} in module.__info__(:functions)
+  def before_build_plug(%Macro.Env{module: module}) do
+    new_pipe_functions =
+      Module.get_attribute(module, :pipe_functions) ++
+      case Module.get_attribute(module, :exceptions) do
+        [] -> []
+        _ -> [{module, :__error_handler__}]
       end
-    end)
-    |> Enum.map(fn module ->
-      {module, :__error_handler__}
-    end)
+    Module.put_attribute(module, :pipe_functions, new_pipe_functions)
   end
 
-  def callback_plug_router(%Macro.Env{module: module}) do
-    module
-    |> Module.get_attribute(:exceptions)
-    |> Enum.empty?
-    && []
-    || [{module, :__error_handler__}]
+  def before_build_route(route, %Macro.Env{module: module}) do
+    new_pipe_functions =
+      Module.get_attribute(module, :pipe_functions) ++
+      route.mount_link
+      |> Enum.filter(fn module ->
+        if Module.open?(module) do
+          Module.get_attribute(module, :exceptions) != []
+        else
+          {:__error_handler__, 1} in module.__info__(:functions)
+        end
+      end)
+      |> Enum.map(fn module ->
+        {module, :__error_handler__}
+      end)
+    Module.put_attribute(module, :pipe_functions, new_pipe_functions)
   end
 
-  def callback_before_compile(%Macro.Env{module: module}=env) do
+  def before_compile_router(%Macro.Env{module: module}=env) do
     rescue_block =
       Module.get_attribute(module, :exceptions)
       |> Enum.reverse
