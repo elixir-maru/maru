@@ -32,7 +32,7 @@ defmodule Maru.Builder.Params do
     quote do
       [ attr_name: unquote(attr_name),
         required:  true,
-      ] |> parse |> Parameter.push
+      ] |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -47,7 +47,7 @@ defmodule Maru.Builder.Params do
       [ attr_name: unquote(attr_name),
         required:  true,
         children:  children,
-      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
+      ] |> Enum.concat(unquote options) |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -62,7 +62,7 @@ defmodule Maru.Builder.Params do
     quote do
       [ attr_name: unquote(attr_name),
         required:  true,
-      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
+      ] |> Enum.concat(unquote options) |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -84,7 +84,7 @@ defmodule Maru.Builder.Params do
     quote do
       [ attr_name: unquote(attr_name),
         required: false,
-      ] |> parse |> Parameter.push
+      ] |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -99,7 +99,7 @@ defmodule Maru.Builder.Params do
       [ attr_name: unquote(attr_name),
         required: false,
         children: children,
-      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
+      ] |> Enum.concat(unquote options) |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -115,7 +115,7 @@ defmodule Maru.Builder.Params do
     quote do
       [ attr_name: unquote(attr_name),
         required: false,
-      ] |> Enum.concat(unquote options) |> parse |> Parameter.push
+      ] |> Enum.concat(unquote options) |> parse(__ENV__) |> Parameter.push
     end
   end
 
@@ -182,7 +182,9 @@ defmodule Maru.Builder.Params do
   @doc """
   Parse params and generate Parameter struct.
   """
-  def parse(options \\ []) do
+  def parse(options), do: parse(options, nil)
+
+  def parse(options, caller) do
     pipeline = [
       :blank_func, :attr_name, :required, :children, :type, :default, :desc, :validators
     ]
@@ -191,10 +193,10 @@ defmodule Maru.Builder.Params do
       information: %Information{},
       runtime:     quote do %Runtime{} end,
     }
-    Enum.reduce(pipeline, accumulator, &do_parse/2)
+    Enum.reduce(pipeline, accumulator, &do_parse(&1, &2, caller))
   end
 
-  defp do_parse(:blank_func, %{options: options, information: info, runtime: runtime}) do
+  defp do_parse(:blank_func, %{options: options, information: info, runtime: runtime}, _caller) do
     has_default? = options |> Keyword.has_key?(:default)
     required     = options |> Keyword.fetch!(:required)
     attr_name    = options |> Keyword.fetch!(:attr_name)
@@ -244,7 +246,7 @@ defmodule Maru.Builder.Params do
      }
   end
 
-  defp do_parse(:children, %{options: options, information: info, runtime: runtime}) do
+  defp do_parse(:children, %{options: options, information: info, runtime: runtime}, _caller) do
     {children, options}  = Keyword.pop(options, :children, [])
     children_information = Maru.Utils.get_nested(children, :information)
     children_runtime = Maru.Utils.get_nested(children, :runtime)
@@ -256,7 +258,7 @@ defmodule Maru.Builder.Params do
      }
   end
 
-  defp do_parse(key, %{options: options, information: info, runtime: runtime})
+  defp do_parse(key, %{options: options, information: info, runtime: runtime}, _caller)
   when key in [:required, :default, :desc] do
     {value, options} = Keyword.pop(options, key)
     %{ options:     options,
@@ -265,7 +267,7 @@ defmodule Maru.Builder.Params do
      }
   end
 
-  defp do_parse(:attr_name, %{options: options, information: info, runtime: runtime}) do
+  defp do_parse(:attr_name, %{options: options, information: info, runtime: runtime}, _caller) do
     attr_name = options |> Keyword.fetch!(:attr_name)
     source    = options |> Keyword.get(:source)
     options   = options |> Keyword.drop([:attr_name, :source])
@@ -281,7 +283,7 @@ defmodule Maru.Builder.Params do
     }
   end
 
-  defp do_parse(:type, %{options: options, information: info, runtime: runtime}) do
+  defp do_parse(:type, %{options: options, information: info, runtime: runtime}, _caller) do
     parsers = options |> Keyword.get(:type, :string) |> do_parse_type
     dropped =
       for {:module, _, arguments} <- parsers do
@@ -308,7 +310,7 @@ defmodule Maru.Builder.Params do
      }
   end
 
-  defp do_parse(:validators, %{options: validators, information: info, runtime: runtime}) do
+  defp do_parse(:validators, %{options: validators, information: info, runtime: runtime}, caller) do
     %{attr_name: attr_name} = info
     value = quote do: value
     block =
@@ -318,7 +320,7 @@ defmodule Maru.Builder.Params do
           unquote(module).validate_param!(
             unquote(attr_name),
             unquote(value),
-            unquote(option)
+            unquote(Utils.expand_alias(option, caller))
           )
         end
       end
@@ -416,5 +418,4 @@ defmodule Maru.Builder.Params do
       end
     end
   end
-
 end

@@ -126,4 +126,12 @@ defmodule Maru.Utils do
   def warn(string) do
     IO.write :stderr, "\e[33mwarning: \e[0m#{string}"
   end
+
+  @doc false
+  def expand_alias(ast, caller) do
+    Macro.prewalk(ast, fn
+      {:__aliases__, _, _} = module -> Macro.expand(module, caller)
+      other -> other
+    end)
+  end
 end
