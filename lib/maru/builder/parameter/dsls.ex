@@ -60,7 +60,12 @@ defmodule Parameter.DSLs do
   end
 
   defmacro requires(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> Macro.escape
+    options =
+      [type: :list]
+      |> Keyword.merge(options)
+      |> Utils.expand_alias(__CALLER__)
+      |> Macro.escape
+
     quote do
       s = Helper.pop(__ENV__)
       unquote(block)
@@ -80,7 +85,7 @@ defmodule Parameter.DSLs do
   end
 
   defmacro requires(attr_name, options) do
-    options = options |> Macro.escape
+    options = options |> Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       [ attr_name: unquote(attr_name),
         required:  true,
@@ -111,7 +116,11 @@ defmodule Parameter.DSLs do
   end
 
   defmacro optional(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> Macro.escape
+    options =
+      [type: :list]
+      |> Keyword.merge(options)
+      |> Utils.expand_alias(__CALLER__)
+      |> Macro.escape
     quote do
       s = Helper.pop(__ENV__)
       unquote(block)
@@ -132,7 +141,7 @@ defmodule Parameter.DSLs do
   end
 
   defmacro optional(attr_name, options) do
-    options = options |> Macro.escape
+    options = options |> Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       [ attr_name: unquote(attr_name),
         required: false,
@@ -159,6 +168,7 @@ defmodule Parameter.DSLs do
 
     validators = Enum.map(attrs, fn
       {param, func} ->
+        func = Utils.expand_alias(func, __CALLER__)
         quote do
           fn result ->
             Map.has_key?(result, unquote(param)) &&

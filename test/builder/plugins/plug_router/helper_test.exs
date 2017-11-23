@@ -18,8 +18,13 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
   end
 
   test "validate param" do
+    defmodule Nested.Option.Helper do
+      def values, do: 1..10
+    end
+
     defmodule ValidateParam do
       use Maru.Builder
+      alias Nested.Option.Helper
 
       params do
         requires :id, type: Integer
@@ -46,7 +51,7 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
       @parameters []
 
       params do
-        optional :id, type: Integer, values: 1..10
+        optional :id, type: Integer, values: Helper.values()
       end
       def p5, do: @parameters
     end

@@ -149,7 +149,7 @@ defmodule Resource.DSLs do
 
   @doc "Special namespace which save path to param list with options."
   defmacro route_param(param, options, [do: block]) when is_atom(param) do
-    options = options |> Macro.escape
+    options = options |> Maru.Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       @namespace_context %{
         namespace: :route_param,

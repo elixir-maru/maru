@@ -27,24 +27,14 @@ defmodule Maru.UtilsTest do
   end
 
   test "make_type" do
-    type = quote do: A
     assert_raise Maru.Exceptions.UndefinedType, fn ->
-      make_type(type)
+      make_type(A)
     end
 
     defmodule Elixir.Maru.Types.B do
       use Elixir.Maru.Type
     end
-    type = quote do: B
-    assert Elixir.Maru.Types.B = make_type(type)
-  end
-
-  test "split router" do
-    router = quote do A |> B |> Maru.Type end
-    assert [A, B, Maru.Type] = split_router(router)
-
-    router = quote do: A
-    assert [A] = split_router(router)
+    assert Elixir.Maru.Types.B = make_type(B)
   end
 
   test "warning unknown opts" do

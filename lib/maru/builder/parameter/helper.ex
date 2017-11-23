@@ -167,7 +167,7 @@ defmodule Parameter.Helper do
   defp do_parse_type({:|>, _, [left, right]}) do
     do_parse_type(left) ++ do_parse_type(right)
   end
-  defp do_parse_type({{:., _, [Access, :get]}, _, [{:__aliases__, _, [:List]}, nested]}) do
+  defp do_parse_type({{:., _, [Access, :get]}, _, [List, nested]}) do
     [{:list, do_parse_type(nested)}]
   end
 
