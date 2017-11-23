@@ -3,6 +3,7 @@ defmodule Maru.Builder.Namespaces do
   Namespace DSLs for parsing router.
   """
 
+  alias Maru.Utils
   alias Maru.Struct.{Parameter, Resource}
   alias Maru.Struct.Plug, as: MaruPlug
   alias Maru.Builder.Params
@@ -43,7 +44,7 @@ defmodule Maru.Builder.Namespaces do
 
   @doc "Special namespace which save path to param list with options."
   defmacro route_param(param, options, [do: block]) do
-    options = options |> Macro.escape
+    options = options |> Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       r = Resource.snapshot
       Resource.push_path(unquote(param))

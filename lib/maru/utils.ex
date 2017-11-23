@@ -40,24 +40,22 @@ defmodule Maru.Utils do
     end
   end
 
-  @doc false
-  def make_type({:__aliases__, _, type}) do
-    do_make_type(type)
-  end
-
-  def make_type(type) when is_atom(type) do
-    type = type |> Atom.to_string |> upper_camel_case
-    do_make_type([type])
+  def make_type(type) do
+    to_string(type)
+    |> case do
+         "Elixir" <> _ -> type
+         type -> upper_camel_case(type)
+       end
+    |> do_make_type()
   end
 
   defp do_make_type(type) do
     try do
-      module = [ Maru.Types | type ] |> Module.concat
+      module = Module.concat(Maru.Types, type)
       module.__info__(:functions)
       module
     rescue
       UndefinedFunctionError ->
-        type = type |> Module.concat |> inspect
         Maru.Exceptions.UndefinedType |> raise([type: type])
     end
   end
@@ -103,15 +101,6 @@ defmodule Maru.Utils do
   end
 
   @doc false
-  def split_router({:|>, _, [left, right]}) do
-    split_router(left) ++ split_router(right)
-  end
-
-  def split_router({:__aliases__, _, module}) do
-    [Module.safe_concat(module)]
-  end
-
-  @doc false
   def warning_unknown_opts(module, keys) do
     keys
     |> Enum.map(&inspect/1)
@@ -125,5 +114,13 @@ defmodule Maru.Utils do
   @doc false
   def warn(string) do
     IO.write :stderr, "\e[33mwarning: \e[0m#{string}"
+  end
+
+  @doc false
+  def expand_alias(ast, caller) do
+    Macro.prewalk(ast, fn
+      {:__aliases__, _, _} = module -> Macro.expand(module, caller)
+      other -> other
+    end)
   end
 end
