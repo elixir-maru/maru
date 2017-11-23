@@ -10,9 +10,6 @@ defmodule Maru.Builder.ParamsTest do
   alias Maru.Struct.Resource
 
   test "optional requires group" do
-    defmodule Elixir.Maru.Validations.Range do
-    end
-
     defmodule OptionalTest do
       use Maru.Router
 

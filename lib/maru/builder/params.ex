@@ -37,7 +37,12 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro requires(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> Macro.escape
+    options =
+      [type: :list]
+      |> Keyword.merge(options)
+      |> Utils.expand_alias(__CALLER__)
+      |> Macro.escape
+
     quote do
       s = Parameter.snapshot
       Parameter.pop
@@ -58,7 +63,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro requires(attr_name, options) do
-    options = options |> Macro.escape
+    options = options |> Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       [ attr_name: unquote(attr_name),
         required:  true,
@@ -89,7 +94,12 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro optional(attr_name, options, [do: block]) do
-    options = Keyword.merge([type: :list], options) |> Macro.escape
+    options =
+      [type: :list]
+      |> Keyword.merge(options)
+      |> Utils.expand_alias(__CALLER__)
+      |> Macro.escape
+
     quote do
       s = Parameter.snapshot
       Parameter.pop
@@ -111,7 +121,7 @@ defmodule Maru.Builder.Params do
   end
 
   defmacro optional(attr_name, options) do
-    options = options |> Macro.escape
+    options = options |> Utils.expand_alias(__CALLER__) |> Macro.escape
     quote do
       [ attr_name: unquote(attr_name),
         required: false,
@@ -138,6 +148,7 @@ defmodule Maru.Builder.Params do
 
     validators = Enum.map(attrs, fn
       {param, func} ->
+        func = Utils.expand_alias(func, __CALLER__)
         quote do
           fn result ->
             Map.has_key?(result, unquote(param)) &&
@@ -342,7 +353,7 @@ defmodule Maru.Builder.Params do
   defp do_parse_type({:|>, _, [left, right]}) do
     do_parse_type(left) ++ do_parse_type(right)
   end
-  defp do_parse_type({{:., _, [Access, :get]}, _, [{:__aliases__, _, [:List]}, nested]}) do
+  defp do_parse_type({{:., _, [Access, :get]}, _, [List, nested]}) do
     [{:list, do_parse_type(nested)}]
   end
 
