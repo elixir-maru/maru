@@ -27,6 +27,9 @@ notifications:
     - self@falood.me
 before_script:
   - mix deps.get --only test
+script:
+  - mix test
+  - MIX_ENV=test mix coveralls.travis
 after_script:
   - MIX_ENV=docs mix deps.get
   - MIX_ENV=docs mix inch.report
