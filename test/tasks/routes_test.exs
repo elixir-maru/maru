@@ -5,7 +5,6 @@ defmodule Maru.Tasks.RoutesTest do
 
     defmodule Router do
       use Maru.Router
-
       get do
         text(conn, "ok")
       end
@@ -26,10 +25,12 @@ defmodule Maru.Tasks.RoutesTest do
     defmodule Router2 do
       use Maru.Router
 
-      desc "test endpoint"
-      get do
-        text(conn, "ok")
+      desc "test endpoint" do
+        get do
+          text(conn, "ok")
+        end
       end
+
     end
 
     defmodule API2 do

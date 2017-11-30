@@ -89,6 +89,7 @@ defmodule Maru.Builder.ExceptionsTest do
       params do
         requires :a
       end
+
       get "/a" do
         unwarn(params)
         text(conn, "a")
