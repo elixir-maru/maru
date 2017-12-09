@@ -70,11 +70,9 @@ defmodule PlugRouter.Helper do
   Generate MethodNotAllowed route for all path without `match` method.
   """
   def dispatch_405(version, path, adapter) do
-    method = Macro.var(:_, nil)
-
     quote do
       defp route(unquote(
-        adapter.conn_for_match(method, version, path)
+        adapter.conn_for_match(:match, version, path)
       )=var!(conn), []) do
           raise Maru.Exceptions.MethodNotAllowed, [method: var!(conn).method, request_path: var!(conn).request_path]
       end

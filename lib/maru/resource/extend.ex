@@ -50,10 +50,9 @@ defmodule Resource.Extend do
     end)
   end
 
-  defp method_match?(_m, :match), do: true
-  defp method_match?(m1, m2) do
-    m1 == m2 |> to_string |> String.upcase
-  end
+  defp method_match?(_method, :match), do: true
+  defp method_match?(method, method), do: true
+  defp method_match?(_, _), do: false
 
   defp path_match?([{:version}|t1], t2),            do: path_match?(t1, t2)
   defp path_match?([], []),                         do: true

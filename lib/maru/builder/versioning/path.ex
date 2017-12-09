@@ -22,7 +22,16 @@ defmodule Maru.Builder.Versioning.Path do
   end
 
   @doc false
+  def conn_for_match(:match, version, path) do
+    quote do
+      %Plug.Conn{
+        path_info: unquote(path_for_match(path, version)),
+      }
+    end
+  end
+
   def conn_for_match(method, version, path) do
+    method = method |> to_string |> String.upcase
     quote do
       %Plug.Conn{
         method: unquote(method),

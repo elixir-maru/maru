@@ -172,7 +172,7 @@ defmodule Resource.DSLs do
   for method <- @methods do
     @doc "Handle #{method} method."
     defmacro unquote(method)(path \\ "", [do: block]) do
-      method = unquote(method) |> to_string |> String.upcase
+      method = unquote(method)
       quote do
         %{ method: unquote(method),
            path:   Utils.split_path(unquote(path)),
@@ -185,7 +185,7 @@ defmodule Resource.DSLs do
   @doc "Handle all method."
   defmacro match(path \\ "", [do: block]) do
     quote do
-      %{ method: Macro.var(:_, nil),
+      %{ method: :match,
          path:   Utils.split_path(unquote(path)),
          block:  unquote(Macro.escape(block)),
        } |> Helper.endpoint(__ENV__)

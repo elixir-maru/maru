@@ -86,8 +86,8 @@ defmodule Maru.Builder.ResourceTest do
     end
 
     assert [
-      %{method: {:_, [], nil}, path: []},
-      %{method: "GET", path: []},
+      %{method: :match, path: []},
+      %{method: :get, path: []},
     ] = MethodsTest.route
   end
 end

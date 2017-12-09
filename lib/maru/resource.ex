@@ -12,16 +12,13 @@ defmodule Resource do
   defmacro __using__(_) do
     quote do
       import Resource.DSLs
-      @resource %Resource{}
-      @extend   nil
-
-      Module.register_attribute __MODULE__, :routes,  accumulate: true
-      @router nil
-      @func_id 0
-
       Module.register_attribute __MODULE__, :mounted, accumulate: true
-
       Module.register_attribute __MODULE__, :endpoints, accumulate: true
+      Module.register_attribute __MODULE__, :routes,  accumulate: true
+
+      @resource %Resource{}
+      @extend nil
+      @router nil
     end
   end
 
@@ -29,7 +26,7 @@ defmodule Resource do
     current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
     mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
     extend_opts    = Module.get_attribute(module, :extend)
-    extended       = Maru.Resource.Extend.take_extended(
+    extended       = Resource.Extend.take_extended(
       current_routes ++ mounted_routes, extend_opts
     )
     all_routes     = current_routes ++ mounted_routes ++ extended
@@ -43,7 +40,7 @@ defmodule Resource do
     endpoints_quoted =
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse
-      |> Enum.map(&Maru.Resource.Helper.dispatch/1)
+      |> Enum.map(&Resource.Helper.dispatch/1)
 
     Module.eval_quoted(env, endpoints_quoted)
   end

@@ -353,24 +353,24 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
       use Maru.Helpers.Response
       @pipe_functions []
 
-      def endpoint(conn, 0) do
+      def endpoint(conn, :func_1) do
         conn |> Plug.Conn.send_resp(200, "get") |> Plug.Conn.halt
       end
 
-      def endpoint(conn, 1) do
+      def endpoint(conn, :func_2) do
         conn |> Plug.Conn.send_resp(200, "match") |> Plug.Conn.halt
       end
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
         Helper.dispatch(%Maru.Router{
-          method: "GET", path: [], module: __MODULE__, func_id: 0,
+          method: :get, path: [], module: __MODULE__, func_id: :func_1,
         }, __ENV__, adapter)
       ), [], __ENV__
 
       Module.eval_quoted __MODULE__, (
         Helper.dispatch(%Maru.Router{
-          method: {:_, [], nil}, path: [], module: __MODULE__, func_id: 1,
+          method: :match, path: [], module: __MODULE__, func_id: :func_2,
         }, __ENV__, adapter)
       ), [], __ENV__
 

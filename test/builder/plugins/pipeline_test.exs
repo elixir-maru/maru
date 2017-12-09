@@ -32,7 +32,7 @@ defmodule Maru.Builder.PipelineTest do
     end
 
     assert %Maru.Router{
-      method: "GET",
+      method: :get,
       module: Maru.Builder.PipelineTest.Method,
       path: [],
       plugs: [%Maru.Struct.Plug{guards: true, name: nil, options: [], plug: A}],

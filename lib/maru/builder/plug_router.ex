@@ -84,7 +84,7 @@ defmodule PlugRouter do
   defp make_method_not_allowed_block(routes, version_adapter) do
     Enum.group_by(routes, fn route -> {route.version, route.path} end)
     |> Enum.map(fn {{version, path}, routes} ->
-      unless Enum.any?(routes, fn i -> i.method == {:_, [], nil} end) do
+      unless Enum.any?(routes, fn i -> i.method == :match end) do
         PlugRouter.Helper.dispatch_405(version, path, version_adapter)
       end
     end)

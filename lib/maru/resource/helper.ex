@@ -77,8 +77,7 @@ defmodule Resource.Helper do
     resource = Module.get_attribute(module, :resource)
     version = is_nil(resource.version) && [] || [{:version}]
 
-    func_id = Module.get_attribute(module, :func_id)
-    Module.put_attribute(module, :func_id, func_id + 1)
+    func_id = make_func_id(ep.method, resource.version, resource.path ++ ep.path)
 
     method_context = %{
       block:   ep.block,
@@ -108,5 +107,18 @@ defmodule Resource.Helper do
       |> Map.take([:block, :func_id])
       |> Map.put(:has_params, [] != router.parameters)
     Module.put_attribute(module, :endpoints, struct(Maru.Resource.Endpoint, endpoint))
+  end
+
+  defp make_func_id(method, version, path) do
+    method = method |> to_string |> String.upcase
+    version = is_nil(version) && "_" || version
+    path =
+      path
+      |> Enum.map(fn
+           atom when is_atom(atom) -> ":#{atom}"
+           string when is_binary(string) -> string
+         end)
+      |> Enum.join("/")
+   :"#{version}.#{method}.#{path}"
   end
 end
