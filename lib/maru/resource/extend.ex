@@ -1,6 +1,6 @@
-alias Maru.Route
+alias Maru.Resource
 
-defmodule Route.Extend do
+defmodule Resource.Extend do
   @doc """
   Take routes by an extended module.
   """

@@ -4,13 +4,13 @@ defmodule Maru.Route.MountTest do
   test "mount" do
     defmodule Mounted do
       def __routes__ do
-        [%Maru.Route{}]
+        [%Maru.Router{}]
       end
     end
 
     defmodule MountedAlias do
       def __routes__ do
-        [%Maru.Route{}]
+        [%Maru.Router{}]
       end
     end
 
@@ -24,7 +24,7 @@ defmodule Maru.Route.MountTest do
       def m, do: @mounted
     end
 
-    assert [%Maru.Route{}, %Maru.Route{}] = MountTest.m
+    assert [%Maru.Router{}, %Maru.Router{}] = MountTest.m
   end
 
 end

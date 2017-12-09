@@ -34,14 +34,10 @@ defmodule Maru.Struct.Plug do
   end
 
   @doc "return snapshot and clean current plugs stack."
-  defmacro pop do
-    quote do
-      try do
-        @plugs
-      after
-        @plugs []
-      end
-    end
+  def pop(%Macro.Env{module: module}) do
+    plugs = Module.get_attribute(module, :plugs)
+    Module.get_attribute(module, :plugs, [])
+    plugs
   end
 
   @doc "merge and override plugs."

@@ -27,4 +27,86 @@ defmodule Resource.Helper do
     }
     Module.put_attribute(module, :resource, new_resource)
   end
+
+  @doc "merge mounted routes to current scope."
+  def mount(mounted_module, %Macro.Env{module: module}=env) do
+    resource = Module.get_attribute(module, :resource)
+
+    Enum.each(mounted_module.__routes__(), fn mounted_route ->
+      if not is_nil(resource.version) and not is_nil(mounted_route.version) do
+        raise "can't mount a versional router to another versional router"
+      end
+
+      versioning_path = is_nil(resource.version) && [] || [{:version}]
+      mounted =
+        %{ mounted_route |
+           version:    mounted_route.version || resource.version,
+           path:       versioning_path       ++ resource.path ++ mounted_route.path,
+           parameters: resource.parameters   ++ mounted_route.parameters,
+        }
+        |> Maru.Builder.Pipeline.after_mount(mounted_module, env)
+        |> Maru.Builder.Exception.after_mount(mounted_module, env)
+      Module.put_attribute(module, :mounted, mounted)
+    end)
+  end
+
+  @doc """
+  Generate endpoint called within route block.
+  """
+  def dispatch(ep) do
+    conn =
+      if ep.has_params do
+        quote do
+          %Plug.Conn{
+            private: %{
+              maru_params: var!(params)
+            }
+          } = var!(conn)
+        end
+      else
+        quote do: var!(conn)
+      end
+    quote do
+      def endpoint(unquote(conn), unquote(ep.func_id)) do
+        unquote(ep.block)
+      end
+    end
+  end
+
+  def endpoint(ep, %Macro.Env{module: module}=env) do
+    resource = Module.get_attribute(module, :resource)
+    version = is_nil(resource.version) && [] || [{:version}]
+
+    func_id = Module.get_attribute(module, :func_id)
+    Module.put_attribute(module, :func_id, func_id + 1)
+
+    method_context = %{
+      block:   ep.block,
+      method:  ep.method,
+      version: resource.version,
+      path:    version ++ resource.path ++ ep.path,
+      helpers: resource.helpers,
+      plugs:   MaruPlug.merge(resource.plugs, MaruPlug.pop(env)),
+      func_id: func_id,
+    }
+    Module.put_attribute(module, :method_context, method_context)
+
+    router =
+      method_context
+      |> Map.take([:method, :version, :path, :helpers, :plugs])
+      |> Map.merge(%{module: module, func_id: func_id})
+    Module.put_attribute(module, :router, struct(Maru.Router, router))
+
+    Maru.Builder.Parameter.before_parse_router(env)
+    Maru.Builder.Description.before_parse_router(env)
+
+    router = Module.get_attribute(module, :router)
+    Module.put_attribute(module, :routes, router)
+
+    endpoint =
+      Module.get_attribute(module, :method_context)
+      |> Map.take([:block, :func_id])
+      |> Map.put(:has_params, [] != router.parameters)
+    Module.put_attribute(module, :endpoints, struct(Maru.Resource.Endpoint, endpoint))
+  end
 end

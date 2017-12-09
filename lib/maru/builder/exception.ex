@@ -14,7 +14,7 @@ defmodule Exception do
     end
   end
 
-  def route_struct, do: [mount_link: []]
+  def router_struct, do: [mount_link: []]
 
   def after_mount(%{mount_link: mount_link}=mounted_route, module, _env) do
     %{mounted_route | mount_link: mount_link ++ [module]}

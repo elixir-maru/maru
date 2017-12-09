@@ -9,12 +9,48 @@ defmodule Resource do
     version:    nil,
   ]
 
-
   defmacro __using__(_) do
     quote do
       import Resource.DSLs
       @resource %Resource{}
       @extend   nil
+
+      Module.register_attribute __MODULE__, :routes,  accumulate: true
+      @router nil
+      @func_id 0
+
+      Module.register_attribute __MODULE__, :mounted, accumulate: true
+
+      Module.register_attribute __MODULE__, :endpoints, accumulate: true
     end
   end
+
+  def before_compile_router(%Macro.Env{module: module}=env) do
+    current_routes = Module.get_attribute(module, :routes)  |> Enum.reverse
+    mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse
+    extend_opts    = Module.get_attribute(module, :extend)
+    extended       = Maru.Resource.Extend.take_extended(
+      current_routes ++ mounted_routes, extend_opts
+    )
+    all_routes     = current_routes ++ mounted_routes ++ extended
+    Module.put_attribute(module, :all_routes, all_routes)
+
+    routes_quoted = quote do
+      def __routes__, do: unquote(Macro.escape(all_routes))
+    end
+    Module.eval_quoted(env, routes_quoted)
+
+    endpoints_quoted =
+      Module.get_attribute(module, :endpoints)
+      |> Enum.reverse
+      |> Enum.map(&Maru.Resource.Helper.dispatch/1)
+
+    Module.eval_quoted(env, endpoints_quoted)
+  end
+end
+
+defmodule Resource.Endpoint do
+  defstruct func_id:    nil,
+            block:      nil,
+            has_params: true
 end

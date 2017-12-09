@@ -124,7 +124,8 @@ defmodule Resource.DSLs do
         }
         r = @resource
         unquote(path) |> Utils.split_path() |> Helper.push_path(__ENV__)
-        Maru.Route.before_parse_namespace(__ENV__)
+        Maru.Builder.Pipeline.before_parse_namespace(__ENV__)
+        Maru.Builder.Parameter.before_parse_namespace(__ENV__)
         unquote(block)
         @resource r
       end
@@ -141,7 +142,8 @@ defmodule Resource.DSLs do
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
-      Maru.Route.before_parse_namespace(__ENV__)
+      Maru.Builder.Pipeline.before_parse_namespace(__ENV__)
+      Maru.Builder.Parameter.before_parse_namespace(__ENV__)
       unquote(block)
       @resource r
     end
@@ -158,7 +160,8 @@ defmodule Resource.DSLs do
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
-      Maru.Route.before_parse_namespace(__ENV__)
+      Maru.Builder.Pipeline.before_parse_namespace(__ENV__)
+      Maru.Builder.Parameter.before_parse_namespace(__ENV__)
       unquote(block)
       @resource r
     end
@@ -169,36 +172,51 @@ defmodule Resource.DSLs do
   for method <- @methods do
     @doc "Handle #{method} method."
     defmacro unquote(method)(path \\ "", [do: block]) do
-      %{ method: unquote(method) |> to_string |> String.upcase,
-         path:   Utils.split_path(path),
-         block:  Macro.escape(block),
-       } |> endpoint
+      method = unquote(method) |> to_string |> String.upcase
+      quote do
+        %{ method: unquote(method),
+           path:   Utils.split_path(unquote(path)),
+           block:  unquote(Macro.escape(block)),
+         } |> Helper.endpoint(__ENV__)
+      end
     end
   end
 
   @doc "Handle all method."
   defmacro match(path \\ "", [do: block]) do
-    %{ method: Macro.var(:_, nil) |> Macro.escape,
-       path:   Utils.split_path(path),
-       block:  Macro.escape(block),
-     } |> endpoint
-  end
-
-  defp endpoint(ep) do
     quote do
-      resource = @resource
-      version = is_nil(resource.version) && [] || [{:version}]
-
-      @method_context %{
-        block:   unquote(ep.block),
-        method:  unquote(ep.method),
-        version: resource.version,
-        path:    version ++ resource.path ++ unquote(ep.path),
-        helpers: resource.helpers,
-        plugs:   MaruPlug.merge(resource.plugs, MaruPlug.pop),
-      }
-
-      Maru.Route.before_parse_method(__ENV__)
+      %{ method: Macro.var(:_, nil),
+         path:   Utils.split_path(unquote(path)),
+         block:  unquote(Macro.escape(block)),
+       } |> Helper.endpoint(__ENV__)
     end
   end
+
+  @doc """
+  Mount another router to current router.
+  """
+  defmacro mount({_, _, [h | t]}=mod) do
+    h = Module.concat([h])
+    module =
+      __CALLER__.aliases
+      |> Keyword.get(h, h)
+      |> Module.split
+      |> Enum.concat(t)
+      |> Module.concat
+    try do
+      true = {:__routes__, 0} in module.__info__(:functions)
+    rescue
+      [UndefinedFunctionError, MatchError] ->
+        raise """
+          #{inspect module} is not an available Maru.Router.
+          If you mount it to another module written at the same file,
+          make sure this module at the front of the file.
+        """
+    end
+
+    quote do
+      Helper.mount(unquote(mod), __ENV__)
+    end
+  end
+
 end

@@ -8,13 +8,13 @@ defmodule Description do
     end
   end
 
-  def route_struct, do: [desc: nil]
+  def router_struct, do: [desc: nil]
 
-  def before_parse_route(%Macro.Env{module: module}) do
+  def before_parse_router(%Macro.Env{module: module}) do
     desc = Module.get_attribute(module, :desc)
     Module.put_attribute(module, :desc, nil)
 
-    route = Module.get_attribute(module, :route)
-    Module.put_attribute(module, :route, %{route | desc: desc})
+    route = Module.get_attribute(module, :router)
+    Module.put_attribute(module, :router, %{route | desc: desc})
   end
 end

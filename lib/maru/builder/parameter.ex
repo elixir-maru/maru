@@ -69,13 +69,13 @@ defmodule Parameter do
     Module.put_attribute(module, :resource, %{resource | parameters: new_parameters})
   end
 
-  def before_parse_route(%Macro.Env{module: module}) do
+  def before_parse_router(%Macro.Env{module: module}) do
     resource = Module.get_attribute(module, :resource)
     parameters = Module.get_attribute(module, :parameters)
     Module.put_attribute(module, :parameters, [])
 
-    route = Module.get_attribute(module, :route)
-    Module.put_attribute(module, :route, %{route | parameters: resource.parameters ++ parameters})
+    route = Module.get_attribute(module, :router)
+    Module.put_attribute(module, :router, %{route | parameters: resource.parameters ++ parameters})
   end
 
   def before_compile_helper(%Macro.Env{module: module}=env) do

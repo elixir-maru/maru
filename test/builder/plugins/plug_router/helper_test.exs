@@ -363,13 +363,13 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted __MODULE__, (
-        Helper.dispatch(%Maru.Route{
+        Helper.dispatch(%Maru.Router{
           method: "GET", path: [], module: __MODULE__, func_id: 0,
         }, __ENV__, adapter)
       ), [], __ENV__
 
       Module.eval_quoted __MODULE__, (
-        Helper.dispatch(%Maru.Route{
+        Helper.dispatch(%Maru.Router{
           method: {:_, [], nil}, path: [], module: __MODULE__, func_id: 1,
         }, __ENV__, adapter)
       ), [], __ENV__
@@ -450,12 +450,12 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
     end
 
     assert [
-      %Maru.Route{path: [:d]},
-      %Maru.Route{path: ["b"]},
-      %Maru.Route{path: ["bb"]},
-      %Maru.Route{path: ["a"]},
-      %Maru.Route{path: ["c"]},
-      %Maru.Route{path: ["cc"]},
+      %Maru.Router{path: [:d]},
+      %Maru.Router{path: ["b"]},
+      %Maru.Router{path: ["bb"]},
+      %Maru.Router{path: ["a"]},
+      %Maru.Router{path: ["c"]},
+      %Maru.Router{path: ["cc"]},
     ] = Maru.Builder.PlugRouter.HelperTest.RoutesOrderTest.D.__routes__
   end
 

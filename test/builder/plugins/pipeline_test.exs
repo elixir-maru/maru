@@ -31,7 +31,7 @@ defmodule Maru.Builder.PipelineTest do
       end
     end
 
-    assert %Maru.Route{
+    assert %Maru.Router{
       method: "GET",
       module: Maru.Builder.PipelineTest.Method,
       path: [],

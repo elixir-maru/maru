@@ -18,7 +18,6 @@ defmodule Maru.Builder do
   defmacro __using__(opts) do
     quote do
       use Maru.Resource
-      use Maru.Route
 
       use Maru.Builder.Pipeline
       use Maru.Builder.Exception
@@ -38,7 +37,7 @@ defmodule Maru.Builder do
 
   @doc false
   defmacro __before_compile__(%Macro.Env{}=env) do
-    Maru.Route.before_compile_router(env)
+    Maru.Resource.before_compile_router(env)
 
     Maru.Builder.Exception.before_compile_router(env)
     Maru.Builder.PlugRouter.before_compile_router(env)
