@@ -1,9 +1,7 @@
 alias Maru.Resource
 
 defmodule Resource.DSLs do
-  alias Resource.Helper
-
-  alias Maru.Struct.Plug, as: MaruPlug
+  alias Resource.{Helper, MaruPlug}
   alias Maru.Utils
 
   @doc """

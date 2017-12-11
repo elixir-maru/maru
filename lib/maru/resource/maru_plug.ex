@@ -1,4 +1,6 @@
-defmodule Maru.Struct.Plug do
+alias Maru.Resource
+
+defmodule Resource.MaruPlug do
   @moduledoc false
 
   defstruct name:    nil,
@@ -6,31 +8,11 @@ defmodule Maru.Struct.Plug do
             options: nil,
             guards:  true
 
-  @doc "make snapshot for current scope."
-  defmacro snapshot do
-    quote do
-      @plugs
-    end
-  end
-
-  @doc "restore current scope by an snapshot."
-  defmacro restore(value) do
-    quote do
-      @plugs unquote(value)
-    end
-  end
-
-  @doc "push plugs to current scope."
-  defmacro push(value) when is_list(value) do
-    quote do
-      @plugs unquote(__MODULE__).merge(@plugs, unquote(value))
-    end
-  end
-
-  defmacro push(value) do
-    quote do
-      @plugs unquote(__MODULE__).merge(@plugs, [unquote(value)])
-    end
+  @doc "push plug to current plugs stack."
+  def push(plug_or_plugs, %Macro.Env{module: module}) do
+    plugs = Module.get_attribute(module, :plugs)
+    new_plugs = merge(plugs, plug_or_plugs)
+    Module.put_attribute(module, :plugs, new_plugs)
   end
 
   @doc "return snapshot and clean current plugs stack."
@@ -62,5 +44,4 @@ defmodule Maru.Struct.Plug do
   defp do_merge([h | t], plug, result) do
     do_merge(t, plug, result ++ [h])
   end
-
 end

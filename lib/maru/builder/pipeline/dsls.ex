@@ -1,6 +1,6 @@
-alias Maru.Struct.Plug, as: MaruPlug
-
 defmodule Maru.Builder.Pipeline.DSLs do
+  alias Maru.Resource.MaruPlug
+
   @doc """
   Define pipeline block of current endpoint.
   """
@@ -77,7 +77,7 @@ defmodule Maru.Builder.Pipeline.DSLs do
         plug:    unquote(plug),
         options: unquote(opts),
         guards:  unquote(Macro.escape(guards)),
-     })
+     }, __ENV__)
     end
   end
 end

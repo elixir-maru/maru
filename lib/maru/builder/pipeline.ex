@@ -1,4 +1,4 @@
-alias Maru.Struct.Plug, as: MaruPlug
+alias Maru.Resource.MaruPlug
 alias Maru.Builder.Pipeline
 
 defmodule Pipeline do

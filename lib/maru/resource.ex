@@ -45,9 +45,3 @@ defmodule Resource do
     Module.eval_quoted(env, endpoints_quoted)
   end
 end
-
-defmodule Resource.Endpoint do
-  defstruct func_id:    nil,
-            block:      nil,
-            has_params: true
-end

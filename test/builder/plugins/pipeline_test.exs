@@ -1,6 +1,8 @@
 defmodule Maru.Builder.PipelineTest do
   use ExUnit.Case, async: true
 
+  alias Maru.Resource.MaruPlug
+
   test "pipeline for namespaces" do
     defmodule Namespace do
       use Maru.Builder
@@ -15,7 +17,7 @@ defmodule Maru.Builder.PipelineTest do
 
     assert %Maru.Resource{
       path: ["p1"],
-      plugs: [%Maru.Struct.Plug{guards: true, name: nil, options: [], plug: A}],
+      plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}],
     } = Namespace.resource
   end
 
@@ -35,7 +37,7 @@ defmodule Maru.Builder.PipelineTest do
       method: :get,
       module: Maru.Builder.PipelineTest.Method,
       path: [],
-      plugs: [%Maru.Struct.Plug{guards: true, name: nil, options: [], plug: A}],
+      plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}],
     } = Method.__routes__ |> List.first
   end
 end

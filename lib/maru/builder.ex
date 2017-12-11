@@ -27,8 +27,6 @@ defmodule Maru.Builder do
 
       use Maru.Helpers.Response
 
-      require Maru.Struct.Plug
-
       import Maru.Helper.DSLs
 
       @before_compile unquote(__MODULE__)

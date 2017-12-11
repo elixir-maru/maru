@@ -1,7 +1,8 @@
 alias Maru.Resource
-alias Maru.Struct.Plug, as: MaruPlug
 
 defmodule Resource.Helper do
+  alias Resource.MaruPlug
+
   def set_version(version, %Macro.Env{module: module}) do
     resource = Module.get_attribute(module, :resource)
     new_resource = %{ resource | version: version }

@@ -1,7 +1,7 @@
 defmodule Maru.Builder.PlugRouterTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Plug, as: MaruPlug
+  alias Maru.Resource.MaruPlug
 
   test "plug-router" do
     defmodule PlugRouterOverridableTest do
