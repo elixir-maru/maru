@@ -2,11 +2,11 @@ defmodule Maru.Builder.ParamsTest do
   use ExUnit.Case, async: true
 
   alias Maru.Builder.Parameter, as: P
-  alias Maru.Builder.Parameter.Information, as: PI
-  alias Maru.Struct.Dependent, as: D
-  alias Maru.Struct.Dependent.Information, as: DI
-  alias Maru.Struct.Validator, as: V
-  alias Maru.Struct.Validator.Information, as: VI
+  alias P.Information, as: PI
+  alias P.Dependent, as: D
+  alias P.Dependent.Information, as: DI
+  alias P.Validator, as: V
+  alias P.Validator.Information, as: VI
 
   test "optional requires group" do
     defmodule OptionalTest do

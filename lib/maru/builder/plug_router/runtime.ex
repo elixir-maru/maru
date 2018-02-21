@@ -3,9 +3,10 @@ alias Maru.Builder.PlugRouter
 defmodule PlugRouter.Runtime do
   @moduledoc false
 
-  alias Maru.Builder.Parameter.Runtime, as: PR
-  alias Maru.Struct.Dependent.Runtime, as: DR
-  alias Maru.Struct.Validator.Runtime, as: VR
+  alias Maru.Builder.Parameter
+  alias Parameter.Runtime, as: PR
+  alias Parameter.Dependent.Runtime, as: DR
+  alias Parameter.Validator.Runtime, as: VR
 
   @doc """
   parse params from `conn.params`.

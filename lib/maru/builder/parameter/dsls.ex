@@ -6,9 +6,8 @@ defmodule Parameter.DSLs do
   """
 
   alias Parameter.Helper
-  alias Maru.Builder.Parameter
-  alias Maru.Builder.Parameter.Information
-  alias Maru.Struct.{Dependent, Validator}
+  alias Parameter
+  alias Parameter.{Information, Dependent, Validator}
   alias Maru.Utils
 
   defmacro params(name, do: block) do
@@ -208,7 +207,7 @@ defmodule Parameter.DSLs do
       children_runtime = Maru.Utils.get_nested(children, :runtime)
       validators = unquote(validators)
 
-      %Maru.Struct.Dependent{
+      %Dependent{
         information: %Dependent.Information{
           depends: unquote(depends),
           children: children_information
