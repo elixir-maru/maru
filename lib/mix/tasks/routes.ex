@@ -67,7 +67,6 @@ defmodule Mix.Tasks.Maru.Routes do
     version |> String.pad_trailing(5)
   end
 
-  defp format_method({:_, [], nil}), do: ":match" |> format_method
   defp format_method(method) do
     method |> String.pad_trailing(7)
   end

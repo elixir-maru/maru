@@ -92,7 +92,7 @@ defmodule Maru.Utils do
   def get_nested(params, attr) when attr in [:information, :runtime] do
     Enum.map(params, fn
       %{__struct__: type}=param when type in [
-        Maru.Struct.Parameter,
+        Maru.Builder.Parameter,
         Maru.Struct.Dependent,
         Maru.Struct.Validator
       ] ->
@@ -117,6 +117,17 @@ defmodule Maru.Utils do
   end
 
   @doc false
+  def split_path(path) when is_atom(path), do: [path |> to_string]
+  def split_path(path) when is_binary(path) do
+    func = fn
+      ("", r) -> r
+      (":" <> param, r) -> [param |> String.to_atom | r]
+      (p, r) -> [p | r]
+    end
+    path |> String.split("/") |> Enum.reduce([], func) |> Enum.reverse
+  end
+  def split_path(_path), do: raise "path should be Atom or String"
+
   def expand_alias(ast, caller) do
     Macro.prewalk(ast, fn
       {:__aliases__, _, _} = module -> Macro.expand(module, caller)

@@ -41,9 +41,7 @@ defmodule Maru.TestTest do
 
   test "version test" do
     defmodule Test2 do
-      Application.put_env(:maru, Maru.TestTest.Test2, [versioning: [using: :param, parameter: "v"]])
-
-      use Maru.Router, make_plug: true
+      use Maru.Router, versioning: [using: :param, parameter: "v"]
 
       version "v1" do
         get do
@@ -329,26 +327,6 @@ defmodule Maru.TestTest do
     assert 400 == MWEH.M2.TEST.test6
     assert 404 == MWEH.M2.TEST.test7
     assert 405 == MWEH.M2.TEST.test8
-  end
-
-  test "path_params" do
-    defmodule PathParams do
-      use Maru.Router, make_plug: true
-
-      get "a/:a/b/:b" do
-        json(conn, conn.path_params)
-      end
-    end
-
-    defmodule PathParamsTest do
-      use Maru.Test, root: Maru.TestTest.PathParams
-
-      def test do
-        get("/a/1/b/2") |> json_response
-      end
-    end
-
-    assert %{"a" => "1", "b" => "2"} = PathParamsTest.test
   end
 
 end

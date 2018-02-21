@@ -1,71 +1,28 @@
-defmodule Maru.Builder.Pipeline do
-  @moduledoc """
-  General DSLs for parsing router.
-  """
+alias Maru.Resource.MaruPlug
+alias Maru.Builder.Pipeline
 
-  alias Maru.Struct.Plug, as: MaruPlug
-
-  @doc """
-  Push a `Plug` struct to current resource scope.
-  """
-  defmacro plug(plug)
-
-  defmacro plug({:when, _, [plug, guards]}) do
-    do_plug(nil, plug, [], guards)
-  end
-
-  defmacro plug(plug) do
-    do_plug(nil, plug, [], true)
-  end
-
-  @doc """
-  Push a `Plug` struct with options and guards to current resource scope.
-  """
-  defmacro plug(plug, opts)
-
-  defmacro plug(plug, {:when, _, [opts, guards]}) do
-    do_plug(nil, plug, opts, guards)
-  end
-
-  defmacro plug(plug, opts) do
-    do_plug(nil, plug, opts, true)
-  end
-
-  @doc """
-  Push a overridable `Plug` struct to current resource scope.
-  """
-  defmacro plug_overridable(name, plug)
-
-  defmacro plug_overridable(name, {:when, _, [plug, guards]}) do
-    do_plug(name, plug, [], guards)
-  end
-
-  defmacro plug_overridable(name, plug) do
-    do_plug(name, plug, [], true)
-  end
-
-  @doc """
-  Push a overridable `Plug` struct with options and guards to current resource scope.
-  """
-  defmacro plug_overridable(name, plug, opts)
-
-  defmacro plug_overridable(name, plug, {:when, _, [opts, guards]}) do
-    do_plug(name, plug, opts, guards)
-  end
-
-  defmacro plug_overridable(name, plug, opts) do
-    do_plug(name, plug, opts, true)
-  end
-
-  defp do_plug(name, plug, opts, guards) do
+defmodule Pipeline do
+  defmacro __using__(_) do
     quote do
-      MaruPlug.push(%MaruPlug{
-        name:    unquote(name),
-        plug:    unquote(plug),
-        options: unquote(opts),
-        guards:  unquote(Macro.escape(guards)),
-     })
+      @plugs []
+      import Pipeline.DSLs, only: [pipeline: 1]
     end
   end
 
+  def after_mount(%{plugs: mounted_plugs}=mounted_route, _module, %Macro.Env{module: module}) do
+    plugs = Module.get_attribute(module, :plugs)
+    resource = Module.get_attribute(module, :resource)
+    %{ mounted_route |
+       plugs: resource.plugs |> MaruPlug.merge(plugs) |> MaruPlug.merge(mounted_plugs)
+    }
+  end
+
+  def before_parse_namespace(%Macro.Env{module: module}) do
+    plugs = Module.get_attribute(module, :plugs)
+    Module.put_attribute(module, :plugs, [])
+
+    resource = Module.get_attribute(module, :resource)
+    new_plugs = MaruPlug.merge(resource.plugs, plugs)
+    Module.put_attribute(module, :resource, %{resource | plugs: new_plugs})
+  end
 end

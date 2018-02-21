@@ -32,59 +32,28 @@ defmodule Maru.Helper do
           ...
         end
       end
-
-  ## Extended functions or macros
-
-  Defined helper like this:
-
-    defmodule Authorization do
-      use Maru.Helper
-
-      defmacro current_user do
-        quote do
-          var!(conn).assigns[:current_user]
-        end
-      end
-
-      defmacro current_user! do
-        quote do
-          current_user || raise Unauthorized
-        end
-      end
-    end
-
-  And use it within Maru.Router like this:
-
-      defmodule API do
-        helpers Authorization
-
-        get do
-          current_user!
-          ...
-        end
-      end
   """
 
   @doc false
-  defmacro __using__(_) do
-    quote do
-      import Maru.Builder.DSLs, only: [params: 2]
-      import unquote(__MODULE__)
-      Module.register_attribute __MODULE__, :shared_params, accumulate: true
-      @before_compile unquote(__MODULE__)
-    end
+  defmacro __using__(opts) do
+    [ quote do
+        @before_compile unquote(__MODULE__)
+      end,
+      Maru.Builder.Parameter.using_helper(opts)
+    ]
   end
 
   @doc false
-  defmacro __before_compile__(%Macro.Env{module: module}) do
-    shared_params = for {name, params} <- Module.get_attribute(module, :shared_params) do
-      {name, params |> Macro.escape}
-    end
-    quote do
-      def __shared_params__ do
-        unquote(shared_params)
-      end
-    end
+  defmacro __before_compile__(%Macro.Env{}=env) do
+    Maru.Builder.Parameter.before_compile_helper(env)
   end
 
+end
+
+defmodule Maru.Helper.DSLs do
+  defmacro helpers({_, _, _}=module) do
+    quote do
+      Maru.Builder.Parameter.after_helper(unquote(module), __ENV__)
+    end
+  end
 end

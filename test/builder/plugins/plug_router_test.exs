@@ -1,10 +1,10 @@
-defmodule Maru.Builder.BeforeTest do
+defmodule Maru.Builder.PlugRouterTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Plug, as: MaruPlug
+  alias Maru.Resource.MaruPlug
 
-  test "top-level plug" do
-    defmodule PlugOverridableTest do
+  test "plug-router" do
+    defmodule PlugRouterOverridableTest do
       use Maru.Router, make_plug: true
 
       before do
@@ -22,16 +22,28 @@ defmodule Maru.Builder.BeforeTest do
 
     assert [
       %MaruPlug{name: nil, plug: :a},
-    ] = PlugOverridableTest.p1
+    ] = PlugRouterOverridableTest.p1
 
     assert [
       %MaruPlug{name: nil, plug: :a},
       %MaruPlug{name: nil, plug: :b},
-    ] = PlugOverridableTest.p2
+    ] = PlugRouterOverridableTest.p2
 
     assert [
       {Plug.Logger, [], true}
-    ] = PlugOverridableTest.p3
+    ] = PlugRouterOverridableTest.p3
+  end
+
+  test "normal router with before" do
+    assert_raise CompileError, ~r/undefined function before/, fn ->
+      defmodule NormalRouterWithBeforeTest do
+        use Maru.Router
+
+        before do
+          plug Plug.Logger
+        end
+      end
+    end
   end
 
 end

@@ -1,36 +1,20 @@
-defmodule Maru.Builder.Description do
-  @moduledoc """
-  Parse and build description block.
-  """
+alias Maru.Builder.Description
 
-  @doc """
-  Define detail of description.
-  """
-  defmacro detail(detail) do
+defmodule Description do
+  defmacro __using__(_) do
     quote do
-      @desc put_in(@desc, [:detail], unquote(detail))
+      @desc nil
+      import Description.DSLs, only: [desc: 1, desc: 2]
     end
   end
 
-  @doc """
-  Define response of description.
-  """
-  defmacro responses([do: block]) do
-    quote do
-      @desc put_in(@desc, [:responses], [])
-      unquote(block)
-    end
-  end
+  def router_struct, do: [desc: nil]
 
-  @doc """
-  Define status within response.
-  """
-  defmacro status(code, options) do
-    desc = Keyword.get(options, :desc)
-    status = %{code: code, description: desc} |> Macro.escape
-    quote do
-      @desc update_in(@desc, [:responses], &(&1 ++ [unquote(status)]))
-    end
-  end
+  def before_parse_router(%Macro.Env{module: module}) do
+    desc = Module.get_attribute(module, :desc)
+    Module.put_attribute(module, :desc, nil)
 
+    route = Module.get_attribute(module, :router)
+    Module.put_attribute(module, :router, %{route | desc: desc})
+  end
 end

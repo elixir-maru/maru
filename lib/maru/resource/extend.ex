@@ -1,6 +1,6 @@
-defmodule Maru.Builder.Extend do
-  @moduledoc false
+alias Maru.Resource
 
+defmodule Resource.Extend do
   @doc """
   Take routes by an extended module.
   """
@@ -45,15 +45,14 @@ defmodule Maru.Builder.Extend do
 
   defp route_match?(conds, route) do
     Enum.any?(conds, fn {method, path} ->
-      path = Maru.Builder.Path.split(path)
+      path = Maru.Utils.split_path(path)
       method_match?(route.method, method) and path_match?(route.path, path)
     end)
   end
 
-  defp method_match?(_m, :match), do: true
-  defp method_match?(m1, m2) do
-    m1 == m2 |> to_string |> String.upcase
-  end
+  defp method_match?(_method, :match), do: true
+  defp method_match?(method, method), do: true
+  defp method_match?(_, _), do: false
 
   defp path_match?([{:version}|t1], t2),            do: path_match?(t1, t2)
   defp path_match?([], []),                         do: true
@@ -61,5 +60,4 @@ defmodule Maru.Builder.Extend do
   defp path_match?([h|t1], [h|t2]),                 do: path_match?(t1, t2)
   defp path_match?([_|t1], [h|t2]) when is_atom(h), do: path_match?(t1, t2)
   defp path_match?(_, _),                           do: false
-
 end

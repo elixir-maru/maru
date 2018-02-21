@@ -1,13 +1,12 @@
 defmodule Maru.Builder.ParamsTest do
   use ExUnit.Case, async: true
 
-  alias Maru.Struct.Parameter, as: P
-  alias Maru.Struct.Parameter.Information, as: PI
+  alias Maru.Builder.Parameter, as: P
+  alias Maru.Builder.Parameter.Information, as: PI
   alias Maru.Struct.Dependent, as: D
   alias Maru.Struct.Dependent.Information, as: DI
   alias Maru.Struct.Validator, as: V
   alias Maru.Struct.Validator.Information, as: VI
-  alias Maru.Struct.Resource
 
   test "optional requires group" do
     defmodule OptionalTest do
@@ -125,7 +124,7 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
+    assert %Maru.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
     assert [%P{information: %PI{attr_name: :param_with_options, required: true}}] = ResourcesTest.parameters
   end
 
@@ -139,7 +138,7 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
+    assert %Maru.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
   end
 
 
@@ -185,10 +184,8 @@ defmodule Maru.Builder.ParamsTest do
 
       helpers Maru.Builder.ParamsTest.Helper
 
-      helpers do
-        params :foo2 do
-          optional :qux
-        end
+      params :foo2 do
+        optional :qux
       end
 
       params do

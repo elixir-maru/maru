@@ -1,4 +1,4 @@
-defmodule Maru.Builder.ExceptionsTest do
+defmodule Maru.Builder.ExceptionTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
@@ -66,16 +66,9 @@ defmodule Maru.Builder.ExceptionsTest do
 
   test "conn in process dict" do
     defmodule RescueWithConnTest do
-      use Maru.Router, make_plug: true
+      use Maru.Router, versioning: [using: :param, parameter: "v"]
 
       defp unwarn(_), do: nil
-
-      Application.put_env(:maru, Maru.Builder.ExceptionsTest.RescueWithConnTest,
-        versioning: [
-          using: :param,
-          parameter: "v",
-        ]
-      )
 
       version "v1"
 
@@ -154,7 +147,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutesTest do
       use Maru.Router, make_plug: true
 
-      mount Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount MountedRoutesTest.Mounted
 
       rescue_from :all, as: e do
         conn
@@ -166,7 +159,7 @@ defmodule Maru.Builder.ExceptionsTest do
     defmodule MountedRoutes2Test do
       use Maru.Router, make_plug: true
 
-      mount Maru.Builder.ExceptionsTest.MountedRoutesTest.Mounted
+      mount MountedRoutesTest.Mounted
     end
 
     conn1 = conn(:get, "test1")
