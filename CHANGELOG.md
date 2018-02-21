@@ -6,6 +6,10 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
+## v0.13-dev
+* Deprecations
+  * remove phoenix parameter support
+
 ## v0.12.5 (2017-10-18)
 * Enhancements
   * support path_params
