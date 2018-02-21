@@ -22,6 +22,8 @@
     all_or_none_of: 1,
     prefix: :*,
     rescue_from: :*,
-    desc: :*
+    desc: :*,
+    detail: 1,
+    status: 2
   ]
 ]
