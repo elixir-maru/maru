@@ -1,7 +1,7 @@
-defmodule Maru.Helpers.ResponseTest do
+defmodule Maru.ResponseTest do
   use ExUnit.Case, async: true
   import Plug.Test
-  use Maru.Helpers.Response
+  use Maru.Response
 
   test "redirect 302" do
     conn = conn(:get, "/") |> redirect("/foo")

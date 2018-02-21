@@ -380,7 +380,7 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
 
   test "dispatch method" do
     defmodule DispatchTest do
-      use Maru.Helpers.Response
+      use Maru.Response
       @pipe_functions []
 
       def endpoint(conn, :func_1) do
@@ -434,7 +434,7 @@ defmodule Maru.Builder.PlugRouter.HelperTest do
 
   test "method not allowed" do
     defmodule MethodNotAllowedTest do
-      use Maru.Helpers.Response
+      use Maru.Response
 
       adapter = Maru.Builder.Versioning.None
       Module.eval_quoted(__MODULE__, Helper.dispatch_405("v1", [], adapter), [], __ENV__)

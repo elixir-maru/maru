@@ -32,14 +32,14 @@ defmodule Exception.Helper do
 
   defp make_block(nil, _, block) do
     quote do
-      var!(conn) = Maru.Helpers.Response.get_maru_conn()
+      var!(conn) = Maru.Response.get_maru_conn()
       unquote(block)
     end
   end
 
   defp make_block(function, var, nil) do
     quote do
-      unquote(function)(Maru.Helpers.Response.get_maru_conn(), unquote(var))
+      unquote(function)(Maru.Response.get_maru_conn(), unquote(var))
     end
   end
 end

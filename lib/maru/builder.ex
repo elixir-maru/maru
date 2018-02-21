@@ -25,7 +25,7 @@ defmodule Maru.Builder do
       use Maru.Builder.Description
       use Maru.Builder.Parameter
 
-      use Maru.Helpers.Response
+      use Maru.Response
 
       import Maru.Helper.DSLs
 

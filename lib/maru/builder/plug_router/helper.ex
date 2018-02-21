@@ -49,7 +49,7 @@ defmodule PlugRouter.Helper do
             unquote(parser_block)
           )
 
-        Maru.Helpers.Response.put_maru_conn(var!(conn))
+        Maru.Response.put_maru_conn(var!(conn))
       end
 
     func =

@@ -1,4 +1,4 @@
-defmodule Maru.Helpers.Response do
+defmodule Maru.Response do
   @moduledoc """
   This module is a wrapper for request and response of maru.
   """

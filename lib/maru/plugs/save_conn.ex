@@ -8,7 +8,7 @@ defmodule Maru.Plugs.SaveConn do
 
   @doc false
   def call(conn, _) do
-    Maru.Helpers.Response.put_maru_conn(conn)
+    Maru.Response.put_maru_conn(conn)
     conn
   end
 end
