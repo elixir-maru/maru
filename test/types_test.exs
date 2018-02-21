@@ -3,35 +3,35 @@ defmodule Maru.TypesTest do
   alias Maru.Types
 
   test "string" do
-    assert Types.String.parse(1, %{})   == "1"
+    assert Types.String.parse(1, %{}) == "1"
     assert Types.String.parse('1', %{}) == "1"
   end
 
   test "integer" do
-    assert Types.Integer.parse(1, %{})   == 1
+    assert Types.Integer.parse(1, %{}) == 1
     assert Types.Integer.parse('1', %{}) == 1
     assert Types.Integer.parse("1", %{}) == 1
   end
 
   test "float" do
-    assert Types.Float.parse(1, %{})      == 1.0
-    assert Types.Float.parse("1", %{})    == 1.0
-    assert Types.Float.parse("1.0", %{})  == 1.0
-    assert Types.Float.parse(-1, %{})     == -1.0
-    assert Types.Float.parse("-1", %{})   == -1.0
+    assert Types.Float.parse(1, %{}) == 1.0
+    assert Types.Float.parse("1", %{}) == 1.0
+    assert Types.Float.parse("1.0", %{}) == 1.0
+    assert Types.Float.parse(-1, %{}) == -1.0
+    assert Types.Float.parse("-1", %{}) == -1.0
     assert Types.Float.parse("-1.0", %{}) == -1.0
   end
 
   test "boolean" do
-    assert Types.Boolean.parse(true, %{})    == true
-    assert Types.Boolean.parse("true", %{})  == true
-    assert Types.Boolean.parse(false, %{})   == false
+    assert Types.Boolean.parse(true, %{}) == true
+    assert Types.Boolean.parse("true", %{}) == true
+    assert Types.Boolean.parse(false, %{}) == false
     assert Types.Boolean.parse("false", %{}) == false
-    assert Types.Boolean.parse(nil, %{})     == false
+    assert Types.Boolean.parse(nil, %{}) == false
   end
 
   test "charlist" do
-    assert Types.Charlist.parse(1, %{})   == '1'
+    assert Types.Charlist.parse(1, %{}) == '1'
     assert Types.Charlist.parse("s", %{}) == 's'
   end
 
@@ -39,6 +39,7 @@ defmodule Maru.TypesTest do
     assert_raise ArgumentError, fn ->
       Types.Atom.parse("never_exits_param", %{})
     end
+
     assert Types.Atom.parse("param", %{}) == :param
   end
 
@@ -62,6 +63,4 @@ defmodule Maru.TypesTest do
   test "base64" do
     assert Types.Base64.parse("eyJoZWxsbyI6IndvcmxkIn0=", %{}) == ~s({"hello":"world"})
   end
-
-
 end

@@ -7,5 +7,4 @@ defmodule Maru.Types.List do
 
   @doc false
   def parse(input, _) when is_list(input), do: input
-
 end

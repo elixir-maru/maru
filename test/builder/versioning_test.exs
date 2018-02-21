@@ -23,8 +23,12 @@ defmodule Maru.Builder.VersioningTest do
   test "version with accept header" do
     adapter = Versioning.get_adapter(:accept_header)
     assert Versioning.AcceptHeader == adapter
-    [{plug, args, _}] = adapter.get_version_plug([vendor: :twitter])
-    conn = conn(:get, "/", "") |> put_req_header("accept", "application/vnd.twitter-v1+json") |> plug.call(args)
+    [{plug, args, _}] = adapter.get_version_plug(vendor: :twitter)
+
+    conn =
+      conn(:get, "/", "") |> put_req_header("accept", "application/vnd.twitter-v1+json")
+      |> plug.call(args)
+
     assert "v1" == conn.private[:maru_version]
   end
 end

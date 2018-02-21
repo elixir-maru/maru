@@ -1,5 +1,4 @@
 defmodule Maru.Type do
-
   defmacro __using__(_) do
     quote do
       def arguments do
@@ -10,8 +9,7 @@ defmodule Maru.Type do
         input
       end
 
-      defoverridable [arguments: 0, parse: 2]
+      defoverridable arguments: 0, parse: 2
     end
   end
-
 end

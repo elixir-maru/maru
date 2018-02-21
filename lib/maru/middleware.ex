@@ -10,7 +10,7 @@ defmodule Maru.Middleware do
 
       def init(opts), do: opts
       def call(conn, _opts), do: conn
-      defoverridable [init: 1, call: 2]
+      defoverridable init: 1, call: 2
     end
   end
 end

@@ -9,5 +9,4 @@ defmodule Maru.Builder.Versioning.AcceptVersionHeader do
   def get_version_plug(_opts) do
     [{Maru.Plugs.GetVersion, :accept_version_header, true}]
   end
-
 end

@@ -3,10 +3,10 @@ alias Maru.Resource
 defmodule Resource.MaruPlug do
   @moduledoc false
 
-  defstruct name:    nil,
-            plug:    nil,
+  defstruct name: nil,
+            plug: nil,
             options: nil,
-            guards:  true
+            guards: true
 
   @doc "push plug to current plugs stack."
   def push(plug_or_plugs, %Macro.Env{module: module}) do
@@ -23,9 +23,10 @@ defmodule Resource.MaruPlug do
   end
 
   @doc "merge and override plugs."
-  def merge(plugs, %__MODULE__{}=pipeline) do
+  def merge(plugs, %__MODULE__{} = pipeline) do
     merge(plugs, [pipeline])
   end
+
   def merge(plugs, pipelines) do
     Enum.reduce(pipelines, plugs, fn x, acc ->
       do_merge(acc, x, [])
@@ -35,12 +36,15 @@ defmodule Resource.MaruPlug do
   defp do_merge([], plug, result) do
     result ++ [plug]
   end
-  defp do_merge([%__MODULE__{name: nil}=h | t], plug, result) do
+
+  defp do_merge([%__MODULE__{name: nil} = h | t], plug, result) do
     do_merge(t, plug, result ++ [h])
   end
-  defp do_merge([%__MODULE__{name: n} | t], %__MODULE__{name: n}=plug, result) do
+
+  defp do_merge([%__MODULE__{name: n} | t], %__MODULE__{name: n} = plug, result) do
     result ++ [plug] ++ t
   end
+
   defp do_merge([h | t], plug, result) do
     do_merge(t, plug, result ++ [h])
   end

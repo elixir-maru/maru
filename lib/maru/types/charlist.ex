@@ -7,8 +7,8 @@ defmodule Maru.Types.Charlist do
 
   @doc false
   def parse(input, _) when is_list(input), do: input
+
   def parse(input, _) do
     input |> to_charlist
   end
-
 end

@@ -14,15 +14,24 @@ defmodule MaruTest do
     end
 
     test "correct maru router" do
-      assert Enum.any?(Maru.servers, fn {MaruRouter, _} -> true; _ -> false end)
+      assert Enum.any?(Maru.servers(), fn
+               {MaruRouter, _} -> true
+               _ -> false
+             end)
     end
 
     test "module not defined" do
-      refute  Enum.any?(Maru.servers, fn {NoThisModule, _} -> true; _ -> false end)
+      refute Enum.any?(Maru.servers(), fn
+               {NoThisModule, _} -> true
+               _ -> false
+             end)
     end
 
     test "module is not a maru router" do
-      refute  Enum.any?(Maru.servers, fn {NotMaruRouter, _} -> true; _ -> false end)
+      refute Enum.any?(Maru.servers(), fn
+               {NotMaruRouter, _} -> true
+               _ -> false
+             end)
     end
   end
 end

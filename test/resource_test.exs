@@ -27,7 +27,6 @@ defmodule Maru.Builder.ResourceTest do
         group :p5 do
           def r5, do: @resource
         end
-
       end
 
       route_param :p6 do
@@ -35,39 +34,43 @@ defmodule Maru.Builder.ResourceTest do
       end
     end
 
-    assert %Resource{path: ["p1"]} = Test.r1
-    assert %Resource{path: ["p1", "p2"]} = Test.r2
-    assert %Resource{
-      path: ["p1", :p3], parameters: [
-        %Parameter{
-          information: %Information{
-            attr_name: :p3,
-          }
-        }
-      ]
-    } = Test.r3
+    assert %Resource{path: ["p1"]} = Test.r1()
+    assert %Resource{path: ["p1", "p2"]} = Test.r2()
 
     assert %Resource{
-      path: ["p1", :p3, "p4"], parameters: [
-        %Parameter{
-          information: %Information{
-            attr_name: :p3,
-          }
-        }
-      ]
-    } = Test.r4
-
-    assert %Resource{path: ["p1", "p5"], parameters: []} = Test.r5
+             path: ["p1", :p3],
+             parameters: [
+               %Parameter{
+                 information: %Information{
+                   attr_name: :p3
+                 }
+               }
+             ]
+           } = Test.r3()
 
     assert %Resource{
-      path: [:p6], parameters: [
-        %Parameter{
-          information: %Information{
-            attr_name: :p6,
-          }
-        }
-      ]
-    } = Test.r6
+             path: ["p1", :p3, "p4"],
+             parameters: [
+               %Parameter{
+                 information: %Information{
+                   attr_name: :p3
+                 }
+               }
+             ]
+           } = Test.r4()
+
+    assert %Resource{path: ["p1", "p5"], parameters: []} = Test.r5()
+
+    assert %Resource{
+             path: [:p6],
+             parameters: [
+               %Parameter{
+                 information: %Information{
+                   attr_name: :p6
+                 }
+               }
+             ]
+           } = Test.r6()
   end
 
   test "methods" do
@@ -86,8 +89,8 @@ defmodule Maru.Builder.ResourceTest do
     end
 
     assert [
-      %{method: :match, path: []},
-      %{method: :get, path: []},
-    ] = MethodsTest.route
+             %{method: :match, path: []},
+             %{method: :get, path: []}
+           ] = MethodsTest.route()
   end
 end

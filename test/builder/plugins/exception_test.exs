@@ -2,7 +2,6 @@ defmodule Maru.Builder.ExceptionTest do
   use ExUnit.Case, async: true
   import Plug.Test
 
-
   test "rescue_from" do
     defmodule RescueTest do
       use Maru.Router, make_plug: true
@@ -15,7 +14,7 @@ defmodule Maru.Builder.ExceptionTest do
 
       get :test2 do
         unwarn(conn)
-        List.first %{}
+        List.first(%{})
       end
 
       get :test3 do
@@ -48,7 +47,6 @@ defmodule Maru.Builder.ExceptionTest do
         |> put_status(405)
         |> text("MethodNotAllowed")
       end
-
     end
 
     conn1 = conn(:get, "test1")
@@ -82,6 +80,7 @@ defmodule Maru.Builder.ExceptionTest do
       params do
         requires :a
       end
+
       get "/a" do
         unwarn(params)
         text(conn, "a")
@@ -90,6 +89,7 @@ defmodule Maru.Builder.ExceptionTest do
       params do
         requires :b
       end
+
       get "/b" do
         unwarn(conn)
         unwarn(params)
@@ -101,23 +101,24 @@ defmodule Maru.Builder.ExceptionTest do
         |> put_status(500)
         |> text("c")
       end
-
     end
 
     conn1 = conn(:get, "a?b=1&v=v1")
+
     assert %Plug.Conn{
-      resp_body: "c",
-      private: %{maru_version: "v1"}
-    } = RescueWithConnTest.call(conn1, [])
+             resp_body: "c",
+             private: %{maru_version: "v1"}
+           } = RescueWithConnTest.call(conn1, [])
 
     conn2 = conn(:get, "b?b=1&v=v1")
+
     assert %Plug.Conn{
-      resp_body: "c",
-      private: %{
-        maru_version: "v1",
-        maru_params:  %{b: "1"},
-      },
-    } = RescueWithConnTest.call(conn2, [])
+             resp_body: "c",
+             private: %{
+               maru_version: "v1",
+               maru_params: %{b: "1"}
+             }
+           } = RescueWithConnTest.call(conn2, [])
   end
 
   test "mounted routes" do
@@ -182,8 +183,9 @@ defmodule Maru.Builder.ExceptionTest do
     end
 
     conn1 = conn(:get, "/not_found")
+
     assert_raise Maru.Exceptions.NotFound, fn ->
-     PlugRouterExceptionTest.call(conn1, [])
+      PlugRouterExceptionTest.call(conn1, [])
     end
 
     defmodule HandlePlugRouterExceptionTest do
@@ -199,8 +201,6 @@ defmodule Maru.Builder.ExceptionTest do
     end
 
     conn2 = conn(:get, "/not_found")
-    assert %Plug.Conn{status: 404} =
-      HandlePlugRouterExceptionTest.call(conn2, [])
+    assert %Plug.Conn{status: 404} = HandlePlugRouterExceptionTest.call(conn2, [])
   end
-
 end

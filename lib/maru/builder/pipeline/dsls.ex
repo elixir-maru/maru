@@ -8,9 +8,15 @@ defmodule Maru.Builder.Pipeline.DSLs do
     quote do
       import Kernel, only: []
       import Maru.Resource.DSLs, only: []
-      import Maru.Builder.Pipeline.DSLs, only: [
-        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
-      ]
+
+      import Maru.Builder.Pipeline.DSLs,
+        only: [
+          plug: 1,
+          plug: 2,
+          plug_overridable: 2,
+          plug_overridable: 3
+        ]
+
       unquote(block)
       import Maru.Builder.Pipeline.DSLs, only: [pipeline: 1]
       import Maru.Resource.DSLs
@@ -72,12 +78,15 @@ defmodule Maru.Builder.Pipeline.DSLs do
 
   defp do_plug(name, plug, opts, guards) do
     quote do
-      MaruPlug.push(%MaruPlug{
-        name:    unquote(name),
-        plug:    unquote(plug),
-        options: unquote(opts),
-        guards:  unquote(Macro.escape(guards)),
-     }, __ENV__)
+      MaruPlug.push(
+        %MaruPlug{
+          name: unquote(name),
+          plug: unquote(plug),
+          options: unquote(opts),
+          guards: unquote(Macro.escape(guards))
+        },
+        __ENV__
+      )
     end
   end
 end

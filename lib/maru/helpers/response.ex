@@ -21,42 +21,43 @@ defmodule Maru.Helpers.Response do
   @doc """
   Make response by url redirect.
   """
-  def redirect(%Plug.Conn{}=conn, url, opts \\ []) do
-    code = opts[:permanent] && 301 || 302
+  def redirect(%Plug.Conn{} = conn, url, opts \\ []) do
+    code = (opts[:permanent] && 301) || 302
+
     conn
     |> Plug.Conn.put_resp_header("location", url)
     |> Plug.Conn.send_resp(code, "")
-    |> Plug.Conn.halt
+    |> Plug.Conn.halt()
   end
 
   @doc """
   Make json format response.
   """
-  def json(%Plug.Conn{}=conn, data) do
+  def json(%Plug.Conn{} = conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
     |> Plug.Conn.send_resp(conn.status || 200, Poison.encode_to_iodata!(data))
-    |> Plug.Conn.halt
+    |> Plug.Conn.halt()
   end
 
   @doc """
   Make html format response.
   """
-  def html(%Plug.Conn{}=conn, data) do
+  def html(%Plug.Conn{} = conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("text/html")
     |> Plug.Conn.send_resp(conn.status || 200, to_string(data))
-    |> Plug.Conn.halt
+    |> Plug.Conn.halt()
   end
 
   @doc """
   Make text format response.
   """
-  def text(%Plug.Conn{}=conn, data) do
+  def text(%Plug.Conn{} = conn, data) do
     conn
     |> Plug.Conn.put_resp_content_type("text/plain")
     |> Plug.Conn.send_resp(conn.status || 200, to_string(data))
-    |> Plug.Conn.halt
+    |> Plug.Conn.halt()
   end
 
   @doc """
@@ -72,5 +73,4 @@ defmodule Maru.Helpers.Response do
   def get_maru_conn do
     Process.get(:maru_conn)
   end
-
 end

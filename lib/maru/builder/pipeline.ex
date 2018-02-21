@@ -9,11 +9,13 @@ defmodule Pipeline do
     end
   end
 
-  def after_mount(%{plugs: mounted_plugs}=mounted_route, _module, %Macro.Env{module: module}) do
+  def after_mount(%{plugs: mounted_plugs} = mounted_route, _module, %Macro.Env{module: module}) do
     plugs = Module.get_attribute(module, :plugs)
     resource = Module.get_attribute(module, :resource)
-    %{ mounted_route |
-       plugs: resource.plugs |> MaruPlug.merge(plugs) |> MaruPlug.merge(mounted_plugs)
+
+    %{
+      mounted_route
+      | plugs: resource.plugs |> MaruPlug.merge(plugs) |> MaruPlug.merge(mounted_plugs)
     }
   end
 

@@ -10,15 +10,16 @@ defmodule Maru.Builder.PipelineTest do
       pipeline do
         plug A
       end
+
       resources :p1 do
         def resource, do: @resource
       end
     end
 
     assert %Maru.Resource{
-      path: ["p1"],
-      plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}],
-    } = Namespace.resource
+             path: ["p1"],
+             plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}]
+           } = Namespace.resource()
   end
 
   test "pipeline for method" do
@@ -28,16 +29,17 @@ defmodule Maru.Builder.PipelineTest do
       pipeline do
         plug A
       end
+
       get do
         text(conn, "ok")
       end
     end
 
     assert %Maru.Router{
-      method: :get,
-      module: Maru.Builder.PipelineTest.Method,
-      path: [],
-      plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}],
-    } = Method.__routes__ |> List.first
+             method: :get,
+             module: Maru.Builder.PipelineTest.Method,
+             path: [],
+             plugs: [%MaruPlug{guards: true, name: nil, options: [], plug: A}]
+           } = Method.__routes__() |> List.first()
   end
 end

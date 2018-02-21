@@ -8,6 +8,6 @@ defmodule Maru.Plugs.NotFound do
 
   @doc false
   def call(conn, _) do
-    Maru.Exceptions.NotFound |> raise([method: conn.method, path_info: conn.path_info])
+    Maru.Exceptions.NotFound |> raise(method: conn.method, path_info: conn.path_info)
   end
 end

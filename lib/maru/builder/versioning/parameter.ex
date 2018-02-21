@@ -10,5 +10,4 @@ defmodule Maru.Builder.Versioning.Parameter do
     key = opts |> Keyword.get(:parameter, :apiver) |> to_string
     [{Maru.Plugs.GetVersion, {:parameter, key}, true}]
   end
-
 end

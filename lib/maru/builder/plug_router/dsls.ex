@@ -4,11 +4,16 @@ defmodule PlugRouter.DSLs do
   @doc """
   Define plugs which execute before routes match.
   """
-  defmacro before([do: block]) do
+  defmacro before(do: block) do
     quote do
-      import Maru.Resource.DSLs, except: [
-        plug: 1, plug: 2, plug_overridable: 2, plug_overridable: 3
-      ]
+      import Maru.Resource.DSLs,
+        except: [
+          plug: 1,
+          plug: 2,
+          plug_overridable: 2,
+          plug_overridable: 3
+        ]
+
       import PlugRouter.DSLs
       import PlugRouter.DSLs, except: [before: 1]
       unquote(block)
@@ -48,18 +53,19 @@ defmodule PlugRouter.DSLs do
       @plugs_before {
         unquote(plug),
         unquote(opts),
-        unquote(Macro.escape(guards)),
-     }
+        unquote(Macro.escape(guards))
+      }
     end
   end
-
 
   @doc """
   Warning when use plug_overridable within `before` block.
   """
   defmacro plug_overridable(_, _, _ \\ nil) do
     quote do
-      Maru.Utils.warn "#{inspect __MODULE__}: plug_overridable not works within `before` block, Ignore.\n"
+      Maru.Utils.warn(
+        "#{inspect(__MODULE__)}: plug_overridable not works within `before` block, Ignore.\n"
+      )
     end
   end
 end

@@ -17,7 +17,7 @@ defmodule Maru.Builder.Versioning.Path do
   def path_for_params(path, version) do
     Enum.map(path, fn
       {:version} -> version
-      x          -> x
+      x -> x
     end)
   end
 
@@ -25,17 +25,18 @@ defmodule Maru.Builder.Versioning.Path do
   def conn_for_match(:match, version, path) do
     quote do
       %Plug.Conn{
-        path_info: unquote(path_for_match(path, version)),
+        path_info: unquote(path_for_match(path, version))
       }
     end
   end
 
   def conn_for_match(method, version, path) do
-    method = method |> to_string |> String.upcase
+    method = method |> to_string |> String.upcase()
+
     quote do
       %Plug.Conn{
         method: unquote(method),
-        path_info: unquote(path_for_match(path, version)),
+        path_info: unquote(path_for_match(path, version))
       }
     end
   end
@@ -43,9 +44,9 @@ defmodule Maru.Builder.Versioning.Path do
   @doc false
   def path_for_match(path, version) do
     Enum.map(path, fn
-      {:version}        -> version
+      {:version} -> version
       x when is_atom(x) -> Macro.var(:_, nil)
-      x                 -> x
+      x -> x
     end)
   end
 
@@ -53,5 +54,4 @@ defmodule Maru.Builder.Versioning.Path do
   def put_version(conn, version) do
     Plug.Conn.put_private(conn, :maru_version, version)
   end
-
 end

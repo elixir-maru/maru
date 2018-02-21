@@ -6,6 +6,5 @@ defmodule Maru.Types.File do
   use Maru.Type
 
   @doc false
-  def parse(%Plug.Upload{}=input, _), do: input
-
+  def parse(%Plug.Upload{} = input, _), do: input
 end

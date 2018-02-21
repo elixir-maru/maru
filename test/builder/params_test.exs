@@ -15,6 +15,7 @@ defmodule Maru.Builder.ParamsTest do
       params do
         optional :attr
         requires :foo, type: :string, regexp: ~r/^[a-z]+$/, desc: "hehe"
+
         group :group do
           group :group, type: Map do
             optional :bar, type: Integer, values: 1..100
@@ -26,14 +27,24 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %P{information: %PI{attr_name: :attr, required: false}},
-      %P{information: %PI{attr_name: :foo, required: true}},
-      %P{information: %PI{attr_name: :group, required: true, children: [
-        %PI{attr_name: :group, required: true, children: [
-          %PI{attr_name: :bar, required: false}
-        ]}
-      ]}}
-    ] = OptionalTest.parameters
+             %P{information: %PI{attr_name: :attr, required: false}},
+             %P{information: %PI{attr_name: :foo, required: true}},
+             %P{
+               information: %PI{
+                 attr_name: :group,
+                 required: true,
+                 children: [
+                   %PI{
+                     attr_name: :group,
+                     required: true,
+                     children: [
+                       %PI{attr_name: :bar, required: false}
+                     ]
+                   }
+                 ]
+               }
+             }
+           ] = OptionalTest.parameters()
   end
 
   test "parameter depend" do
@@ -43,34 +54,50 @@ defmodule Maru.Builder.ParamsTest do
       params do
         optional :foo
         optional :bar
+
         given :foo do
           optional :baz, type: Integer
-          given [baz: &(&1 > 10)] do
+
+          given baz: &(&1 > 10) do
             requires :qux
           end
         end
+
         given [:foo, bar: fn bar -> bar > 10 end] do
           requires :qux
         end
       end
+
       def parameters, do: @parameters
     end
 
     assert [
-      %P{information: %PI{attr_name: :foo}},
-      %P{information: %PI{attr_name: :bar}},
-      %D{information: %DI{depends: [:foo], children: [
-        %PI{attr_name: :baz},
-        %DI{depends: [:baz], children: [
-          %PI{attr_name: :qux},
-        ]}
-      ]}},
-      %D{information: %DI{depends: [:foo, :bar], children: [
-        %PI{attr_name: :qux}
-      ]}},
-    ] = ParameterDependentTest.parameters
+             %P{information: %PI{attr_name: :foo}},
+             %P{information: %PI{attr_name: :bar}},
+             %D{
+               information: %DI{
+                 depends: [:foo],
+                 children: [
+                   %PI{attr_name: :baz},
+                   %DI{
+                     depends: [:baz],
+                     children: [
+                       %PI{attr_name: :qux}
+                     ]
+                   }
+                 ]
+               }
+             },
+             %D{
+               information: %DI{
+                 depends: [:foo, :bar],
+                 children: [
+                   %PI{attr_name: :qux}
+                 ]
+               }
+             }
+           ] = ParameterDependentTest.parameters()
   end
-
 
   test "validators" do
     defmodule ValidatorsTest do
@@ -78,10 +105,12 @@ defmodule Maru.Builder.ParamsTest do
 
       params do
         mutually_exclusive [:a, :b, :c]
+
         group :group do
-          exactly_one_of  [:a, :b, :c]
+          exactly_one_of [:a, :b, :c]
           at_least_one_of [:a, :b, :c]
         end
+
         group :group2 do
           optional :id, type: Integer
           optional :name, type: String
@@ -93,19 +122,28 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %V{information: %VI{action: :mutually_exclusive}},
-      %P{information: %PI{attr_name: :group, children: [
-        %VI{action: :exactly_one_of},
-        %VI{action: :at_least_one_of},
-      ]}},
-      %P{information: %PI{attr_name: :group2, children: [
-        %PI{attr_name: :id, type: "integer", children: []},
-        %PI{attr_name: :name, type: "string", children: []},
-        %VI{action: :at_least_one_of},
-      ]}}
-    ] = ValidatorsTest.parameters
+             %V{information: %VI{action: :mutually_exclusive}},
+             %P{
+               information: %PI{
+                 attr_name: :group,
+                 children: [
+                   %VI{action: :exactly_one_of},
+                   %VI{action: :at_least_one_of}
+                 ]
+               }
+             },
+             %P{
+               information: %PI{
+                 attr_name: :group2,
+                 children: [
+                   %PI{attr_name: :id, type: "integer", children: []},
+                   %PI{attr_name: :name, type: "string", children: []},
+                   %VI{action: :at_least_one_of}
+                 ]
+               }
+             }
+           ] = ValidatorsTest.parameters()
   end
-
 
   test "resources" do
     defmodule ResourcesTest do
@@ -124,10 +162,11 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Maru.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource
-    assert [%P{information: %PI{attr_name: :param_with_options, required: true}}] = ResourcesTest.parameters
-  end
+    assert %Maru.Resource{path: ["level1", "level2", :param]} = ResourcesTest.resource()
 
+    assert [%P{information: %PI{attr_name: :param_with_options, required: true}}] =
+             ResourcesTest.parameters()
+  end
 
   test "complex resources" do
     defmodule ComplexResourcesTest do
@@ -138,9 +177,8 @@ defmodule Maru.Builder.ParamsTest do
       end
     end
 
-    assert %Maru.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource
+    assert %Maru.Resource{path: ["foo", :bar]} = ComplexResourcesTest.resource()
   end
-
 
   test "custom Type" do
     defmodule Elixir.Maru.Types.MyType do
@@ -162,8 +200,8 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %P{information: %PI{attr_name: :foo}}
-    ] = CustomType.parameters
+             %P{information: %PI{attr_name: :foo}}
+           ] = CustomType.parameters()
   end
 
   test "shared params" do
@@ -197,11 +235,11 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %P{information: %PI{attr_name: :foo}},
-      %P{information: %PI{attr_name: :bar}},
-      %P{information: %PI{attr_name: :baz}},
-      %P{information: %PI{attr_name: :qux}},
-    ] = SharedParamsTest.parameters
+             %P{information: %PI{attr_name: :foo}},
+             %P{information: %PI{attr_name: :bar}},
+             %P{information: %PI{attr_name: :baz}},
+             %P{information: %PI{attr_name: :qux}}
+           ] = SharedParamsTest.parameters()
   end
 
   test "one line list test" do
@@ -217,9 +255,8 @@ defmodule Maru.Builder.ParamsTest do
     end
 
     assert [
-      %P{information: %PI{attr_name: :foo, type: {:list, "integer"}}},
-      %P{information: %PI{attr_name: :bar, type: {:list, {:list, "float"}}}},
-    ] = OneLineListTest.parameters
+             %P{information: %PI{attr_name: :foo, type: {:list, "integer"}}},
+             %P{information: %PI{attr_name: :bar, type: {:list, {:list, "float"}}}}
+           ] = OneLineListTest.parameters()
   end
-
 end

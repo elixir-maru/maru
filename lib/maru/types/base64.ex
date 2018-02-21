@@ -7,7 +7,6 @@ defmodule Maru.Types.Base64 do
 
   @doc false
   def parse(input, _) do
-    input |> Base.decode64!
+    input |> Base.decode64!()
   end
-
 end

@@ -10,6 +10,7 @@ defmodule Maru.Exceptions do
     """
 
     defexception [:reason, :param, :value, plug_status: 400]
+
     def message(e) do
       "Parsing Param Error: #{e.param}"
     end
@@ -21,8 +22,9 @@ defmodule Maru.Exceptions do
     """
 
     defexception [:param, :validator, :value, :option, plug_status: 400]
+
     def message(e) do
-      "Validate Param Error: #{inspect e.param}"
+      "Validate Param Error: #{inspect(e.param)}"
     end
   end
 
@@ -31,7 +33,8 @@ defmodule Maru.Exceptions do
     Raised when validater not found.
     """
 
-    defexception  [:validator]
+    defexception [:validator]
+
     def message(e) do
       "Undefined Validator: #{e.validator}"
     end
@@ -42,7 +45,8 @@ defmodule Maru.Exceptions do
     Raised when type not found.
     """
 
-    defexception  [:type]
+    defexception [:type]
+
     def message(e) do
       "Undefined Type: #{e.type}"
     end
@@ -61,6 +65,7 @@ defmodule Maru.Exceptions do
     """
 
     defexception [:method, :path_info, plug_status: 404]
+
     def message(_e) do
       "NotFound"
     end
@@ -79,6 +84,7 @@ defmodule Maru.Exceptions do
     """
 
     defexception [:method, :request_path, plug_status: 405]
+
     def message(_e) do
       "MethodNotAllowed"
     end

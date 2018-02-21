@@ -4,9 +4,9 @@ defmodule Maru.Plugs.NotFoundTest do
 
   test "plug notfound" do
     conn = conn(:get, "/")
+
     assert_raise Maru.Exceptions.NotFound, fn ->
       conn |> Maru.Plugs.NotFound.call([])
     end
   end
-
 end

@@ -24,7 +24,6 @@ defmodule Maru.Route.MountTest do
       def m, do: @mounted
     end
 
-    assert [%Maru.Router{}, %Maru.Router{}] = MountTest.m
+    assert [%Maru.Router{}, %Maru.Router{}] = MountTest.m()
   end
-
 end

@@ -26,6 +26,7 @@ defmodule Maru.MiddlewareTest do
       mount Maru.MiddlewareTest.Router
     end
 
-    assert %Plug.Conn{assigns: %{user_id: 1}} = conn(:get, "/") |> Maru.MiddlewareTest.API.call([])
+    assert %Plug.Conn{assigns: %{user_id: 1}} =
+             conn(:get, "/") |> Maru.MiddlewareTest.API.call([])
   end
 end

@@ -34,7 +34,7 @@ defmodule Maru.Builder do
   end
 
   @doc false
-  defmacro __before_compile__(%Macro.Env{}=env) do
+  defmacro __before_compile__(%Macro.Env{} = env) do
     Maru.Resource.before_compile_router(env)
 
     Maru.Builder.Exception.before_compile_router(env)

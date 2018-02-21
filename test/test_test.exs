@@ -30,13 +30,12 @@ defmodule Maru.TestTest do
     end
 
     test "sent" do
-      assert "sent" = TestTest1.sent
+      assert "sent" = TestTest1.sent()
     end
 
     test "chunk" do
-      assert "helloworld" = TestTest1.chunk
+      assert "helloworld" = TestTest1.chunk()
     end
-
   end
 
   test "version test" do
@@ -82,25 +81,25 @@ defmodule Maru.TestTest do
       end
     end
 
-    assert "resp v1" = TestTest2.test1
-    assert "resp v2" = TestTest2.test2
-    assert "resp v1" = TestTest2.test3
-    assert "resp v2" = TestTest2.test4
+    assert "resp v1" = TestTest2.test1()
+    assert "resp v2" = TestTest2.test2()
+    assert "resp v1" = TestTest2.test3()
+    assert "resp v2" = TestTest2.test4()
   end
 
   test "parser test" do
     defmodule Test3 do
       use Maru.Router, make_plug: true
 
-      plug Plug.Parsers, [
+      plug Plug.Parsers,
         parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
         pass: ["*/*"],
         json_decoder: Poison
-      ]
 
       params do
         requires :foo
       end
+
       post do
         json(conn, params)
       end
@@ -118,12 +117,13 @@ defmodule Maru.TestTest do
       end
     end
 
-    assert %{"foo" => "bar"} = TestTest3.test
+    assert %{"foo" => "bar"} = TestTest3.test()
   end
 
   test "mounted" do
     defmodule PlugTest do
       def init([]), do: []
+
       def call(conn, []) do
         conn |> Plug.Conn.put_private(:maru_plug_test, 0)
       end
@@ -131,6 +131,7 @@ defmodule Maru.TestTest do
 
     defmodule PlugTest1 do
       def init([]), do: []
+
       def call(conn, []) do
         conn |> Plug.Conn.put_private(:maru_plug_test1, 0)
       end
@@ -153,6 +154,7 @@ defmodule Maru.TestTest do
         get do
           text(conn, "m1")
         end
+
         mount Maru.TestTest.TestMountShared
       end
     end
@@ -164,6 +166,7 @@ defmodule Maru.TestTest do
         get do
           text(conn, "m2")
         end
+
         mount Maru.TestTest.TestMountShared
       end
     end
@@ -194,12 +197,12 @@ defmodule Maru.TestTest do
     private2 = TestMountTest2.test().private
     assert 0 == private2.maru_plug_test
     assert false == Map.has_key?(private2, :maru_plug_test1)
-
   end
 
   test "mounted overridable" do
     defmodule PlugTest2 do
       def init([]), do: []
+
       def call(conn, []) do
         conn |> Plug.Conn.put_private(:maru_plug_test2, 0)
       end
@@ -207,6 +210,7 @@ defmodule Maru.TestTest do
 
     defmodule PlugTest3 do
       def init([]), do: []
+
       def call(conn, []) do
         conn |> Plug.Conn.put_private(:maru_plug_test3, 0)
       end
@@ -218,6 +222,7 @@ defmodule Maru.TestTest do
       pipeline do
         plug_overridable :test, Maru.TestTest.PlugTest3
       end
+
       get :shared do
         text(conn, "shared")
       end
@@ -253,12 +258,14 @@ defmodule Maru.TestTest do
       end
 
       get "match_error" do
-        raise MatchError # 1 = 2
+        # 1 = 2
+        raise MatchError
         text(conn, "200")
       end
 
       get "arithmetic_error" do
-        raise ArithmeticError # 2 / 0
+        # 2 / 0
+        raise ArithmeticError
         text(conn, "200")
       end
 
@@ -319,14 +326,13 @@ defmodule Maru.TestTest do
       def test8, do: get("/method_not_allowed").status
     end
 
-    assert 200 == MWEH.M2.TEST.test1
-    assert 502 == MWEH.M2.TEST.test2
-    assert 501 == MWEH.M2.TEST.test3
-    assert 500 == MWEH.M2.TEST.test4
-    assert 400 == MWEH.M2.TEST.test5
-    assert 400 == MWEH.M2.TEST.test6
-    assert 404 == MWEH.M2.TEST.test7
-    assert 405 == MWEH.M2.TEST.test8
+    assert 200 == MWEH.M2.TEST.test1()
+    assert 502 == MWEH.M2.TEST.test2()
+    assert 501 == MWEH.M2.TEST.test3()
+    assert 500 == MWEH.M2.TEST.test4()
+    assert 400 == MWEH.M2.TEST.test5()
+    assert 400 == MWEH.M2.TEST.test6()
+    assert 404 == MWEH.M2.TEST.test7()
+    assert 405 == MWEH.M2.TEST.test8()
   end
-
 end

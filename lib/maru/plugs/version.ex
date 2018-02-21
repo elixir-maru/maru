@@ -15,33 +15,33 @@ defmodule Maru.Plugs.GetVersion do
     vsn =
       case Conn.get_req_header(conn, "accept-version") do
         [version] -> version
-        _         -> nil
+        _ -> nil
       end
+
     conn |> Conn.put_private(:maru_version, vsn)
   end
 
   def call(conn, {:parameter, key}) do
-    conn = conn |> Conn.fetch_query_params
-    vsn  = conn.params |> Map.get(key)
+    conn = conn |> Conn.fetch_query_params()
+    vsn = conn.params |> Map.get(key)
     conn |> Conn.put_private(:maru_version, vsn)
   end
 
   def call(conn, {:accept_header, vendor}) do
     size = byte_size(vendor)
+
     vsn =
       with [version] <- Conn.get_req_header(conn, "accept"),
            [_, s, _] <- String.split(version, ["/", "+"]),
-           <<"vnd.", ^vendor::binary-size(size), "-", vsn::binary>> <- s
-      do
+           <<"vnd.", ^vendor::binary-size(size), "-", vsn::binary>> <- s do
         vsn
       else
         _ -> nil
       end
+
     conn |> Conn.put_private(:maru_version, vsn)
   end
-
 end
-
 
 defmodule Maru.Plugs.PutVersion do
   @moduledoc """
@@ -57,5 +57,4 @@ defmodule Maru.Plugs.PutVersion do
   def call(conn, version) do
     Plug.Conn.put_private(conn, :maru_version, version)
   end
-
 end

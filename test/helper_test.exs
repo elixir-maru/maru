@@ -6,10 +6,10 @@ defmodule Maru.HelperTest do
       use Maru.Helper
 
       params :foo do
-        requests :bar, type: String
+        requests(:bar, type: String)
       end
     end
 
-    assert [foo: {:requests, _, [:bar, _]}] = Test.__shared_params__
+    assert [foo: {:requests, _, [:bar, _]}] = Test.__shared_params__()
   end
 end

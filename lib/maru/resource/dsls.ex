@@ -29,7 +29,7 @@ defmodule Resource.DSLs do
   version: "v2", extend: "v1", at: V1
     Define version and extended router of current router.
   """
-  defmacro version(v, [do: block]) do
+  defmacro version(v, do: block) do
     quote do
       r = @resource
       Helper.set_version(unquote(v), __ENV__)
@@ -99,26 +99,30 @@ defmodule Resource.DSLs do
 
   defp do_plug(name, plug, opts, guards) do
     quote do
-      Helper.push_plug(%MaruPlug{
-        name:    unquote(name),
-        plug:    unquote(plug),
-        options: unquote(opts),
-        guards:  unquote(Macro.escape(guards)),
-     }, __ENV__)
+      Helper.push_plug(
+        %MaruPlug{
+          name: unquote(name),
+          plug: unquote(plug),
+          options: unquote(opts),
+          guards: unquote(Macro.escape(guards))
+        },
+        __ENV__
+      )
     end
   end
-
 
   @namespaces [:namespace, :group, :resource, :resources, :segment]
 
   for namespace <- @namespaces do
     @doc "Namespace alias #{namespace}."
-    defmacro unquote(namespace)([do: block]), do: block
-    defmacro unquote(namespace)(path, [do: block]) do
+    defmacro unquote(namespace)(do: block), do: block
+
+    defmacro unquote(namespace)(path, do: block) do
       namespace = unquote(namespace)
+
       quote do
         @namespace_context %{
-          namespace: unquote(namespace),
+          namespace: unquote(namespace)
         }
         r = @resource
         unquote(path) |> Utils.split_path() |> Helper.push_path(__ENV__)
@@ -131,12 +135,12 @@ defmodule Resource.DSLs do
   end
 
   @doc "Special namespace which save path to param list."
-  defmacro route_param(param, [do: block]) when is_atom(param) do
+  defmacro route_param(param, do: block) when is_atom(param) do
     quote do
       @namespace_context %{
         namespace: :route_param,
         parameter: unquote(param),
-        options:   [],
+        options: []
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
@@ -148,13 +152,14 @@ defmodule Resource.DSLs do
   end
 
   @doc "Special namespace which save path to param list with options."
-  defmacro route_param(param, options, [do: block]) when is_atom(param) do
-    options = options |> Maru.Utils.expand_alias(__CALLER__) |> Macro.escape
+  defmacro route_param(param, options, do: block) when is_atom(param) do
+    options = options |> Maru.Utils.expand_alias(__CALLER__) |> Macro.escape()
+
     quote do
       @namespace_context %{
         namespace: :route_param,
         parameter: unquote(param),
-        options:   unquote(options),
+        options: unquote(options)
       }
       r = @resource
       Helper.push_path([unquote(param)], __ENV__)
@@ -169,44 +174,51 @@ defmodule Resource.DSLs do
 
   for method <- @methods do
     @doc "Handle #{method} method."
-    defmacro unquote(method)(path \\ "", [do: block]) do
+    defmacro unquote(method)(path \\ "", do: block) do
       method = unquote(method)
+
       quote do
-        %{ method: unquote(method),
-           path:   Utils.split_path(unquote(path)),
-           block:  unquote(Macro.escape(block)),
-         } |> Helper.endpoint(__ENV__)
+        %{
+          method: unquote(method),
+          path: Utils.split_path(unquote(path)),
+          block: unquote(Macro.escape(block))
+        }
+        |> Helper.endpoint(__ENV__)
       end
     end
   end
 
   @doc "Handle all method."
-  defmacro match(path \\ "", [do: block]) do
+  defmacro match(path \\ "", do: block) do
     quote do
-      %{ method: :match,
-         path:   Utils.split_path(unquote(path)),
-         block:  unquote(Macro.escape(block)),
-       } |> Helper.endpoint(__ENV__)
+      %{
+        method: :match,
+        path: Utils.split_path(unquote(path)),
+        block: unquote(Macro.escape(block))
+      }
+      |> Helper.endpoint(__ENV__)
     end
   end
 
   @doc """
   Mount another router to current router.
   """
-  defmacro mount({_, _, [h | t]}=mod) do
+  defmacro mount({_, _, [h | t]} = mod) do
     h = Module.concat([h])
+
     module =
       __CALLER__.aliases
       |> Keyword.get(h, h)
-      |> Module.split
+      |> Module.split()
       |> Enum.concat(t)
-      |> Module.concat
+      |> Module.concat()
+
     try do
       true = {:__routes__, 0} in module.__info__(:functions)
     rescue
       [UndefinedFunctionError, MatchError] ->
         raise """
-          #{inspect module} is not an available Maru.Router.
+          #{inspect(module)} is not an available Maru.Router.
           If you mount it to another module written at the same file,
           make sure this module at the front of the file.
         """
@@ -216,5 +228,4 @@ defmodule Resource.DSLs do
       Helper.mount(unquote(mod), __ENV__)
     end
   end
-
 end

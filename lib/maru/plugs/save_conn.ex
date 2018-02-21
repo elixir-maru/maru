@@ -11,5 +11,4 @@ defmodule Maru.Plugs.SaveConn do
     Maru.Helpers.Response.put_maru_conn(conn)
     conn
   end
-
 end

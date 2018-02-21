@@ -13,7 +13,7 @@ defmodule Description.DSLs do
   @doc """
   Define description with a block for current endpoint.
   """
-  defmacro desc(desc, [do: block]) do
+  defmacro desc(desc, do: block) do
     quote do
       @desc %{summary: unquote(desc)}
       import Description.DSLs
@@ -35,7 +35,7 @@ defmodule Description.DSLs do
   @doc """
   Define response of description.
   """
-  defmacro responses([do: block]) do
+  defmacro responses(do: block) do
     quote do
       @desc put_in(@desc, [:responses], [])
       unquote(block)
@@ -47,7 +47,8 @@ defmodule Description.DSLs do
   """
   defmacro status(code, options) do
     desc = Keyword.get(options, :desc)
-    status = %{code: code, description: desc} |> Macro.escape
+    status = %{code: code, description: desc} |> Macro.escape()
+
     quote do
       @desc update_in(@desc, [:responses], &(&1 ++ [unquote(status)]))
     end

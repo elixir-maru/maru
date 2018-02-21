@@ -7,5 +7,4 @@ defmodule Maru.Types.Map do
 
   @doc false
   def parse(input, _) when is_map(input), do: input
-
 end

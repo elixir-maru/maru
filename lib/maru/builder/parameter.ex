@@ -5,25 +5,23 @@ defmodule Parameter.Information do
 
   defstruct attr_name: nil,
             param_key: nil,
-            desc:      nil,
-            type:      nil,
-            default:   nil,
-            required:  true,
-            children:  []
-
+            desc: nil,
+            type: nil,
+            default: nil,
+            required: true,
+            children: []
 end
 
 defmodule Parameter.Runtime do
   @moduledoc false
 
-  defstruct attr_name:     nil,
-            param_key:     nil,
-            children:      [],
-            nested:        nil,
-            blank_func:    nil,
-            parser_func:   nil,
+  defstruct attr_name: nil,
+            param_key: nil,
+            children: [],
+            nested: nil,
+            blank_func: nil,
+            parser_func: nil,
             validate_func: nil
-
 end
 
 defmodule Parameter do
@@ -33,14 +31,14 @@ defmodule Parameter do
   defmacro __using__(_) do
     quote do
       @parameters []
-      Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      Module.register_attribute(__MODULE__, :shared_params, accumulate: true)
       import Parameter.DSLs, only: [params: 1, params: 2]
     end
   end
 
   def using_helper(_) do
     quote do
-      Module.register_attribute __MODULE__, :shared_params, accumulate: true
+      Module.register_attribute(__MODULE__, :shared_params, accumulate: true)
       import Parameter.DSLs, only: [params: 2]
     end
   end
@@ -58,10 +56,12 @@ defmodule Parameter do
 
     addittion_parameter =
       case Module.get_attribute(module, :namespace_context) do
-        %{namespace: :route_param}=context ->
-          [ attr_name: context.parameter, required: true,
-          ] |> Enum.concat(context.options) |> Parameter.Helper.parse
-        _ -> nil
+        %{namespace: :route_param} = context ->
+          [attr_name: context.parameter, required: true] |> Enum.concat(context.options)
+          |> Parameter.Helper.parse()
+
+        _ ->
+          nil
       end
 
     resource = Module.get_attribute(module, :resource)
@@ -75,20 +75,23 @@ defmodule Parameter do
     Module.put_attribute(module, :parameters, [])
 
     route = Module.get_attribute(module, :router)
+
     Module.put_attribute(module, :router, %{route | parameters: resource.parameters ++ parameters})
   end
 
-  def before_compile_helper(%Macro.Env{module: module}=env) do
+  def before_compile_helper(%Macro.Env{module: module} = env) do
     shared_params =
       for {name, params} <- Module.get_attribute(module, :shared_params) do
-        {name, params |> Macro.escape}
+        {name, params |> Macro.escape()}
       end
+
     quoted =
       quote do
         def __shared_params__ do
           unquote(shared_params)
         end
       end
+
     Module.eval_quoted(env, quoted)
   end
 end

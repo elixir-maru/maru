@@ -10,7 +10,7 @@ defmodule Maru.Parameter.Phoenix do
       use Maru.Builder.Parameter
       import Maru.Helper.DSLs, only: [helpers: 1]
 
-      Module.register_attribute __MODULE__, :parameter_functions, accumulate: true
+      Module.register_attribute(__MODULE__, :parameter_functions, accumulate: true)
 
       @parameters []
       @group []
@@ -24,7 +24,9 @@ defmodule Maru.Parameter.Phoenix do
     Module.get_attribute(module, :parameters)
     |> Enum.map(fn p -> p.runtime end)
     |> case do
-      [] -> :ok
+      [] ->
+        :ok
+
       parameters_runtime ->
         guards = [] == guards || guards
         Module.put_attribute(module, :parameter_functions, {name, guards, parameters_runtime})
@@ -43,13 +45,18 @@ defmodule Maru.Parameter.Phoenix do
     |> Enum.map(fn {name, guards, runtime} ->
       quote do
         defoverridable [{unquote(name), 2}]
+
         def unquote(name)(conn, params) when unquote(guards) do
-          super(conn, Maru.Builder.PlugRouter.Runtime.parse_params(
-            unquote(runtime), %{}, params
-          ))
+          super(
+            conn,
+            Maru.Builder.PlugRouter.Runtime.parse_params(
+              unquote(runtime),
+              %{},
+              params
+            )
+          )
         end
       end
     end)
   end
-
 end

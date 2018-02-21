@@ -8,7 +8,7 @@ end
 defmodule Maru.Struct.Dependent.Information do
   @moduledoc false
 
-  defstruct depends:  [],
+  defstruct depends: [],
             children: []
 end
 
@@ -16,5 +16,5 @@ defmodule Maru.Struct.Dependent.Runtime do
   @moduledoc false
 
   defstruct validators: [],
-            children:   []
+            children: []
 end
