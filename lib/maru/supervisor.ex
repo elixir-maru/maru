@@ -40,7 +40,7 @@ defmodule Maru.Supervisor do
         "#{proto}://#{:inet_parse.ntoa(bind_addr)}:#{opts[:port]}"
     )
 
-    Plug.Adapters.Cowboy.child_spec(proto, module, [], normalized_opts)
+    Plug.Adapters.Cowboy2.child_spec(proto, module, [], normalized_opts)
   end
 
   defp to_port(nil), do: nil
