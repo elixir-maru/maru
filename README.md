@@ -80,7 +80,7 @@ defmodule MyAPP.API do
 
   plug Plug.Parsers,
     pass: ["*/*"],
-    json_decoder: Poison,
+    json_decoder: Jason,
     parsers: [:urlencoded, :json, :multipart]
 
   mount Router.Homepage

@@ -73,7 +73,7 @@ defmodule Maru.Builder.ExceptionTest do
       before do
         plug Plug.Parsers,
           pass: ["*/*"],
-          json_decoder: Poison,
+          json_decoder: Jason,
           parsers: [:urlencoded, :json, :multipart]
       end
 

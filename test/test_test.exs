@@ -94,7 +94,7 @@ defmodule Maru.TestTest do
       plug Plug.Parsers,
         parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
         pass: ["*/*"],
-        json_decoder: Poison
+        json_decoder: Jason
 
       params do
         requires :foo

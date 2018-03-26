@@ -9,6 +9,7 @@
 ## v0.13-dev
 * Enhancements
   * upgrade to plug v1.5
+  * make `:json_library ` configurable and use `Jason` as default
 * Deprecations
   * remove phoenix parameter support
 

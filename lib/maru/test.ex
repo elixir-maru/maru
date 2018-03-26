@@ -96,6 +96,6 @@ defmodule Maru.Test do
   Get response from conn as json.
   """
   def json_response(conn) do
-    conn.resp_body |> Poison.decode!()
+    Jason.decode!(conn.resp_body)
   end
 end

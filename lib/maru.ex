@@ -56,4 +56,9 @@ defmodule Maru do
       nil -> @mix_env == :test
     end
   end
+
+  @doc false
+  def json_library do
+    Application.get_env(:maru, :json_library, Jason)
+  end
 end

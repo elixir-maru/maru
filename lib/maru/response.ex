@@ -34,9 +34,10 @@ defmodule Maru.Response do
   Make json format response.
   """
   def json(%Plug.Conn{} = conn, data) do
+    json_library = Maru.json_library()
     conn
     |> Plug.Conn.put_resp_content_type("application/json")
-    |> Plug.Conn.send_resp(conn.status || 200, Poison.encode_to_iodata!(data))
+    |> Plug.Conn.send_resp(conn.status || 200, json_library.encode_to_iodata!(data))
     |> Plug.Conn.halt()
   end
 
