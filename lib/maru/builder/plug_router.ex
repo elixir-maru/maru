@@ -38,7 +38,7 @@ defmodule PlugRouter do
         version_adapter.get_version_plug(version_config),
         [{:route, [], true}, {Maru.Plugs.NotFound, [], true}]
       ]
-      |> Enum.concat()
+      |> List.flatten()
       |> Enum.reverse()
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
