@@ -20,7 +20,7 @@ defmodule Maru.Supervisor do
       end
     end
     |> List.flatten()
-    |> supervise(strategy: :one_for_one)
+    |> Supervisor.init(strategy: :one_for_one)
   end
 
   @default_ports http: 4000, https: 4040
@@ -40,7 +40,12 @@ defmodule Maru.Supervisor do
         "#{proto}://#{:inet_parse.ntoa(bind_addr)}:#{opts[:port]}"
     )
 
-    Plug.Adapters.Cowboy.child_spec(proto, module, [], normalized_opts)
+    args = [scheme: proto, plug: module, options: normalized_opts]
+    if Code.ensure_loaded?(:cowboy_http2) do
+      Plug.Adapters.Cowboy2.child_spec(args)
+    else
+      Plug.Adapters.Cowboy.child_spec(args)
+    end
   end
 
   defp to_port(nil), do: nil
