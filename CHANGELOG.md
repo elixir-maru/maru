@@ -6,7 +6,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
-## v0.13-dev
+## v0.13.0 (2018-04-19)
 * Enhancements
   * upgrade to plug v1.5
   * make `:json_library ` configurable and use `Jason` as default
