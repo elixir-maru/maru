@@ -41,6 +41,7 @@ defmodule Maru.Supervisor do
     )
 
     args = [scheme: proto, plug: module, options: normalized_opts]
+
     if Code.ensure_loaded?(:cowboy_http2) do
       Plug.Adapters.Cowboy2.child_spec(args)
     else

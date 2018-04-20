@@ -57,7 +57,8 @@ defmodule Parameter do
     addittion_parameter =
       case Module.get_attribute(module, :namespace_context) do
         %{namespace: :route_param} = context ->
-          [attr_name: context.parameter, required: true] |> Enum.concat(context.options)
+          [attr_name: context.parameter, required: true]
+          |> Enum.concat(context.options)
           |> Parameter.Helper.parse()
 
         _ ->

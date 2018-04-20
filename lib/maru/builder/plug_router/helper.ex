@@ -18,14 +18,11 @@ defmodule PlugRouter.Helper do
 
     {conn, body} = Plug.Builder.compile(env, pipeline, [])
 
-    params =
+    path_params =
       quote do
-        Map.merge(
-          var!(conn).params,
-          PlugRouter.Runtime.parse_path_params(
-            var!(conn).path_info,
-            unquote(adapter.path_for_params(route.path, route.version))
-          )
+        PlugRouter.Runtime.parse_path_params(
+          var!(conn).path_info,
+          unquote(adapter.path_for_params(route.path, route.version))
         )
       end
 
@@ -36,19 +33,18 @@ defmodule PlugRouter.Helper do
         PlugRouter.Runtime.parse_params(
           unquote(parameters_runtime),
           %{},
-          unquote(params)
+          var!(conn).params
         )
       end
 
     params_block =
       quote do
-        var!(conn) =
-          Plug.Conn.put_private(
-            var!(conn),
-            :maru_params,
-            unquote(parser_block)
-          )
+        var!(conn) = Map.put(var!(conn), :path_params, unquote(path_params))
 
+        var!(conn) =
+          Map.put(var!(conn), :params, Map.merge(var!(conn).params, var!(conn).path_params))
+
+        var!(conn) = Plug.Conn.put_private(var!(conn), :maru_params, unquote(parser_block))
         Maru.Response.put_maru_conn(var!(conn))
       end
 

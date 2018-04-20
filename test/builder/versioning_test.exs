@@ -26,7 +26,8 @@ defmodule Maru.Builder.VersioningTest do
     [{plug, args, _}] = adapter.get_version_plug(vendor: :twitter)
 
     conn =
-      conn(:get, "/", "") |> put_req_header("accept", "application/vnd.twitter-v1+json")
+      conn(:get, "/", "")
+      |> put_req_header("accept", "application/vnd.twitter-v1+json")
       |> plug.call(args)
 
     assert "v1" == conn.private[:maru_version]
