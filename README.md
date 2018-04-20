@@ -15,7 +15,7 @@ To get started with Maru, add the following to `mix.exs`:
 ```elixir
 def deps() do
   [
-    {:maru, "~> 0.12"},
+    {:maru, "~> 0.13"},
 
     # Optional dependency for runtime configuration loading.
     {:confex, "~> 3.3"},
