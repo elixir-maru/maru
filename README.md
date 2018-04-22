@@ -17,6 +17,10 @@ def deps() do
   [
     {:maru, "~> 0.13"},
 
+    # Optional dependency, you can also add your own json_library dependency
+    # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
+    {:jason, "~> 1.0"},
+
     # Optional dependency for runtime configuration loading.
     {:confex, "~> 3.3"},
   ]
