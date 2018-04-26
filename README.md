@@ -16,6 +16,7 @@ To get started with Maru, add the following to `mix.exs`:
 def deps() do
   [
     {:maru, "~> 0.13"},
+    {:cowboy, "~> 2.3"},
 
     # Optional dependency, you can also add your own json_library dependency
     # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
