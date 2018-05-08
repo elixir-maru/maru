@@ -54,24 +54,21 @@ defmodule PlugRouter do
       |> Module.get_attribute(:pipe_functions)
       |> PlugRouter.Helper.make_pipe_functions()
 
-    quoted =
-      quote do
-        unquote(routes_block)
-        unquote(method_not_allowed_block)
-        defp route(conn, _), do: conn
+    quote do
+      unquote(routes_block)
+      unquote(method_not_allowed_block)
+      defp route(conn, _), do: conn
 
-        def init(_), do: []
+      def init(_), do: []
 
-        def call(unquote(conn), _) do
-          fn ->
-            unquote(body)
-          end
-          |> unquote(func)
-          |> apply([])
+      def call(unquote(conn), _) do
+        fn ->
+          unquote(body)
         end
+        |> unquote(func)
+        |> apply([])
       end
-
-    Module.eval_quoted(env, quoted)
+    end
   rescue
     RETURN -> nil
   end

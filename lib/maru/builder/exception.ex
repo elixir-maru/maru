@@ -48,7 +48,7 @@ defmodule Exception do
     Module.put_attribute(module, :pipe_functions, new_pipe_functions)
   end
 
-  def before_compile_router(%Macro.Env{module: module} = env) do
+  def before_compile_router(%Macro.Env{module: module}) do
     rescue_block =
       Module.get_attribute(module, :exceptions)
       |> Enum.reverse()
@@ -57,20 +57,17 @@ defmodule Exception do
 
     [] == rescue_block && raise RETURN
 
-    quoted =
-      quote do
-        def __error_handler__(func) do
-          fn ->
-            try do
-              func.()
-            rescue
-              unquote(rescue_block)
-            end
+    quote do
+      def __error_handler__(func) do
+        fn ->
+          try do
+            func.()
+          rescue
+          unquote(rescue_block)
           end
         end
       end
-
-    Module.eval_quoted(env, quoted)
+    end
   rescue
     RETURN -> nil
   end

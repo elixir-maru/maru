@@ -20,7 +20,7 @@ defmodule Resource do
     end
   end
 
-  def before_compile_router(%Macro.Env{module: module} = env) do
+  def before_compile_router(%Macro.Env{module: module}) do
     current_routes = Module.get_attribute(module, :routes) |> Enum.reverse()
     mounted_routes = Module.get_attribute(module, :mounted) |> Enum.reverse()
     extend_opts = Module.get_attribute(module, :extend)
@@ -34,18 +34,14 @@ defmodule Resource do
     all_routes = current_routes ++ mounted_routes ++ extended
     Module.put_attribute(module, :all_routes, all_routes)
 
-    routes_quoted =
+    [
       quote do
         def __routes__, do: unquote(Macro.escape(all_routes))
-      end
+      end,
 
-    Module.eval_quoted(env, routes_quoted)
-
-    endpoints_quoted =
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse()
       |> Enum.map(&Resource.Helper.dispatch/1)
-
-    Module.eval_quoted(env, endpoints_quoted)
+    ]
   end
 end
