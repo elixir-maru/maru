@@ -20,7 +20,7 @@ defmodule Maru.Supervisor do
       end
     end
     |> List.flatten()
-    |> supervise(strategy: :one_for_one)
+    |> Supervisor.init(strategy: :one_for_one)
   end
 
   @default_ports http: 4000, https: 4040
