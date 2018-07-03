@@ -4,7 +4,6 @@
 
 [![Build Status](https://img.shields.io/travis/elixir-maru/maru.svg?style=flat-square)](https://travis-ci.org/elixir-maru/maru)
 [![Hex.pm Version](https://img.shields.io/hexpm/v/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
-[![Deps Status](https://beta.hexfaktor.org/badge/all/github/elixir-maru/maru.svg?branch=master&style=flat-square)](https://beta.hexfaktor.org/github/elixir-maru/maru)
 [![Docs](https://inch-ci.org/github/elixir-maru/maru.svg?branch=master&style=flat-square)](https://inch-ci.org/github/elixir-maru/maru)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/maru.svg?style=flat-square)](https://hex.pm/packages/maru)
 
