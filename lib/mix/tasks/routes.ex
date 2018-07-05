@@ -72,7 +72,10 @@ defmodule Mix.Tasks.Maru.Routes do
   end
 
   defp format_method(method) do
-    method |> String.pad_trailing(7)
+    method
+    |> to_string()
+    |> String.upcase()
+    |> String.pad_trailing(7)
   end
 
   defp format_path([]), do: "/"

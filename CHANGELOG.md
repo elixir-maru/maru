@@ -9,6 +9,8 @@
 ## v0.13.2-dev
 * Enhancements
   * Check `json_library` compile time
+* Bugfix
+  * `mix maru.routes` error
 
 ## v0.13.1 (2018-04-20)
 * Bugfix
