@@ -18,6 +18,14 @@ defmodule Maru.ResponseTest do
     assert conn.halted
   end
 
+  test "redirect allow use of URI" do
+    sample_uri = URI.parse("http://example.com/?foo=bar")
+    conn = conn(:get, "/") |> redirect(sample_uri, permanent: true)
+    assert {"location", "http://example.com/?foo=bar"} in conn.resp_headers
+    assert 301 == conn.status
+    assert conn.halted
+  end
+
   test "conn in process dict" do
     put_maru_conn(1)
     assert 1 == get_maru_conn()

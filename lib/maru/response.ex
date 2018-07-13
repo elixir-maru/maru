@@ -21,6 +21,9 @@ defmodule Maru.Response do
   @doc """
   Make response by url redirect.
   """
+  def redirect(%Plug.Conn{} = conn, %URI{} = url, opts) do
+    redirect(conn, URI.to_string(url), opts)
+  end
   def redirect(%Plug.Conn{} = conn, url, opts \\ []) do
     code = (opts[:permanent] && 301) || 302
 
