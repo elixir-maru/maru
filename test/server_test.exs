@@ -43,9 +43,7 @@ defmodule Maru.ServerTest do
                         {:_, [],
                          [{:_, [], Plug.Adapters.Cowboy2.Handler, {Maru.ServerTest.R, []}}]}
                       ]
-                    },
-                    stream_handlers: [Plug.Adapters.Cowboy2.BadResponseCheck,
-                                      :cowboy_stream_h]
+                    }
                   }
                 ]},
         type: :supervisor
