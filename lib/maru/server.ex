@@ -1,8 +1,30 @@
 defmodule Maru.Server do
+  @moduledoc """
+  Defines a server.
+
+  When used, the server expects the `:otp_app` as option. The `:otp_app` should point to an OTP application that has the server configuration. For example, the server:
+
+      defmodule MyServer do
+        use Maru.Server, otp_app: :my_api
+      end
+
+  Could be configured with:
+
+      config :my_api, MyServer,
+        adapter: Plug.Adapters.Cowboy2,
+        plug: MyAPI,
+        port: 8080,
+        scheme: :http,
+        bind_addr: "0.0.0.0"
+
+  """
+
   defmacro __using__(opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)
-    quote do
-      @otp_options Application.get_env(unquote(otp_app), __MODULE__, [])
+
+    quote bind_quoted: [otp_app: otp_app, module: __MODULE__] do
+      @otp_options Application.get_env(otp_app, __MODULE__, [])
+      @module module
 
       def init(_, opts) do
         {:ok, opts}
@@ -11,16 +33,34 @@ defmodule Maru.Server do
       def start_link(opts) do
         opts = Keyword.merge(@otp_options, opts)
         {:ok, opts} = init(:runtime, opts)
-        unquote(__MODULE__).start_link(opts)
+        @module.start_link(opts)
       end
 
       def child_spec(opts) do
         opts = Keyword.merge(@otp_options, opts)
         {:ok, opts} = init(:supervisor, opts)
-        unquote(__MODULE__).child_spec(opts)
+        @module.child_spec(opts)
       end
 
       defoverridable [init: 2]
+
+      def __plug__ do
+        @otp_options[:plug]
+      end
+
+      defmacro __using__(options) do
+        addition_opts =
+          with true <- {:__plug__, 0} in __MODULE__.__info__(:functions),
+               true <- __CALLER__.module == __MODULE__.__plug__() do
+            [make_plug: true]
+          else
+            _ -> []
+          end
+        options = Keyword.merge(addition_opts, options)
+        quote do
+          use Maru.Builder, unquote(options)
+        end
+      end
     end
   end
 
@@ -58,18 +98,16 @@ defmodule Maru.Server do
     {adapter, scheme, plug, options}
   end
 
-  @doc "convert tcp port to integer"
   @since "0.13.2"
   @spec to_port(String.t() | integer()) :: integer()
-  def to_port(nil), do: nil
-  def to_port(port) when is_integer(port), do: port
-  def to_port(port) when is_binary(port), do: port |> String.to_integer()
+  defp to_port(nil), do: nil
+  defp to_port(port) when is_integer(port), do: port
+  defp to_port(port) when is_binary(port), do: port |> String.to_integer()
 
-  @doc "convert string ip address to :inet.ip_address()"
   @since "0.13.2"
   @spec to_ip(String.t()) :: :inet.ip_address()
-  def to_ip(nil), do: nil
-  def to_ip(ip_addr) do
+  defp to_ip(nil), do: nil
+  defp to_ip(ip_addr) do
     {:ok, inet_ip} = ip_addr |> to_charlist |> :inet.parse_address()
     inet_ip
   end

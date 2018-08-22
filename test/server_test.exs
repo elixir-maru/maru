@@ -12,7 +12,7 @@ defmodule Maru.ServerTest do
     end
 
     defmodule R do
-      use Maru.Router, make_plug: true
+      use S
 
       get do
         text(conn, "ok")
