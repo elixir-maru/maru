@@ -12,6 +12,9 @@
   * add `Maru.Server` to run server with a standalone mode
 * Bugfix
   * `mix maru.routes` error
+* Deprecations
+  * deprecate `Confex` from maru codebase, in favor of using it in `init/2` of server module
+  * deprecate start server by `Maru.Supervisor`, in favor of `Maru.Server`
 
 ## v0.13.1 (2018-04-20)
 * Bugfix
