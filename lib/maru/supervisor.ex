@@ -1,6 +1,8 @@
 require Logger
 
 defmodule Maru.Supervisor do
+  @moduledoc "Deprecated, use Maru.Server instead"
+
   use Supervisor
 
   def start_link do
