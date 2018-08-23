@@ -22,6 +22,15 @@ defmodule Maru.Supervisor do
       end
     end
     |> List.flatten()
+    |> case do
+      [] ->
+        []
+
+      servers ->
+        Logger.warn "Start server by maru supervisor is deprecated, in favor of Maru.Server."
+
+        servers
+    end
     |> supervise(strategy: :one_for_one)
   end
 

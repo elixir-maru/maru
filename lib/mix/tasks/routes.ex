@@ -24,6 +24,11 @@ defmodule Mix.Tasks.Maru.Routes do
           generate_module(module, [])
         end
 
+      (servers = Mix.Maru.servers()) != [] ->
+        for module <- servers do
+          generate_module(module.__plug__, [])
+        end
+
       Code.ensure_loaded?(Phoenix) ->
         phoenix_module = apply(Mix.Phoenix, :base, []) |> Module.concat("Router")
 
