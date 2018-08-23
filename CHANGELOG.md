@@ -9,6 +9,7 @@
 ## v0.13.2-dev
 * Enhancements
   * Check `json_library` compile time
+  * add `Maru.Server` to run server with a standalone mode
 * Bugfix
   * `mix maru.routes` error
 
