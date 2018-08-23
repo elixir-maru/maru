@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Maru.Server do
   @moduledoc """
   Defines a server.
@@ -30,13 +32,13 @@ defmodule Maru.Server do
         {:ok, opts}
       end
 
-      def start_link(opts) do
+      def start_link(opts \\ []) do
         opts = Keyword.merge(@otp_options, opts)
         {:ok, opts} = init(:runtime, opts)
         @module.start_link(opts)
       end
 
-      def child_spec(opts) do
+      def child_spec(opts \\ []) do
         opts = Keyword.merge(@otp_options, opts)
         {:ok, opts} = init(:supervisor, opts)
         @module.child_spec(opts)
@@ -68,7 +70,12 @@ defmodule Maru.Server do
   @since "0.13.2"
   def start_link(opts) do
     {adapter, scheme, plug, options} = config(opts)
-    adapter.child_spec(scheme: scheme, plug: plug, options: options)
+
+    Logger.info(
+      "Starting #{plug} with #{adapter} standalone on " <>
+        "#{scheme}://#{:inet_parse.ntoa(options[:ip])}:#{options[:port]}"
+    )
+
     apply(adapter, scheme, [plug, [], options])
   end
 
@@ -76,6 +83,12 @@ defmodule Maru.Server do
   @since "0.13.2"
   def child_spec(opts) do
     {adapter, scheme, plug, options} = config(opts)
+
+    Logger.info(
+      "Starting #{plug} with #{adapter} under supervisor tree on " <>
+        "#{scheme}://#{:inet_parse.ntoa(options[:ip])}:#{options[:port]}"
+    )
+
     adapter.child_spec(scheme: scheme, plug: plug, options: options)
   end
 

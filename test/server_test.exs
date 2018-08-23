@@ -2,7 +2,7 @@ defmodule Maru.ServerTest do
   use ExUnit.Case, async: true
 
   describe "server test" do
-    Application.put_env(:maru_test_otp_app, Maru.ServerTest.S, [plug: Maru.ServerTest.R])
+    Application.put_env(:maru_test_otp_app, Maru.ServerTest.S, [plug: Maru.ServerTest.R, compress: true])
     Application.get_all_env(:maru_test_otp_app)
     defmodule S do
       use Maru.Server, otp_app: :maru_test_otp_app
@@ -38,6 +38,7 @@ defmodule Maru.ServerTest do
                   ],
                   :cowboy_clear,
                   %{
+                    compress: true,
                     env: %{
                       dispatch: [
                         {:_, [],
