@@ -63,7 +63,7 @@ defmodule Exception do
           try do
             func.()
           rescue
-          unquote(rescue_block)
+            unquote(rescue_block)
           end
         end
       end

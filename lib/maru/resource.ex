@@ -38,7 +38,6 @@ defmodule Resource do
       quote do
         def __routes__, do: unquote(Macro.escape(all_routes))
       end,
-
       Module.get_attribute(module, :endpoints)
       |> Enum.reverse()
       |> Enum.map(&Resource.Helper.dispatch/1)

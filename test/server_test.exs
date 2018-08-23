@@ -2,8 +2,15 @@ defmodule Maru.ServerTest do
   use ExUnit.Case, async: true
 
   describe "server test" do
-    Application.put_env(:maru_test_otp_app, Maru.ServerTest.S, [plug: Maru.ServerTest.R, compress: true])
+    Application.put_env(
+      :maru_test_otp_app,
+      Maru.ServerTest.S,
+      plug: Maru.ServerTest.R,
+      compress: true
+    )
+
     Application.get_all_env(:maru_test_otp_app)
+
     defmodule S do
       use Maru.Server, otp_app: :maru_test_otp_app
 
@@ -21,34 +28,35 @@ defmodule Maru.ServerTest do
 
     test "supervisor child spec" do
       assert %{
-        id: {:ranch_listener_sup, Maru.ServerTest.R.HTTP},
-        modules: [:ranch_listener_sup],
-        restart: :permanent,
-        shutdown: :infinity,
-        start: {:ranch_listener_sup, :start_link,
-                [
-                  Maru.ServerTest.R.HTTP,
-                  100,
-                  :ranch_tcp,
+               id: {:ranch_listener_sup, Maru.ServerTest.R.HTTP},
+               modules: [:ranch_listener_sup],
+               restart: :permanent,
+               shutdown: :infinity,
+               start:
+                 {:ranch_listener_sup, :start_link,
                   [
-                    num_acceptors: 100,
-                    max_connections: 16384,
-                    ip: {127, 0, 0, 1},
-                    port: 4000
-                  ],
-                  :cowboy_clear,
-                  %{
-                    compress: true,
-                    env: %{
-                      dispatch: [
-                        {:_, [],
-                         [{:_, [], Plug.Adapters.Cowboy2.Handler, {Maru.ServerTest.R, []}}]}
-                      ]
+                    Maru.ServerTest.R.HTTP,
+                    100,
+                    :ranch_tcp,
+                    [
+                      num_acceptors: 100,
+                      max_connections: 16384,
+                      ip: {127, 0, 0, 1},
+                      port: 4000
+                    ],
+                    :cowboy_clear,
+                    %{
+                      compress: true,
+                      env: %{
+                        dispatch: [
+                          {:_, [],
+                           [{:_, [], Plug.Adapters.Cowboy2.Handler, {Maru.ServerTest.R, []}}]}
+                        ]
+                      }
                     }
-                  }
-                ]},
-        type: :supervisor
-      } = S.child_spec([])
+                  ]},
+               type: :supervisor
+             } = S.child_spec([])
     end
 
     test "runtime server" do

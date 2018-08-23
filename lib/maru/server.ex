@@ -44,7 +44,7 @@ defmodule Maru.Server do
         @module.child_spec(opts)
       end
 
-      defoverridable [init: 2]
+      defoverridable init: 2
 
       def __plug__ do
         @otp_options[:plug]
@@ -58,7 +58,9 @@ defmodule Maru.Server do
           else
             _ -> []
           end
+
         options = Keyword.merge(addition_opts, options)
+
         quote do
           use Maru.Builder, unquote(options)
         end
@@ -66,7 +68,7 @@ defmodule Maru.Server do
     end
   end
 
-  @spec start_link(Keyword.t()):: {:ok, pid} | {:error, term}
+  @spec start_link(Keyword.t()) :: {:ok, pid} | {:error, term}
   @since "0.13.2"
   def start_link(opts) do
     {adapter, scheme, plug, options} = config(opts)
@@ -79,7 +81,7 @@ defmodule Maru.Server do
     apply(adapter, scheme, [plug, [], options])
   end
 
-  @spec start_link(Keyword.t()):: map()
+  @spec start_link(Keyword.t()) :: map()
   @since "0.13.2"
   def child_spec(opts) do
     {adapter, scheme, plug, options} = config(opts)
@@ -106,7 +108,7 @@ defmodule Maru.Server do
     options =
       opts
       |> Keyword.drop([:scheme, :plug, :bind_addr, :adapter])
-      |> Keyword.merge([ip: ip, port: port])
+      |> Keyword.merge(ip: ip, port: port)
 
     {adapter, scheme, plug, options}
   end
@@ -120,6 +122,7 @@ defmodule Maru.Server do
   @since "0.13.2"
   @spec to_ip(String.t()) :: :inet.ip_address()
   defp to_ip(nil), do: nil
+
   defp to_ip(ip_addr) do
     {:ok, inet_ip} = ip_addr |> to_charlist |> :inet.parse_address()
     inet_ip
