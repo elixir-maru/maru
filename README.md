@@ -20,14 +20,9 @@ def deps() do
     # Optional dependency, you can also add your own json_library dependency
     # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
     {:jason, "~> 1.0"},
-
-    # Optional dependency for runtime configuration loading.
-    {:confex, "~> 3.3"},
   ]
 end
 ```
-
-[Confex][] allows for runtime configuration to be loaded for ease of environment-specific use.
 
 ## Usage
 
@@ -111,21 +106,24 @@ defmodule MyAPP.API do
     |> text(exception.message)
   end
 end
+
+defmodule MyAPP.Server do
+  use Maru.Server, otp_app: :my_app
+end
 ```
 
 Then configure `maru`:
 
 ```elixir
 # config/config.exs
-config :maru, MyAPP.API,
-  http: [port: 8880]
+config :my_app, MyAPP.Server,
+  adapter: Plug.Adapters.Cowboy2,
+  plug: MyAPP.API,
+  scheme: :http,
+  port: 8880
 
-# config/test.exs
-config :maru, MyAPP.API,
-  test: true
+config :my_app,
+  maru_servers: [MyAPP.Server]
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
-
-
-[confex]: https://hex.pm/packages/confex
