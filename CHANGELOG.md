@@ -6,7 +6,7 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
-## v0.13.2-dev
+## v0.13.2 (2018-08-23)
 * Enhancements
   * Check `json_library` compile time
   * add `Maru.Server` to run server with a standalone mode

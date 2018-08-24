@@ -28,7 +28,7 @@ end
 
 ```elixir
 defmodule Router.User do
-  use Maru.Router
+  use MyApp.Server
 
   namespace :user do
     route_param :id do
@@ -57,7 +57,7 @@ defmodule Router.User do
 end
 
 defmodule Router.Homepage do
-  use Maru.Router
+  use MyApp.Server
 
   resources do
     get do
@@ -70,7 +70,7 @@ end
 
 
 defmodule MyAPP.API do
-  use Maru.Router
+  use MyApp.Server
 
   before do
     plug Plug.Logger
