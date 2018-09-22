@@ -42,21 +42,21 @@ defmodule Router.User do
         json(conn, %{user: params[:id]})
       end
 
-      desc("description")
+      desc "description"
 
       params do
-        requires(:age, type: Integer, values: 18..65)
-        requires(:gender, type: Atom, values: [:male, :female], default: :female)
+        requires :age, type: Integer, values: 18..65
+        requires :gender, type: Atom, values: [:male, :female], default: :female
 
         group :name, type: Map do
-          requires(:first_name)
-          requires(:last_name)
+          requires :first_name
+          requires :last_name
         end
 
-        optional(:intro, type: String, regexp: ~r/^[a-z]+$/)
-        optional(:avatar, type: File)
-        optional(:avatar_url, type: String)
-        exactly_one_of([:avatar, :avatar_url])
+        optional :intro, type: String, regexp: ~r/^[a-z]+$/
+        optional :avatar, type: File
+        optional :avatar_url, type: String
+        exactly_one_of [:avatar, :avatar_url]
       end
 
       # post do
@@ -74,7 +74,7 @@ defmodule Router.Homepage do
       json(conn, %{hello: :world})
     end
 
-    mount(Router.User)
+    mount Router.User
   end
 end
 
@@ -82,18 +82,16 @@ defmodule MyApp.API do
   use MyApp.Server
 
   before do
-    plug(Plug.Logger)
-    plug(Plug.Static, at: "/static", from: "/my/static/path/")
+    plug Plug.Logger
+    plug Plug.Static, at: "/static", from: "/my/static/path/"
   end
 
-  plug(
-    Plug.Parsers,
+  plug Plug.Parsers,
     pass: ["*/*"],
     json_decoder: Jason,
     parsers: [:urlencoded, :json, :multipart]
-  )
 
-  mount(Router.Homepage)
+  mount Router.Homepage
 
   rescue_from Unauthorized, as: e do
     IO.inspect(e)
@@ -103,7 +101,7 @@ defmodule MyApp.API do
     |> text("Unauthorized")
   end
 
-  rescue_from([MatchError, RuntimeError], with: :custom_error)
+  rescue_from [MatchError, RuntimeError], with: :custom_error
 
   rescue_from :all, as: e do
     conn
