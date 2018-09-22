@@ -26,32 +26,42 @@ end
 
 ## Usage
 
+lib/my_app/server.ex:
+
 ```elixir
+defmodule MyApp.Server do
+  use Maru.Server, otp_app: :my_app
+end
+
 defmodule Router.User do
   use MyApp.Server
 
   namespace :user do
     route_param :id do
       get do
-        json(conn, %{ user: params[:id] })
+        json(conn, %{user: params[:id]})
       end
 
       desc "description"
+
       params do
-        requires :age,    type: Integer, values: 18..65
+        requires :age, type: Integer, values: 18..65
         requires :gender, type: Atom, values: [:male, :female], default: :female
-        group    :name,   type: Map do
+
+        group :name, type: Map do
           requires :first_name
           requires :last_name
         end
-        optional :intro,  type: String, regexp: ~r/^[a-z]+$/
+
+        optional :intro, type: String, regexp: ~r/^[a-z]+$/
         optional :avatar, type: File
         optional :avatar_url, type: String
         exactly_one_of [:avatar, :avatar_url]
       end
-      post do
-        ...
-      end
+
+      # post do
+      #   ...
+      # end
     end
   end
 end
@@ -61,15 +71,14 @@ defmodule Router.Homepage do
 
   resources do
     get do
-      json(conn, %{ hello: :world })
+      json(conn, %{hello: :world})
     end
 
     mount Router.User
   end
 end
 
-
-defmodule MyAPP.API do
+defmodule MyApp.API do
   use MyApp.Server
 
   before do
@@ -85,7 +94,7 @@ defmodule MyAPP.API do
   mount Router.Homepage
 
   rescue_from Unauthorized, as: e do
-    IO.inspect e
+    IO.inspect(e)
 
     conn
     |> put_status(401)
@@ -106,19 +115,15 @@ defmodule MyAPP.API do
     |> text(exception.message)
   end
 end
-
-defmodule MyAPP.Server do
-  use Maru.Server, otp_app: :my_app
-end
 ```
 
 Then configure `maru`:
 
 ```elixir
 # config/config.exs
-config :my_app, MyAPP.Server,
+config :my_app, MyApp.Server,
   adapter: Plug.Adapters.Cowboy2,
-  plug: MyAPP.API,
+  plug: MyApp.API,
   scheme: :http,
   port: 8880
 
