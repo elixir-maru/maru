@@ -19,7 +19,7 @@ def deps() do
 
     # Optional dependency, you can also add your own json_library dependency
     # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
-    {:jason, "~> 1.0"},
+    {:jason, "~> 1.0"}
   ]
 end
 ```
@@ -123,7 +123,7 @@ config :my_app, MyAPP.Server,
   port: 8880
 
 config :my_app,
-  maru_servers: [MyAPP.Server]
+  maru_servers: [MyApp.Server]
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
