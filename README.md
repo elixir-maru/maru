@@ -112,6 +112,23 @@ defmodule MyAPP.Server do
 end
 ```
 
+In your `Application` module, add `Server` as a worker:
+
+```elixir
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      MyApp.Server
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+```
+
 Then configure `maru`:
 
 ```elixir
