@@ -19,7 +19,7 @@ def deps() do
 
     # Optional dependency, you can also add your own json_library dependency
     # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
-    {:jason, "~> 1.0"},
+    {:jason, "~> 1.0"}
   ]
 end
 ```
@@ -117,6 +117,23 @@ defmodule MyApp.API do
 end
 ```
 
+In your `Application` module, add `Server` as a worker:
+
+```elixir
+defmodule MyApp.Application do
+  use Application
+
+  def start(_type, _args) do
+    children = [
+      MyApp.Server
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+```
+
 Then configure `maru`:
 
 ```elixir
@@ -128,7 +145,7 @@ config :my_app, MyApp.Server,
   port: 8880
 
 config :my_app,
-  maru_servers: [MyAPP.Server]
+  maru_servers: [MyApp.Server]
 ```
 
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
