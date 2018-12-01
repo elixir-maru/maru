@@ -36,23 +36,21 @@ defmodule Maru.ServerTest do
                  {:ranch_listener_sup, :start_link,
                   [
                     Maru.ServerTest.R.HTTP,
-                    100,
                     :ranch_tcp,
-                    [
+                    %{
                       num_acceptors: 100,
                       max_connections: 16384,
-                      ip: {127, 0, 0, 1},
-                      port: 4000
-                    ],
+                      socket_opts: [ip: {127, 0, 0, 1}, port: 4000]
+                    },
                     :cowboy_clear,
                     %{
                       compress: true,
                       env: %{
                         dispatch: [
-                          {:_, [],
-                           [{:_, [], Plug.Adapters.Cowboy2.Handler, {Maru.ServerTest.R, []}}]}
+                          {:_, [], [{:_, [], Plug.Cowboy.Handler, {Maru.ServerTest.R, []}}]}
                         ]
-                      }
+                      },
+                      stream_handlers: [:cowboy_compress_h, Plug.Cowboy.Stream]
                     }
                   ]},
                type: :supervisor
@@ -62,7 +60,7 @@ defmodule Maru.ServerTest do
     test "runtime server" do
       {:ok, _pid} = S.start_link([])
       assert {:ok, {_, _, 'ok'}} = :httpc.request('http://127.0.0.1:7113')
-      :ok = Plug.Adapters.Cowboy2.shutdown(Maru.ServerTest.R.HTTP)
+      :ok = Plug.Cowboy.shutdown(Maru.ServerTest.R.HTTP)
     end
   end
 end

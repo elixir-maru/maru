@@ -97,7 +97,7 @@ defmodule Maru.Server do
   @default_scheme :http
   @default_ports http: 4000, https: 4040
   @default_bind_addr {127, 0, 0, 1}
-  @default_adapter Plug.Adapters.Cowboy2
+  @default_adapter Plug.Cowboy
   defp config(opts) do
     adapter = opts[:adapter] || @default_adapter
     scheme = opts[:scheme] || @default_scheme
