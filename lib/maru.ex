@@ -35,9 +35,7 @@ defmodule Maru do
           false
 
         :function_not_exported ->
-          Logger.info(
-            "your module `#{module}` defined in config is not a maru router, ignore..."
-          )
+          Logger.info("your module `#{module}` defined in config is not a maru router, ignore...")
 
           false
 

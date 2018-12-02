@@ -27,7 +27,7 @@ defmodule Maru.Supervisor do
         []
 
       servers ->
-        Logger.warn "Start server by maru supervisor is deprecated, in favor of Maru.Server."
+        Logger.warn("Start server by maru supervisor is deprecated, in favor of Maru.Server.")
 
         servers
     end
