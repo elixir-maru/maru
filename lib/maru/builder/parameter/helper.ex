@@ -70,7 +70,7 @@ defmodule Parameter.Helper do
           end
         end
       else
-        quote do
+        quote generated: true do
           fn {_, _, result} ->
             unquote(unpassed_func).(result)
           end
