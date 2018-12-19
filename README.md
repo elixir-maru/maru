@@ -14,12 +14,12 @@ To get started with Maru, add the following to `mix.exs`:
 ```elixir
 def deps() do
   [
-    {:maru, "~> 0.13"},
-    {:cowboy, "~> 2.3"},
+    {:maru, "~> 0.14"},
+    {:plug_cowboy, "~> 2.0"},
 
     # Optional dependency, you can also add your own json_library dependency
     # and config with `config :maru, json_library, YOUR_JSON_LIBRARY`.
-    {:jason, "~> 1.0"}
+    {:jason, "~> 1.1"}
   ]
 end
 ```
@@ -139,7 +139,7 @@ Then configure `maru`:
 ```elixir
 # config/config.exs
 config :my_app, MyApp.Server,
-  adapter: Plug.Adapters.Cowboy2,
+  adapter: Plug.Cowboy,
   plug: MyApp.API,
   scheme: :http,
   port: 8880

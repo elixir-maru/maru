@@ -5,15 +5,15 @@ defmodule Maru.Test do
 
   @doc false
   defmacro __using__(opts) do
-    root =
-      Keyword.get(opts, :root) ||
-        case Maru.servers() do
-          [{key, _}] ->
-            key
+    server =
+      Keyword.get(opts, :server) ||
+        case Mix.Maru.servers() do
+          [server] ->
+            server
 
           _any ->
             # TODO: more friendly information here
-            raise "YOU HAVE MORE THAN ONE SERVER, MAKE CHOICE FROM FOLLOW ROOTS"
+            raise "YOU HAVE MORE THAN ONE SERVER, MAKE CHOICE FROM FOLLOW SERVERS"
         end
 
     [
@@ -23,12 +23,11 @@ defmodule Maru.Test do
         import Plug.Conn
 
         defp make_response(conn, method, path) do
-          # TODO: if root using path for version, warning to put version in path
-          root = unquote(root)
+          # TODO: if server using path for version, warning to put version in path
           body_or_params = conn.private[:maru_test_body_or_params]
           conn = conn |> Plug.Adapters.Test.Conn.conn(method, path, body_or_params)
           refute_received {:plug_conn, :sent}
-          result = root.call(conn, [])
+          result = unquote(server).__plug__.call(conn, [])
 
           case result do
             %Plug.Conn{state: :sent} ->

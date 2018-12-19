@@ -6,6 +6,14 @@
 
 [Upgrade Instructions](https://maru.readme.io/v0.12/docs/upgrade-instructions-from-v011) From v0.11 to v0.12
 
+## v0.14.0-dev
+* Enhancements
+  * Support plug v1.7
+* Bugfix
+  * fix dialyzer errors
+* Deprecations
+  * deprecate start maru server by `Maru.Supervisor`
+
 ## v0.13.2 (2018-08-23)
 * Enhancements
   * Check `json_library` compile time
@@ -14,7 +22,7 @@
   * `mix maru.routes` error
 * Deprecations
   * deprecate `Confex` from maru codebase, in favor of using it in `init/2` of server module
-  * deprecate start server by `Maru.Supervisor`, in favor of `Maru.Server`
+  * soft deprecate start server by `Maru.Supervisor`, in favor of `Maru.Server`
 
 ## v0.13.1 (2018-04-20)
 * Bugfix

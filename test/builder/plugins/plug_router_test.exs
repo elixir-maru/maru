@@ -49,8 +49,12 @@ defmodule Maru.Builder.PlugRouterTest do
   end
 
   test "path_params" do
+    defmodule PathParamsServer do
+      use Maru.Server, plug: Maru.Builder.PlugRouterTest.PathParams
+    end
+
     defmodule PathParams do
-      use Maru.Router, make_plug: true
+      use PathParamsServer
 
       get "a/:a/b/:b" do
         json(conn, conn.path_params)
@@ -58,7 +62,7 @@ defmodule Maru.Builder.PlugRouterTest do
     end
 
     defmodule PathParamsTest do
-      use Maru.Test, root: Maru.Builder.PlugRouterTest.PathParams
+      use Maru.Test, server: Maru.Builder.PlugRouterTest.PathParamsServer
 
       def test do
         get("/a/1/b/2") |> json_response
