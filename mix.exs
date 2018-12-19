@@ -5,7 +5,7 @@ defmodule Maru.Mixfile do
     [
       app: :maru,
       name: "Maru",
-      version: "0.13.2",
+      version: "0.14.0",
       elixir: "~> 1.4",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -22,14 +22,14 @@ defmodule Maru.Mixfile do
   end
 
   def application do
-    [mod: {Maru, []}, applications: [:ranch, :cowboy, :plug]]
+    [applications: [:ranch, :cowboy, :plug]]
   end
 
   defp deps do
     [
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", optional: true},
-      {:jason, "~> 1.0", optional: true},
+      {:jason, "~> 1.0 or ~> 1.1", optional: true},
       {:inch_ex, "~> 0.5", only: :docs},
       {:earmark, "~> 1.2", only: :docs},
       {:ex_doc, "~> 0.16", only: :docs}

@@ -19,31 +19,9 @@ defmodule Mix.Tasks.Maru.Routes do
       module = List.first(args) ->
         Module.concat("Elixir", module) |> generate_module([])
 
-      (servers = Maru.servers()) != [] ->
-        for {module, _} <- servers do
-          generate_module(module, [])
-        end
-
       (servers = Mix.Maru.servers()) != [] ->
         for module <- servers do
           generate_module(module.__plug__, [])
-        end
-
-      Code.ensure_loaded?(Phoenix) ->
-        phoenix_module = apply(Mix.Phoenix, :base, []) |> Module.concat("Router")
-
-        for %{
-              __struct__: Phoenix.Router.Route,
-              kind: :forward,
-              path: path,
-              plug: module
-            } <- phoenix_module.__routes__ do
-          try do
-            prefix = path |> String.split("/", trim: true)
-            generate_module(module, prefix)
-          rescue
-            UndefinedFunctionError -> nil
-          end
         end
 
       true ->

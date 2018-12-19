@@ -2,8 +2,14 @@ defmodule Maru.TestTest do
   use ExUnit.Case, async: true
 
   describe "general test" do
-    defmodule Test1 do
-      use Maru.Router, make_plug: true
+    defmodule TestServer1 do
+      use Maru.Server,
+        adapter: Plug.Cowboy,
+        plug: Maru.TestTest.TestRouter1
+    end
+
+    defmodule TestRouter1 do
+      use TestServer1
 
       get :sent do
         text(conn, "sent")
@@ -18,7 +24,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest1 do
-      use Maru.Test, root: Maru.TestTest.Test1
+      use Maru.Test, server: Maru.TestTest.TestServer1
 
       def sent do
         get("/sent") |> text_response
@@ -39,7 +45,11 @@ defmodule Maru.TestTest do
   end
 
   test "version test" do
-    defmodule Test2 do
+    defmodule TestServer2 do
+      use Maru.Server, plug: Maru.TestTest.TestRouter2
+    end
+
+    defmodule TestRouter2 do
       use Maru.Router, versioning: [using: :param, parameter: "v"]
 
       version "v1" do
@@ -56,7 +66,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest2 do
-      use Maru.Test, root: Maru.TestTest.Test2
+      use Maru.Test, server: Maru.TestTest.TestServer2
 
       def test1 do
         get("/?v=v1") |> text_response
@@ -88,8 +98,12 @@ defmodule Maru.TestTest do
   end
 
   test "parser test" do
-    defmodule Test3 do
-      use Maru.Router, make_plug: true
+    defmodule TestServer3 do
+      use Maru.Server, plug: Maru.TestTest.TestRouter3
+    end
+
+    defmodule TestRouter3 do
+      use TestServer3
 
       plug Plug.Parsers,
         parsers: [Plug.Parsers.URLENCODED, Plug.Parsers.JSON, Plug.Parsers.MULTIPART],
@@ -106,7 +120,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestTest3 do
-      use Maru.Test, root: Maru.TestTest.Test3
+      use Maru.Test, server: Maru.TestTest.TestServer3
 
       def test do
         build_conn()
@@ -172,7 +186,11 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestMount do
-      use Maru.Router, make_plug: true
+      use Maru.Server, plug: Maru.TestTest.TestMountRouter
+    end
+
+    defmodule TestMountRouter do
+      use TestMount
 
       plug Maru.TestTest.PlugTest
 
@@ -181,12 +199,12 @@ defmodule Maru.TestTest do
     end
 
     defmodule TestMountTest1 do
-      use Maru.Test, root: Maru.TestTest.TestMount
+      use Maru.Test, server: Maru.TestTest.TestMount
       def test, do: get("/m1/shared")
     end
 
     defmodule TestMountTest2 do
-      use Maru.Test, root: Maru.TestTest.TestMount
+      use Maru.Test, server: Maru.TestTest.TestMount
       def test, do: get("/m2/shared")
     end
 
@@ -229,14 +247,18 @@ defmodule Maru.TestTest do
     end
 
     defmodule MountedOverriable do
-      use Maru.Router, make_plug: true
+      use Maru.Server, plug: Maru.TestTest.MountedOverriableRouter
+    end
+
+    defmodule MountedOverriableRouter do
+      use MountedOverriable
 
       plug_overridable :test, Maru.TestTest.PlugTest2
       mount Maru.TestTest.MountedOverriableShared
     end
 
     defmodule MountedOverriableSharedTest do
-      use Maru.Test, root: Maru.TestTest.MountedOverriable
+      use Maru.Test, server: Maru.TestTest.MountedOverriable
       def test, do: get("shared")
     end
 
@@ -305,7 +327,11 @@ defmodule Maru.TestTest do
     end
 
     defmodule MWEH do
-      use Maru.Router, make_plug: true
+      use Maru.Server, plug: Maru.TestTest.MWEHRouter
+    end
+
+    defmodule MWEHRouter do
+      use MWEH
       mount Maru.TestTest.MWEH.M1
 
       rescue_from :all, as: e do
@@ -314,7 +340,7 @@ defmodule Maru.TestTest do
     end
 
     defmodule MWEH.M2.TEST do
-      use Maru.Test, root: Maru.TestTest.MWEH
+      use Maru.Test, server: Maru.TestTest.MWEH
 
       def test1, do: get("/").status
       def test2, do: get("/match_error").status
