@@ -30,9 +30,8 @@ defmodule Maru.Mixfile do
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", optional: true},
       {:jason, "~> 1.0 or ~> 1.1", optional: true},
-      {:inch_ex, "~> 0.5", only: :docs},
-      {:earmark, "~> 1.2", only: :docs},
-      {:ex_doc, "~> 0.16", only: :docs}
+      {:inch_ex, "~> 1.0", only: :docs},
+      {:ex_doc, "~> 0.19", only: :docs}
     ]
   end
 
