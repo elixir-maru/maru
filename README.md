@@ -148,4 +148,22 @@ config :my_app,
   maru_servers: [MyApp.Server]
 ```
 
+Or let `maru` works with `confex` :
+
+```elixir
+config :my_app, MyApp.Server,
+  adapter: Plug.Cowboy,
+  plug: MyApp.API,
+  scheme: :http,
+  port: {:system, "PORT"}
+
+defmodule MyApp.Server do
+  use Maru.Server, otp_app: :my_app
+
+  def init(_type, opts) do
+    Confex.Resolver.resolve(opts)
+  end
+end
+```
+
 For more information, check out  [Guides](https://maru.readme.io) and [Examples](https://github.com/elixir-maru/maru_examples)
