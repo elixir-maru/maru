@@ -22,13 +22,31 @@ defmodule Parameter.Helper do
     accumulator = %{
       options: options,
       information: %Information{},
-      runtime:
-        quote do
-          %Runtime{}
-        end
+      runtime: %Runtime{}
     }
 
     Enum.reduce(pipeline, accumulator, &do_parse/2)
+    |> Map.update(:runtime, %Runtime{}, fn %Runtime{
+                                             attr_name: attr_name,
+                                             param_key: param_key,
+                                             children: children,
+                                             nested: nested,
+                                             blank_func: blank_func,
+                                             parser_func: parser_func,
+                                             validate_func: validate_func
+                                           } ->
+      quote do
+        %Runtime{
+          attr_name: unquote(attr_name),
+          param_key: unquote(param_key),
+          children: unquote(children),
+          nested: unquote(nested),
+          blank_func: unquote(blank_func),
+          parser_func: unquote(parser_func),
+          validate_func: unquote(validate_func)
+        }
+      end
+    end)
   end
 
   defp do_parse(:blank_func, %{options: options, information: info, runtime: runtime}) do
@@ -80,10 +98,7 @@ defmodule Parameter.Helper do
     %{
       options: Keyword.drop(options, [:keep_blank]),
       information: info,
-      runtime:
-        quote do
-          %{unquote(runtime) | blank_func: unquote(func)}
-        end
+      runtime: %{runtime | blank_func: func}
     }
   end
 
@@ -95,10 +110,7 @@ defmodule Parameter.Helper do
     %{
       options: options,
       information: %{info | children: children_information},
-      runtime:
-        quote do
-          Map.put(unquote(runtime), :children, unquote(children_runtime))
-        end
+      runtime: Map.put(runtime, :children, children_runtime)
     }
   end
 
@@ -117,10 +129,7 @@ defmodule Parameter.Helper do
     %{
       options: options,
       information: %{info | attr_name: attr_name, param_key: param_key},
-      runtime:
-        quote do
-          %{unquote(runtime) | attr_name: unquote(attr_name), param_key: unquote(param_key)}
-        end
+      runtime: %{runtime | attr_name: attr_name, param_key: param_key}
     }
   end
 
@@ -148,10 +157,7 @@ defmodule Parameter.Helper do
     %{
       options: options |> Keyword.drop([:type | dropped]),
       information: %{info | type: type},
-      runtime:
-        quote do
-          %{unquote(runtime) | parser_func: unquote(func), nested: unquote(nested)}
-        end
+      runtime: %{runtime | parser_func: func, nested: nested}
     }
   end
 
@@ -174,10 +180,13 @@ defmodule Parameter.Helper do
 
     %Parameter{
       information: info,
-      runtime:
-        quote do
-          %{unquote(runtime) | validate_func: fn unquote(value) -> (unquote_splicing(block)) end}
-        end
+      runtime: %{
+        runtime
+        | validate_func:
+            quote do
+              fn unquote(value) -> (unquote_splicing(block)) end
+            end
+      }
     }
   end
 
