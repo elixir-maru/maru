@@ -49,6 +49,23 @@ defmodule Maru.Response do
   end
 
   @doc """
+  Make gzipped json format response.
+  """
+  def json_gzipped(%Plug.Conn{} = conn, data) do
+    json_library = Maru.json_library()
+
+    gzipped = data
+    |> json_library.encode_to_iodata!
+    |> :zlib.gzip
+
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.put_resp_header("content-encoding", "gzip")
+    |> Plug.Conn.send_resp(conn.status || 200, gzipped)
+    |> Plug.Conn.halt()
+  end
+
+  @doc """
   Make html format response.
   """
   def html(%Plug.Conn{} = conn, data) do
