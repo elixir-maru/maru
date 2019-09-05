@@ -117,21 +117,38 @@ defmodule Maru.TestTest do
       post do
         json(conn, params)
       end
+
+      params do
+        requires :foo
+      end
+
+      put do
+        json_gzipped(conn, params)
+      end
     end
 
     defmodule TestTest3 do
       use Maru.Test, server: Maru.TestTest.TestServer3
 
-      def test do
+      def test_post do
         build_conn()
         |> Plug.Conn.put_req_header("content-type", "application/json")
         |> put_body_or_params(~s({"foo":"bar"}))
         |> post("/")
         |> json_response
       end
+
+      def test_put do
+        build_conn()
+        |> Plug.Conn.put_req_header("content-type", "application/json")
+        |> put_body_or_params(~s({"foo":"bar"}))
+        |> put("/")
+        |> json_response
+      end
     end
 
-    assert %{"foo" => "bar"} = TestTest3.test()
+    assert %{"foo" => "bar"} = TestTest3.test_post()
+    assert %{"foo" => "bar"} = TestTest3.test_put()
   end
 
   test "mounted" do
