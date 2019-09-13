@@ -95,6 +95,13 @@ defmodule Maru.Test do
   Get response from conn as json.
   """
   def json_response(conn) do
-    Jason.decode!(conn.resp_body)
+    case Plug.Conn.get_resp_header(conn, "content-encoding") do
+      ["gzip"] ->
+        conn.resp_body
+        |> :zlib.gunzip
+        |> Jason.decode!
+      [] ->
+        Jason.decode!(conn.resp_body)
+    end
   end
 end
